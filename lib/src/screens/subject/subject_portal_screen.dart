@@ -492,13 +492,12 @@ class _SubjectPortalScreenState extends State<SubjectPortalScreen> {
       child: InkWell(
         onTap: _isPurchased
             ? () {
-                final contentTypes = _contentStructure[unit] ?? [];
                 context.push(
-                  '/chapter/${Uri.encodeComponent(unit)}',
+                  '/chapter-content',
                   extra: {
-                    'unit': unit,
-                    'subjectId': widget.subjectId,
-                    'contentTypes': contentTypes,
+                    'chapterId': unit,
+                    'subjectName': widget.subjectId,
+                    'chapterName': unit,
                   },
                 );
               }

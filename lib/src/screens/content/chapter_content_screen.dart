@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:acadia/src/core/services/firebase_service.dart';
 import 'package:acadia/src/core/services/download_manager.dart';
 import 'package:acadia/src/core/services/offline_database.dart';
+import 'package:acadia/src/core/content/github_content_service.dart';
 import 'package:acadia/src/core/constants/colors.dart';
 
 class ChapterContentScreen extends StatefulWidget {
@@ -80,11 +82,24 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
     try {
       final firebase = FirebaseService();
 
-      // Fetch all content for this chapter
-      final content = await firebase.getDocuments('content', where: {
+      // Fetch content from GitHub (content repo) for this unit, merged with any
+      // Firestore content. GitHub is the primary source; Firestore is fallback.
+      final githubItems = await _fetchGithubItems();
+
+      final firestoreContent = await firebase.getDocuments('content', where: {
         'chapter': widget.chapterId,
         'status': 'approved',
       });
+
+      final content = <Map<String, dynamic>>[...githubItems];
+      final seenIds = githubItems
+          .map((e) => e['id']?.toString())
+          .whereType<String>()
+          .toSet();
+      for (final item in firestoreContent) {
+        final id = item['id']?.toString();
+        if (id == null || !seenIds.contains(id)) content.add(item);
+      }
 
       // Group by content type
       final grouped = <String, List<Map<String, dynamic>>>{};
@@ -111,6 +126,32 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
     } catch (e) {
       if (mounted) setState(() => _isLoading = false);
       debugPrint('Error loading chapter content: $e');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> _fetchGithubItems() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final grade =
+          prefs.getString('grade') ?? prefs.getString('selected_grade') ?? '9';
+      final stream =
+          prefs.getString('stream') ?? prefs.getString('selected_stream');
+      final academicPath = prefs.getString('academic_path');
+      final semester = prefs.getString('semester') ?? '1';
+      final track = prefs.getString('selected_track');
+
+      return await GithubContentService.instance.fetchChapterItems(
+        academicPath: academicPath,
+        grade: grade,
+        stream: stream,
+        subject: widget.subjectName,
+        unit: widget.chapterName,
+        semester: semester,
+        track: track,
+      );
+    } catch (e) {
+      debugPrint('Error fetching GitHub content: $e');
+      return const [];
     }
   }
 

@@ -13,13 +13,12 @@ import '../config/app_config.dart';
 /// rebuild. Raw files are read from `raw.githubusercontent.com`; large binary
 /// assets should live in GitHub Releases and be referenced by URL in metadata.
 ///
-/// Expected repo layout (flexible — callers pass relative paths):
+/// Expected repo layout (see the content repo README for the full schema):
 /// ```
-/// manifest.json                       # { "version": "2024.06.01" }
-/// high-school/grade_12/biology/metadata.json
-/// high-school/grade_12/biology/units.json
-/// high-school/grade_12/biology/mcq.json
-/// high-school/grade_12/biology/flashcards.json
+/// manifest.json                            # { "version": "2025.07.16" }
+/// structure.txt                            # canonical academic path
+/// high-school/grade_10/biology.json        # per-subject index: units -> items
+/// high-school/grade_10/biology/unit1-quiz.json   # quiz/exam/flashcard detail
 /// ```
 class GithubContentService {
   GithubContentService._internal();
@@ -86,6 +85,84 @@ class GithubContentService {
       return null;
     }
   }
+
+  /// Builds the repo-relative path to a subject's index file, e.g.
+  /// `high-school/grade_10/biology.json` or
+  /// `university/freshman/sem1/natural/mathematics.json`.
+  String subjectIndexPath({
+    required String? academicPath,
+    required String grade,
+    required String? stream,
+    required String subject,
+    String semester = '1',
+    String? track,
+  }) {
+    final slug = _slug(subject);
+    final streamSlug = (stream ?? 'natural').toLowerCase().contains('social')
+        ? 'social'
+        : 'natural';
+
+    if (academicPath == 'university' || academicPath == 'UNIVERSITY') {
+      if (semester == '2') {
+        final trackSlug = (track ?? '').toLowerCase().contains('pre')
+            ? 'pre_engineering'
+            : 'other_natural';
+        return 'university/freshman/sem2/$trackSlug/$slug.json';
+      }
+      return 'university/freshman/sem1/$streamSlug/$slug.json';
+    }
+
+    if (grade == '11' || grade == '12') {
+      return 'high-school/grade_$grade/$streamSlug/$slug.json';
+    }
+    return 'high-school/grade_$grade/$slug.json';
+  }
+
+  /// Fetches the content items for a single unit/chapter of a subject.
+  ///
+  /// Returns items shaped like the Firestore `content` documents
+  /// (`content_type`, `title`, `download_url`, `id`, ...), so callers can treat
+  /// GitHub and Firestore content uniformly. Returns an empty list when the
+  /// subject file or unit is not found.
+  Future<List<Map<String, dynamic>>> fetchChapterItems({
+    required String? academicPath,
+    required String grade,
+    required String? stream,
+    required String subject,
+    required String unit,
+    String semester = '1',
+    String? track,
+  }) async {
+    final path = subjectIndexPath(
+      academicPath: academicPath,
+      grade: grade,
+      stream: stream,
+      subject: subject,
+      semester: semester,
+      track: track,
+    );
+
+    final data = await fetchJson(path);
+    final units = data?['units'];
+    if (units is! List) return const [];
+
+    final target = unit.trim().toLowerCase();
+    for (final u in units) {
+      if (u is! Map) continue;
+      final name = u['unit']?.toString().trim().toLowerCase();
+      if (name != target) continue;
+      final items = u['items'];
+      if (items is! List) return const [];
+      return items
+          .whereType<Map>()
+          .map((m) => Map<String, dynamic>.from(m))
+          .toList(growable: false);
+    }
+    return const [];
+  }
+
+  String _slug(String subject) =>
+      subject.trim().toLowerCase().replaceAll(RegExp(r'\s+'), '_');
 
   /// Fetches a raw text file from the content repo, with optional caching.
   Future<String?> fetchRaw(
