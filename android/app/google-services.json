@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "208146666469",
+    "project_id": "acedia-nextgen",
+    "storage_bucket": "acedia-nextgen.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:208146666469:android:b2d35744ea9e4a1e21d50c",
+        "android_client_info": {
+          "package_name": "com.nextgenethiopia.acadia"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBiv7gDUyahl93vSqxeoaC3mUxmvvdLuH4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,34 @@
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid"
+      }
+    },
+    "content": {
+      ".read": true,
+      ".write": "auth != null && root.child('users').child(auth.uid).child('isAdmin').val() === true"
+    },
+    "payments": {
+      "$paymentId": {
+        ".read": "auth != null && (data.child('userId').val() === auth.uid || root.child('users').child(auth.uid).child('isAdmin').val() === true)",
+        ".write": "auth != null"
+      }
+    },
+    "progress": {
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid"
+      }
+    },
+    "notifications": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('isAdmin').val() === true"
+    },
+    "app_settings": {
+      ".read": true,
+      ".write": "auth != null && root.child('users').child(auth.uid).child('isAdmin').val() === true"
+    }
+  }
+}
