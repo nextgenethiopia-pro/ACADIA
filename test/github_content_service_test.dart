@@ -68,4 +68,20 @@ void main() {
       );
     });
   });
+
+  group('entranceIndexPath', () {
+    test('builds grade/subject path', () {
+      expect(
+        service.entranceIndexPath(grade: '12', subject: 'Biology'),
+        'entrance/grade_12/biology.json',
+      );
+    });
+
+    test('slugifies multi-word subjects', () {
+      expect(
+        service.entranceIndexPath(grade: '11', subject: 'Applied Mathematics'),
+        'entrance/grade_11/applied_mathematics.json',
+      );
+    });
+  });
 }

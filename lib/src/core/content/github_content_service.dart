@@ -161,6 +161,48 @@ class GithubContentService {
     return const [];
   }
 
+  /// Builds the repo-relative path to an entrance-exam subject index, e.g.
+  /// `entrance/grade_12/biology.json`. Entrance content is organised by grade
+  /// and subject (independent of the high-school/university academic tree),
+  /// with chapters as the grouping unit.
+  String entranceIndexPath({
+    required String grade,
+    required String subject,
+  }) =>
+      'entrance/grade_$grade/${_slug(subject)}.json';
+
+  /// Fetches entrance-exam content items for a subject and grade from GitHub.
+  ///
+  /// The index file uses the same shape as a subject index — a `units` (or
+  /// `chapters`) list, each with a name and an `items` list. Returned items are
+  /// flattened and tagged with `chapter`, `subject`, and `grade` so callers can
+  /// group them and treat them like Firestore `entrance_materials` documents.
+  Future<List<Map<String, dynamic>>> fetchEntranceItems({
+    required String grade,
+    required String subject,
+  }) async {
+    final data = await fetchJson(entranceIndexPath(grade: grade, subject: subject));
+    final groups = data?['units'] ?? data?['chapters'];
+    if (groups is! List) return const [];
+
+    final out = <Map<String, dynamic>>[];
+    for (final group in groups) {
+      if (group is! Map) continue;
+      final chapter =
+          (group['unit'] ?? group['chapter'] ?? '').toString();
+      final items = group['items'];
+      if (items is! List) continue;
+      for (final m in items.whereType<Map>()) {
+        final item = Map<String, dynamic>.from(m);
+        item['chapter'] ??= chapter;
+        item['subject'] ??= subject;
+        item['grade'] ??= grade;
+        out.add(item);
+      }
+    }
+    return out;
+  }
+
   String _slug(String subject) =>
       subject.trim().toLowerCase().replaceAll(RegExp(r'\s+'), '_');
 
