@@ -630,7 +630,7 @@ class _EntranceExamScreenState extends State<EntranceExamScreen> {
                           const SizedBox(width: 12),
                           Icon(Icons.update, size: 12, color: Colors.grey[500]),
                           const SizedBox(width: 4),
-                          Text('Updated: $_formatDate(lastUpdated)', style: TextStyle(color: Colors.grey[500], fontSize: 11)),
+                          Text('Updated: ${_formatDate(lastUpdated)}', style: TextStyle(color: Colors.grey[500], fontSize: 11)),
                         ],
                       ],
                     ),
@@ -646,7 +646,7 @@ class _EntranceExamScreenState extends State<EntranceExamScreen> {
                     color: Colors.grey[200],
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Text('Coming Soon', style: TextStyle(fontSize: 10, color: Colors.grey)),
+                  child: const Text('No content yet', style: TextStyle(fontSize: 10, color: Colors.grey)),
                 )
               else if (downloadProgress != null)
                 SizedBox(

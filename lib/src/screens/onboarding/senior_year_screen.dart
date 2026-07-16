@@ -116,7 +116,7 @@ class _SeniorYearScreenState extends State<SeniorYearScreen> {
                         Icon(Icons.upcoming, color: Colors.blue[600], size: 20),
                         const SizedBox(width: 8),
                         Text(
-                          'Coming Soon',
+                          'Planned content',
                           style: TextStyle(
                             color: Colors.blue[600],
                             fontWeight: FontWeight.bold,

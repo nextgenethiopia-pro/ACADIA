@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:acadia/src/core/constants/colors.dart';
 import 'package:acadia/src/widgets/common/gradient_button.dart';
 
@@ -381,12 +382,12 @@ class ExamResultScreen extends StatelessWidget {
               if (passed)
                 TextButton.icon(
                   onPressed: () {
-                    // Share results functionality
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Share results feature coming soon!'),
-                        duration: Duration(seconds: 2),
-                      ),
+                    final subjectLine =
+                        subject.isNotEmpty ? '$subject${chapter.isNotEmpty ? ' • $chapter' : ''}\n' : '';
+                    Share.share(
+                      'I scored $percentage% ($correct/$total correct) on "$examTitle" '
+                      'in ACADIA!\n$subjectLine\nStudy smarter with ACADIA.',
+                      subject: 'My ACADIA exam result',
                     );
                   },
                   icon: const Icon(Icons.share, size: 18),

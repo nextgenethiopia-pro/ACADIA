@@ -69,6 +69,54 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Educational content and catalog metadata: public read (so students can
+    // browse/download), admin write (upload/approve/reject). Note: primary
+    // content is served from the GitHub content repo; these collections are the
+    // Firestore fallback and admin-managed catalog.
+    match /content/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /subjects/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /chapters/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /units/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /entrance_materials/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /exam_tips/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /study_tips/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /study_schedule/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /weekly_focus/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Support tickets: any signed-in user may open one; admins read and manage.
+    match /support_tickets/{doc} {
+      allow read: if isAdmin();
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin();
+    }
+
     // Everything else is denied by default.
   }
 }
