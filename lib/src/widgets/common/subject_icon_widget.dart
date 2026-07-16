@@ -65,7 +65,7 @@ class SubjectIconWidget extends StatelessWidget {
         color: iconColor.withOpacity(0.1),
       ),
       child: Icon(
-        AppIcons.getSubjectIcon(subject),
+        AppIcons.getSubjectFallbackIcon(subject),
         color: iconColor,
         size: size * 0.7,
       ),

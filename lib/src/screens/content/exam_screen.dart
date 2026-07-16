@@ -142,6 +142,14 @@ class _ExamScreenState extends State<ExamScreen> {
     setState(() => _showQuestionGrid = !_showQuestionGrid);
   }
 
+  /// Normalises a question's `options` (a JSON array of strings, or a legacy
+  /// A/B/C/D map) into an ordered list of option texts.
+  List<String> _optionTexts(dynamic raw) {
+    if (raw is List) return raw.map((e) => e.toString()).toList();
+    if (raw is Map) return raw.values.map((e) => e.toString()).toList();
+    return const [];
+  }
+
   void _selectAnswer(String answer) {
     if (_isPaused) return;
     if (_answers[_currentQuestion] != null && _immediateFeedback) return; // Already answered in immediate mode
@@ -677,7 +685,7 @@ class _ExamScreenState extends State<ExamScreen> {
   }
 
   Widget _buildQuestionCard(Map<String, dynamic> question) {
-    final options = question['options'] as Map<String, dynamic>? ?? {};
+    final options = _optionTexts(question['options']);
     final optionLabels = ['A', 'B', 'C', 'D'];
     final hasAnswered = _answers[_currentQuestion] != null;
     final isCorrectAnswer = _immediateFeedback && hasAnswered && _answerResults[_currentQuestion] == true;
@@ -748,11 +756,12 @@ class _ExamScreenState extends State<ExamScreen> {
             style: TextStyle(color: Colors.grey[600], fontSize: 14)),
         const SizedBox(height: 12),
         
-        ...options.entries.toList().asMap().entries.map((entry) {
+        ...options.asMap().entries.map((entry) {
           final optionIndex = entry.key;
-          final optionEntry = entry.value;
-          final label = optionLabels[optionIndex];
-          final optionText = optionEntry.value?.toString() ?? '';
+          final label = optionIndex < optionLabels.length
+              ? optionLabels[optionIndex]
+              : '${optionIndex + 1}';
+          final optionText = entry.value;
           final isSelected = _selectedAnswer == optionText;
 
           // Immediate feedback colors

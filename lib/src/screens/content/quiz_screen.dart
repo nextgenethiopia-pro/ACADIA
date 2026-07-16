@@ -92,6 +92,14 @@ class _QuizScreenState extends State<QuizScreen> {
     }
   }
 
+  /// Normalises a question's `options` (a JSON array of strings, or a legacy
+  /// A/B/C/D map) into an ordered list of option texts.
+  List<String> _optionTexts(dynamic raw) {
+    if (raw is List) return raw.map((e) => e.toString()).toList();
+    if (raw is Map) return raw.values.map((e) => e.toString()).toList();
+    return const [];
+  }
+
   void _selectAnswer(String answer) {
     if (_answers[_currentQuestion] != null) return; // Already answered
 
@@ -266,7 +274,7 @@ class _QuizScreenState extends State<QuizScreen> {
     final progress = _currentQuestion / _totalQuestions;
     final currentQuestion = _questions[_currentQuestion - 1];
     final questionText = currentQuestion['question']?.toString() ?? '';
-    final options = currentQuestion['options'] as Map<String, dynamic>? ?? {};
+    final options = _optionTexts(currentQuestion['options']);
     final optionLabels = ['A', 'B', 'C', 'D'];
     final hasAnswered = _answers[_currentQuestion] != null;
     final isCorrect = _immediateFeedback && _answerResults[_currentQuestion] == true;
@@ -447,11 +455,12 @@ class _QuizScreenState extends State<QuizScreen> {
                         const SizedBox(height: 12),
 
                         // Options
-                        ...options.entries.toList().asMap().entries.map((entry) {
+                        ...options.asMap().entries.map((entry) {
                           final optionIndex = entry.key;
-                          final optionEntry = entry.value;
-                          final label = optionLabels[optionIndex];
-                          final optionText = optionEntry.value?.toString() ?? '';
+                          final label = optionIndex < optionLabels.length
+                              ? optionLabels[optionIndex]
+                              : '${optionIndex + 1}';
+                          final optionText = entry.value;
                           final isSelected = _selectedAnswer == optionText;
 
                           // Immediate feedback colors

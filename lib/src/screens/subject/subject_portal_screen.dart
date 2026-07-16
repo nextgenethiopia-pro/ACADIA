@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:acadia/src/core/constants/academic_structure.dart';
 import 'package:acadia/src/core/constants/content_structure.dart';
+import 'package:acadia/src/core/content/structure_service.dart';
 import 'package:acadia/src/widgets/common/subject_icon_widget.dart';
 import 'package:acadia/src/core/services/package_service.dart';
 
@@ -56,7 +57,7 @@ class _SubjectPortalScreenState extends State<SubjectPortalScreen> {
       }
 
       // Load content structure based on user's academic path
-      _loadContentStructure();
+      await _loadContentStructure(prefs);
 
       // Fetch content types dynamically from Firebase for this subject
       final contentData = await firebaseService.getDocuments('content', where: {
@@ -92,12 +93,35 @@ class _SubjectPortalScreenState extends State<SubjectPortalScreen> {
     }
   }
 
-  void _loadContentStructure() {
+  Future<void> _loadContentStructure(SharedPreferences prefs) async {
     final stream = _userStream?.toLowerCase() ?? 'natural';
     final grade = _userGrade ?? '9';
 
-    // Get hardcoded content structure for the subject
-    _contentStructure = ContentStructure.getSubjectContent(grade, stream, widget.subjectId);
+    // Prefer units from the dynamic structure (structure.txt from the content
+    // repo); fall back to the bundled structure when unavailable.
+    await StructureService.instance.init();
+    final structure = StructureService.instance;
+
+    List<String> units;
+    if (_userPath == 'university' || _userPath == 'UNIVERSITY') {
+      final semester = prefs.getString('semester') ?? '1';
+      final track = prefs.getString('selected_track');
+      units = structure.universityUnits(
+          semester, stream, widget.subjectId, track);
+    } else {
+      units = structure.highSchoolUnits(grade, stream, widget.subjectId);
+    }
+
+    if (units.isNotEmpty) {
+      _contentStructure = {
+        for (final unit in units)
+          unit: List<String>.from(StructureService.defaultContentTypes),
+      };
+    } else {
+      // Fallback to the bundled content structure for this subject.
+      _contentStructure =
+          ContentStructure.getSubjectContent(grade, stream, widget.subjectId);
+    }
   }
 
   Future<void> _loadUserProgress(String userId) async {
@@ -468,13 +492,12 @@ class _SubjectPortalScreenState extends State<SubjectPortalScreen> {
       child: InkWell(
         onTap: _isPurchased
             ? () {
-                final contentTypes = _contentStructure[unit] ?? [];
                 context.push(
-                  '/chapter/${Uri.encodeComponent(unit)}',
+                  '/chapter-content',
                   extra: {
-                    'unit': unit,
-                    'subjectId': widget.subjectId,
-                    'contentTypes': contentTypes,
+                    'chapterId': unit,
+                    'subjectName': widget.subjectId,
+                    'chapterName': unit,
                   },
                 );
               }

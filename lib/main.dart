@@ -6,6 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 
 import 'src/app.dart';
 import 'src/core/blocs/app_bloc_observer.dart';
+import 'src/core/content/structure_service.dart';
 import 'src/core/di/injection.dart';
 import 'firebase_options.dart';
 
@@ -56,6 +57,10 @@ void main() async {
       // Set bloc observer
       Bloc.observer = AppBlocObserver();
       print('✅ Bloc observer set');
+
+      // Warm the academic structure (structure.txt) in the background so the
+      // first navigation is instant. Failures fall back to the bundled asset.
+      unawaited(StructureService.instance.init());
 
       print('🎉 Running app...');
       runApp(const AcadiaApp());

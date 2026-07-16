@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:acadia/src/core/services/firebase_service.dart';
 import 'package:acadia/src/core/constants/colors.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:dio/dio.dart';
-import 'dart:convert';
+import 'package:acadia/src/core/services/image_upload_service.dart';
 
 class ImageManagementScreen extends StatefulWidget {
   const ImageManagementScreen({super.key});
@@ -16,9 +16,6 @@ class ImageManagementScreen extends StatefulWidget {
 class _ImageManagementScreenState extends State<ImageManagementScreen> {
   final FirebaseService _firebaseService = FirebaseService();
   final ImagePicker _picker = ImagePicker();
-  
-  // FreeImage.host API Key
-  static const String _freeImageApiKey = '6d207e02198a847aa98d0a2a901485a5';
   
   // Image configurations
   List<ImageConfig> _images = [];
@@ -127,43 +124,15 @@ class _ImageManagementScreenState extends State<ImageManagementScreen> {
   }
   
   Future<String?> _uploadToFreeImage(File imageFile) async {
-    try {
-      final bytes = await imageFile.readAsBytes();
-      const uploadUrl = 'https://freeimage.host/api/1/upload';
-      
-      final dio = Dio();
-      final formData = FormData.fromMap({
-        'key': _freeImageApiKey,
-        'action': 'upload',
-        'source': MultipartFile.fromBytes(
-          bytes,
-          filename: '${DateTime.now().millisecondsSinceEpoch}.jpg',
-        ),
-        'format': 'json',
-      });
-      
-      final response = await dio.post(
-        uploadUrl,
-        data: formData,
-        onSendProgress: (sent, total) {
-          if (mounted && _uploadingImageId != null) {
-            setState(() {
-              _uploadProgress = sent / total;
-            });
-          }
-        },
-      );
-      
-      if (response.statusCode == 200 && response.data['status_code'] == 200) {
-        return response.data['image']['url'];
-      } else {
-        debugPrint('FreeImage.host upload failed: ${response.data}');
-        return null;
-      }
-    } catch (e) {
-      debugPrint('FreeImage.host upload error: $e');
-      return null;
-    }
+    return ImageUploadService.uploadImage(
+      imageFile,
+      name: '${DateTime.now().millisecondsSinceEpoch}',
+      onSendProgress: (sent, total) {
+        if (mounted && _uploadingImageId != null && total > 0) {
+          setState(() => _uploadProgress = sent / total);
+        }
+      },
+    );
   }
   
   Future<void> _uploadImage(ImageConfig image) async {

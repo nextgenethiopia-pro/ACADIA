@@ -1,0 +1,4049 @@
+Folder PATH listing
+Volume serial number is 1E8D-DE7A
+C:.
++---high-school
+|   +---Grade_10
+|   |   +---biology
+|   |   |   +---Unit 1_ SUB-FIELDS OF BIOLOGY
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 2_ PLANTS
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 3_ BIOCHEMICAL MOLECULES
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 4_ CELL REPRODUCTION
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 5_ HUMAN BIOLOGY
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   \---Unit 6_ ECOLOGICAL INTERACTION
+|   |   |       +---exam
+|   |   |       +---flashcard
+|   |   |       +---past_paper
+|   |   |       +---quiz
+|   |   |       +---short_note
+|   |   |       \---video
+|   |   +---chemistry
+|   |   |   +---Unit 1_ CHEMICAL REACTIONS AND STOICHIOMETRY
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 2_ SOLUTIONS
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 3_ IMPORTANT INORGANIC COMPOUNDS
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 4_ ENERGY CHANGES AND ELECTROCHEMISTRY
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 5_ METALS AND NONMETALS
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   \---Unit 6_ HYDROCARBONS AND THEIR NATURAL SOURCES
+|   |   |       +---exam
+|   |   |       +---flashcard
+|   |   |       +---past_paper
+|   |   |       +---quiz
+|   |   |       +---short_note
+|   |   |       \---video
+|   |   +---citizenship
+|   |   |   +---Unit 1_ DEMOCRACY AND DEMOCRATIZATION
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 2_ CITIZENS IN THE DIGITAL TECHNOLOGY AGE
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 3_ UNDERSTANDING GOOD GOVERNANCE
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 4_ PEACE AND INDIGENOUS CONFLICT RESOLUTION MECHANISMS
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 5_ FEDERALISM IN ETHIOPIA
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 6_ HUMAN RIGHTS
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 7_ PATRIOTISM
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   \---Unit 8_ GLOBALIZATION AND GLOBAL ISSUES
+|   |   |       +---exam
+|   |   |       +---flashcard
+|   |   |       +---past_paper
+|   |   |       +---quiz
+|   |   |       +---short_note
+|   |   |       \---video
+|   |   +---economics
+|   |   |   +---Unit 1_ THEORY OF CONSUMER BEHAVIOUR
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 2_ THEORIES OF DEMAND AND SUPPLY
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 3_ THEORIES OF PRODUCTION AND COST
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 4_ MARKET STRUCTURE
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 5_ BANKING AND FINANCE
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 6_ ECONOMIC GROWTH
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 7_ THE ETHIOPIAN ECONOMY
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   \---Unit 8_ BUSINESS STARTUPS AND INNOVATION
+|   |   |       +---exam
+|   |   |       +---flashcard
+|   |   |       +---past_paper
+|   |   |       +---quiz
+|   |   |       +---short_note
+|   |   |       \---video
+|   |   +---english
+|   |   |   +---Unit 10_ DIGITAL VS SATELLITE TELEVISION
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 1_ POPULATION GROWTH
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 2_ TRAVEL BEHAVIORS
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 3_ PUNCTUALITY
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 4_ TOURIST ATTRACTIONS
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 5_ HONEY PROCESSING
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 6_ MIGRATION
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 7_ BRANDING ETHIOPIA AND NATIONAL IDENTITY
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 8_ THE HEALING POWER OF PLANTS
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   \---Unit 9_ MULTILINGUALISM
+|   |   |       +---exam
+|   |   |       +---flashcard
+|   |   |       +---past_paper
+|   |   |       +---quiz
+|   |   |       +---short_note
+|   |   |       \---video
+|   |   +---geography
+|   |   |   +---Unit 1_ LANDFORMS OF AFRICA
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 2_ CLIMATE OF AFRICA
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 3_ NATURAL RESOURCE BASE OF AFRICA
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 4_ POPULATION OF AFRICA
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 5_ MAJOR ECONOMIC AND CULTURAL ACTIVITIES OF AFRICA
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 6_ HUMAN NATURAL ENVIRONMENT INTERACTIONS
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 7_ GEOGRAPHIC ISSUES AND PUBLIC CONCERNS IN AFRICA
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   \---Unit 8_ GEOSPATIAL INFORMATION AND DATA PROCESSING
+|   |   |       +---exam
+|   |   |       +---flashcard
+|   |   |       +---past_paper
+|   |   |       +---quiz
+|   |   |       +---short_note
+|   |   |       \---video
+|   |   +---history
+|   |   |   +---Unit 1_ DEVELOPMENT OF CAPITALISM AND NATIONALISM 1815-1914
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 2_ AFRICA AND THE COLONIAL EXPERIENCE (1880s-1960s)
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 3_ SOCIAL, ECONOMIC AND POLITICAL DEVELOPMENTS IN ETHIOPIA MID 19th C TO 1941
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 4_ SOCIETY AND POLITICS IN THE AGE OF WORLD WARS 1914-1945
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 5_ GLOBAL AND REGIONAL DEVELOPMENTS SINCE 1945
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 6_ ETHIOPIA INTERNAL DEVELOPMENTS AND EXTERNAL INFLUENCES FROM 1941 TO 1991
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 7_ AFRICA SINCE 1960
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 8_ POST-1991 DEVELOPMENTS IN ETHIOPIA
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   \---Unit 9_ INDIGENOUS KNOWLEDGE AND HERITAGES OF ETHIOPIA
+|   |   |       +---exam
+|   |   |       +---flashcard
+|   |   |       +---past_paper
+|   |   |       +---quiz
+|   |   |       +---short_note
+|   |   |       \---video
+|   |   +---it
+|   |   |   +---Unit 1_ ORGANIZATION OF FILES
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 2_ COMPUTER NETWORK
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 3_ APPLICATION SOFTWARE
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 4_ IMAGE PROCESSING AND MULTIMEDIA
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 5_ INFORMATION AND COMPUTER SECURITY
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   \---Unit 6_ FUNDAMENTALS OF PROGRAMMING
+|   |   |       +---exam
+|   |   |       +---flashcard
+|   |   |       +---past_paper
+|   |   |       +---quiz
+|   |   |       +---short_note
+|   |   |       \---video
+|   |   +---mathematics
+|   |   |   +---Unit 1_ RELATIONS AND FUNCTIONS
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 2_ POLYNOMIAL FUNCTIONS
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 3_ EXPONENTIAL AND LOGARITHMIC FUNCTIONS
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 4_ TRIGONOMETRIC FUNCTIONS
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 5_ CIRCLES
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   +---Unit 6_ SOLID FIGURES
+|   |   |   |   +---exam
+|   |   |   |   +---flashcard
+|   |   |   |   +---past_paper
+|   |   |   |   +---quiz
+|   |   |   |   +---short_note
+|   |   |   |   \---video
+|   |   |   \---Unit 7_ COORDINATE GEOMETRY
+|   |   |       +---exam
+|   |   |       +---flashcard
+|   |   |       +---past_paper
+|   |   |       +---quiz
+|   |   |       +---short_note
+|   |   |       \---video
+|   |   \---physics
+|   |       +---Unit 1_ VECTOR QUANTITIES
+|   |       |   +---exam
+|   |       |   +---flashcard
+|   |       |   +---past_paper
+|   |       |   +---quiz
+|   |       |   +---short_note
+|   |       |   \---video
+|   |       +---Unit 2_ UNIFORMLY ACCELERATED MOTION
+|   |       |   +---exam
+|   |       |   +---flashcard
+|   |       |   +---past_paper
+|   |       |   +---quiz
+|   |       |   +---short_note
+|   |       |   \---video
+|   |       +---Unit 3_ ELASTICITY AND STATIC EQUILIBRIUM OF RIGID BODY
+|   |       |   +---exam
+|   |       |   +---flashcard
+|   |       |   +---past_paper
+|   |       |   +---quiz
+|   |       |   +---short_note
+|   |       |   \---video
+|   |       +---Unit 4_ STATIC AND CURRENT ELECTRICITY
+|   |       |   +---exam
+|   |       |   +---flashcard
+|   |       |   +---past_paper
+|   |       |   +---quiz
+|   |       |   +---short_note
+|   |       |   \---video
+|   |       +---Unit 5_ MAGNETISM
+|   |       |   +---exam
+|   |       |   +---flashcard
+|   |       |   +---past_paper
+|   |       |   +---quiz
+|   |       |   +---short_note
+|   |       |   \---video
+|   |       \---Unit 6_ ELECTROMAGNETIC WAVES AND GEOMETRICAL OPTICS
+|   |           +---exam
+|   |           +---flashcard
+|   |           +---past_paper
+|   |           +---quiz
+|   |           +---short_note
+|   |           \---video
+|   +---Grade_11
+|   |   +---Grade_11_Natural_Science
+|   |   |   +---agriculture
+|   |   |   |   +---Unit 10_ INTRODUCTION TO NATURAL RESOURCES
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 11_ MANAGEMENT OF NATURAL RESOURCES
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 12_ CONCEPTS OF BIODIVERSITY
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 13_ CLIMATE CHANGE ADAPTATION AND MITIGATION
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 14_ INTRODUCTION TO HUMAN NUTRITION
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 15_ DIVERSIFIED FOOD PRODUCTION AND CONSUMPTION
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 1_ INTRODUCTION TO CROP PRODUCTION
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 2_ FIELD CROPS PRODUCTION AND MANAGEMENT
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 3_ INDUSTRIAL CROPS PRODUCTION AND MANAGEMENT
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 4_ INTRODUCTION TO FARM ANIMALS
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 5_ ANIMAL FEEDS AND FEEDING PRACTICES
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 6_ ANIMAL GENETICS AND BREEDING PRACTICES
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 7_ FARM ANIMALS HOUSING
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 8_ BASIC ANIMAL HEALTH AND DISEASE CONTROL
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   \---Unit 9_ DAIRY CATTLE PRODUCTION AND MANAGEMENT
+|   |   |   |       +---exam
+|   |   |   |       +---flashcard
+|   |   |   |       +---past_paper
+|   |   |   |       +---quiz
+|   |   |   |       +---short_note
+|   |   |   |       \---video
+|   |   |   +---aptitude
+|   |   |   |   +---Part 1_ Mathematical Part
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   \---Part 2_ English Part
+|   |   |   |       +---exam
+|   |   |   |       +---flashcard
+|   |   |   |       +---past_paper
+|   |   |   |       +---quiz
+|   |   |   |       +---short_note
+|   |   |   |       \---video
+|   |   |   +---biology
+|   |   |   |   +---Unit 1_ BIOLOGY AND TECHNOLOGY
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 2_ ANIMALS
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 3_ ENZYMES
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 4_ GENETICS
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 5_ THE HUMAN BODY SYSTEMS
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   \---Unit 6_ POPULATION AND NATURAL RESOURCES
+|   |   |   |       +---exam
+|   |   |   |       +---flashcard
+|   |   |   |       +---past_paper
+|   |   |   |       +---quiz
+|   |   |   |       +---short_note
+|   |   |   |       \---video
+|   |   |   +---chemistry
+|   |   |   |   +---Unit 1_ ATOMIC STRUCTURE AND PERIODIC PROPERTIES OF THE ELEMENTS
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 2_ CHEMICAL BONDING
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 3_ PHYSICAL STATES OF MATTER
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 4_ CHEMICAL KINETICS
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 5_ CHEMICAL EQUILIBRIUM
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   \---Unit 6_ SOME IMPORTANT OXYGEN-CONTAINING ORGANIC COMPOUNDS
+|   |   |   |       +---exam
+|   |   |   |       +---flashcard
+|   |   |   |       +---past_paper
+|   |   |   |       +---quiz
+|   |   |   |       +---short_note
+|   |   |   |       \---video
+|   |   |   +---english
+|   |   |   |   +---Unit 10_ ARTIFICIAL INTELLIGENCE
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 1_ ENVIRONMENTAL HAZARDS
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 2_ CIVILIZATION
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 3_ CAUSES OF ROAD TRAFFIC ACCIDENTS
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 4_ PEOPLE AND NATURAL RESOURCES
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 5_ IRRIGATION
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 6_ GLOBAL WARMING
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 7_ PATRIOTISM
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 8_ EFFICIENCY OF HEALTH SERVICES
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   \---Unit 9_ INDIGENOUS CONFLICT RESOLUTION
+|   |   |   |       +---exam
+|   |   |   |       +---flashcard
+|   |   |   |       +---past_paper
+|   |   |   |       +---quiz
+|   |   |   |       +---short_note
+|   |   |   |       \---video
+|   |   |   +---it
+|   |   |   |   +---Unit 1_ INFORMATION SYSTEMS AND ITS APPLICATIONS
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 2_ EMERGING TECHNOLOGIES
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 3_ DATABASE MANAGEMENT
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 4_ WEB DEVELOPMENT
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 5_ HARDWARE TROUBLESHOOTING AND PREVENTIVE MAINTENANCE
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   \---Unit 6_ FUNDAMENTALS OF PROGRAMMING
+|   |   |   |       +---exam
+|   |   |   |       +---flashcard
+|   |   |   |       +---past_paper
+|   |   |   |       +---quiz
+|   |   |   |       +---short_note
+|   |   |   |       \---video
+|   |   |   +---mathematics
+|   |   |   |   +---Unit 1_ RELATIONS AND FUNCTIONS
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 2_ RATIONAL EXPRESSIONS AND RATIONAL FUNCTIONS
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 3_ MATRICES
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 4_ DETERMINANTS AND THEIR PROPERTIES
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   \---Unit 5_ VECTORS
+|   |   |   |       +---exam
+|   |   |   |       +---flashcard
+|   |   |   |       +---past_paper
+|   |   |   |       +---quiz
+|   |   |   |       +---short_note
+|   |   |   |       \---video
+|   |   |   \---physics
+|   |   |       +---Unit 1_ PHYSICS AND HUMAN SOCIETY
+|   |   |       |   +---exam
+|   |   |       |   +---flashcard
+|   |   |       |   +---past_paper
+|   |   |       |   +---quiz
+|   |   |       |   +---short_note
+|   |   |       |   \---video
+|   |   |       +---Unit 2_ VECTORS
+|   |   |       |   +---exam
+|   |   |       |   +---flashcard
+|   |   |       |   +---past_paper
+|   |   |       |   +---quiz
+|   |   |       |   +---short_note
+|   |   |       |   \---video
+|   |   |       +---Unit 3_ MOTION IN ONE AND TWO DIMENSIONS
+|   |   |       |   +---exam
+|   |   |       |   +---flashcard
+|   |   |       |   +---past_paper
+|   |   |       |   +---quiz
+|   |   |       |   +---short_note
+|   |   |       |   \---video
+|   |   |       +---Unit 4_ DYNAMICS
+|   |   |       |   +---exam
+|   |   |       |   +---flashcard
+|   |   |       |   +---past_paper
+|   |   |       |   +---quiz
+|   |   |       |   +---short_note
+|   |   |       |   \---video
+|   |   |       +---Unit 5_ HEAT CONDUCTION AND CALORIMETRY
+|   |   |       |   +---exam
+|   |   |       |   +---flashcard
+|   |   |       |   +---past_paper
+|   |   |       |   +---quiz
+|   |   |       |   +---short_note
+|   |   |       |   \---video
+|   |   |       +---Unit 6_ ELECTROSTATICS AND ELECTRIC CIRCUIT
+|   |   |       |   +---exam
+|   |   |       |   +---flashcard
+|   |   |       |   +---past_paper
+|   |   |       |   +---quiz
+|   |   |       |   +---short_note
+|   |   |       |   \---video
+|   |   |       \---Unit 7_ NUCLEAR PHYSICS
+|   |   |           +---exam
+|   |   |           +---flashcard
+|   |   |           +---past_paper
+|   |   |           +---quiz
+|   |   |           +---short_note
+|   |   |           \---video
+|   |   \---Grade_11_Social_Science
+|   |       +---aptitude
+|   |       |   +---Part 1_ Mathematical Part
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   \---Part 2_ English Part
+|   |       |       +---exam
+|   |       |       +---flashcard
+|   |       |       +---past_paper
+|   |       |       +---quiz
+|   |       |       +---short_note
+|   |       |       \---video
+|   |       +---citizenship
+|   |       |   +---Unit 1_ DEMOCRACY AND DEMOCRATIZATION
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 2_ CITIZENS IN THE DIGITAL TECHNOLOGY AGE
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 3_ UNDERSTANDING GOOD GOVERNANCE
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 4_ PEACE AND INDIGENOUS CONFLICT RESOLUTION MECHANISMS
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 5_ FEDERALISM IN ETHIOPIA
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 6_ HUMAN RIGHTS
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 7_ PATRIOTISM
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   \---Unit 8_ GLOBALIZATION AND GLOBAL ISSUES
+|   |       |       +---exam
+|   |       |       +---flashcard
+|   |       |       +---past_paper
+|   |       |       +---quiz
+|   |       |       +---short_note
+|   |       |       \---video
+|   |       +---economics
+|   |       |   +---Unit 1_ THEORY OF CONSUMER BEHAVIOR AND DEMAND
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 2_ MARKET STRUCTURE AND THE DECISION OF FIRMS
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 3_ NATIONAL INCOME ACCOUNTING
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 4_ CONSUMPTION, SAVING AND INVESTMENT
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 5_ TRADE AND FINANCE
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 6_ ECONOMIC DEVELOPMENT
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   \---Unit 7_ MAIN SECTORS, SECTORIAL POLICIES AND STRATEGIES OF ETHIOPIA
+|   |       |       +---exam
+|   |       |       +---flashcard
+|   |       |       +---past_paper
+|   |       |       +---quiz
+|   |       |       +---short_note
+|   |       |       \---video
+|   |       +---english
+|   |       |   +---Unit 10_ ARTIFICIAL INTELLIGENCE
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 1_ ENVIRONMENTAL HAZARDS
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 2_ CIVILIZATION
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 3_ CAUSES OF ROAD TRAFFIC ACCIDENTS
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 4_ PEOPLE AND NATURAL RESOURCES
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 5_ IRRIGATION
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 6_ GLOBAL WARMING
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 7_ PATRIOTISM
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 8_ EFFICIENCY OF HEALTH SERVICES
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   \---Unit 9_ INDIGENOUS CONFLICT RESOLUTION
+|   |       |       +---exam
+|   |       |       +---flashcard
+|   |       |       +---past_paper
+|   |       |       +---quiz
+|   |       |       +---short_note
+|   |       |       \---video
+|   |       +---geography
+|   |       |   +---Unit 1_ FORMATION OF THE CONTINENTS
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 2_ CLIMATE CLASSIFICATION AND CLIMATE REGIONS OF OUR WORLD
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 3_ NATURAL RESOURCES AND CONFLICTS OVER RESOURCES
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 4_ GLOBAL POPULATION DYNAMICS AND CHALLENGES
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 5_ GEOGRAPHY AND ECONOMIC DEVELOPMENT
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 6_ MAJOR GLOBAL ENVIRONMENTAL CHANGES
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 7_ GEOGRAPHIC ISSUES AND PUBLIC CONCERNS
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   \---Unit 8_ GEO-SPATIAL INFORMATION AND DATA PROCESSING
+|   |       |       +---exam
+|   |       |       +---flashcard
+|   |       |       +---past_paper
+|   |       |       +---quiz
+|   |       |       +---short_note
+|   |       |       \---video
+|   |       +---history
+|   |       |   +---Unit 1_ HISTORY, HISTORIOGRAPHY, AND HUMAN EVOLUTION
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 2_ MAJOR SPOTS OF ANCIENT WORLD CIVILIZATIONS UP TO c.500 A.D
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 3_ PEOPLES, STATES AND HISTORICAL PROCESSES IN ETHIOPIA AND THE HORN TO THE END OF THE 13TH CENTURY
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 4_ THE MIDDLE AGES AND EARLY MODERN WORLD, C. 500 AD-1789
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 5_ PEOPLES AND STATES OF AFRICA TO 1500
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 6_ AFRICA AND THE OUTSIDE WORLD 1500-1880s
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 7_ STATES, PRINCIPALITIES, POPULATION MOVEMENTS AND INTERACTIONS IN ETHIOPIA
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 8_ POLITICAL, SOCIAL AND ECONOMIC PROCESSES IN ETHIOPIA, MID 16TH TO MID-19TH CENTURY
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   \---Unit 9_ THE AGE OF REVOLUTIONS, 1789 TO 1815
+|   |       |       +---exam
+|   |       |       +---flashcard
+|   |       |       +---past_paper
+|   |       |       +---quiz
+|   |       |       +---short_note
+|   |       |       \---video
+|   |       +---it
+|   |       |   +---Unit 1_ INFORMATION SYSTEMS AND ITS APPLICATIONS
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 2_ EMERGING TECHNOLOGIES
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 3_ DATABASE MANAGEMENT
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 4_ WEB DEVELOPMENT
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 5_ HARDWARE TROUBLESHOOTING AND PREVENTIVE MAINTENANCE
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   \---Unit 6_ FUNDAMENTALS OF PROGRAMMING
+|   |       |       +---exam
+|   |       |       +---flashcard
+|   |       |       +---past_paper
+|   |       |       +---quiz
+|   |       |       +---short_note
+|   |       |       \---video
+|   |       \---mathematics
+|   |           +---Unit 1_ RELATIONS AND FUNCTIONS
+|   |           |   +---exam
+|   |           |   +---flashcard
+|   |           |   +---past_paper
+|   |           |   +---quiz
+|   |           |   +---short_note
+|   |           |   \---video
+|   |           +---Unit 2_ RATIONAL EXPRESSIONS AND RATIONAL FUNCTIONS
+|   |           |   +---exam
+|   |           |   +---flashcard
+|   |           |   +---past_paper
+|   |           |   +---quiz
+|   |           |   +---short_note
+|   |           |   \---video
+|   |           +---Unit 3_ MATRICES
+|   |           |   +---exam
+|   |           |   +---flashcard
+|   |           |   +---past_paper
+|   |           |   +---quiz
+|   |           |   +---short_note
+|   |           |   \---video
+|   |           +---Unit 4_ DETERMINANTS AND THEIR PROPERTIES
+|   |           |   +---exam
+|   |           |   +---flashcard
+|   |           |   +---past_paper
+|   |           |   +---quiz
+|   |           |   +---short_note
+|   |           |   \---video
+|   |           \---Unit 5_ POPULATION AND NATURAL RESOURCES
+|   |               +---exam
+|   |               +---flashcard
+|   |               +---past_paper
+|   |               +---quiz
+|   |               +---short_note
+|   |               \---video
+|   +---Grade_12
+|   |   +---Grade_12_Natural_Science
+|   |   |   +---agriculture
+|   |   |   |   +---Unit 10_ FISHERY PRODUCTION AND MANAGEMENT
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 11_ APICULTURE
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 12_ NURSERY AND PLANTATION TECHNOLOGY
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 13_ BASICS OF AGRO-FORESTRY SYSTEMS AND PRACTICES
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 14_ SOIL AND WATER CONSERVATION
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 15_ GENDER AND HUMAN NUTRITION
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 16_ SAFE FOOD PRODUCTION AND POSTHARVEST HANDLING
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 17_ APPLICATION OF INFORMATION AND COMMUNICATION TECHNOLOGIES (ICT) IN AGRICULTURE
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 1_ VEGETABLE CROPS PRODUCTION AND MANAGEMENT
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 2_ FRUIT CROPS PRODUCTION AND MANAGEMENT
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 3_ ROOT AND TUBER CROPS PRODUCTION AND MANAGEMENT
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 4_ COFFEE, TEA AND SPICES PRODUCTION AND MANAGEMENT
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 5_ INTRODUCTION TO PLANT BIOTECHNOLOGY
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 6_ BEEF CATTLE PRODUCTION AND MANAGEMENT
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 7_ SHEEP AND GOAT PRODUCTION AND MANAGEMENT
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 8_ CAMEL PRODUCTION AND MANAGEMENT
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   \---Unit 9_ POULTRY PRODUCTION AND MANAGEMENT
+|   |   |   |       +---exam
+|   |   |   |       +---flashcard
+|   |   |   |       +---past_paper
+|   |   |   |       +---quiz
+|   |   |   |       +---short_note
+|   |   |   |       \---video
+|   |   |   +---aptitude
+|   |   |   |   +---Part 1_ Mathematical Part
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   \---Part 2_ English Part
+|   |   |   |       +---exam
+|   |   |   |       +---flashcard
+|   |   |   |       +---past_paper
+|   |   |   |       +---quiz
+|   |   |   |       +---short_note
+|   |   |   |       \---video
+|   |   |   +---biology
+|   |   |   |   +---Unit 1_ APPLICATION OF BIOLOGY
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 2_ MICROORGANISMS
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 3_ ENERGY TRANSFORMATION
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 4_ EVOLUTION
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 5_ HUMAN BODY SYSTEM
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   \---Unit 6_ CLIMATE CHANGE
+|   |   |   |       +---exam
+|   |   |   |       +---flashcard
+|   |   |   |       +---past_paper
+|   |   |   |       +---quiz
+|   |   |   |       +---short_note
+|   |   |   |       \---video
+|   |   |   +---chemistry
+|   |   |   |   +---Unit 1_ ACID-BASE CONCEPTS AND IONIC EQUILIBRIA
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 2_ ELECTROCHEMISTRY
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 3_ INDUSTRIAL CHEMISTRY
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 4_ POLYMERS
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   \---Unit 5_ INTRODUCTION TO ENVIRONMENTAL CHEMISTRY
+|   |   |   |       +---exam
+|   |   |   |       +---flashcard
+|   |   |   |       +---past_paper
+|   |   |   |       +---quiz
+|   |   |   |       +---short_note
+|   |   |   |       \---video
+|   |   |   +---english
+|   |   |   |   +---Unit 10_ ROBOTICS
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 1_ SUSTAINABLE DEVELOPMENT
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 2_ TIME MANAGEMENT
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 3_ EVIDENCE ON TRAFFIC ACCIDENT
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 4_ NATURAL RESOURCE MANAGEMENT
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 5_ MECHANIZED AGRICULTURE
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 6_ GREEN ECONOMIES
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 7_ NATIONAL PRIDE
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 8_ TELEMEDICINE
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   \---Unit 9_ CONFLICT MANAGEMENT
+|   |   |   |       +---exam
+|   |   |   |       +---flashcard
+|   |   |   |       +---past_paper
+|   |   |   |       +---quiz
+|   |   |   |       +---short_note
+|   |   |   |       \---video
+|   |   |   +---it
+|   |   |   |   +---Unit 1_ INFORMATION SYSTEMS AND THEIR APPLICATIONS
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 2_ EMERGING TECHNOLOGIES
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 3_ DATABASE MANAGEMENT SYSTEM
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 4_ WEB AUTHORING
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 5_ MAINTENANCE AND TROUBLESHOOTING
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   \---Unit 6_ FUNDAMENTALS OF PROGRAMMING
+|   |   |   |       +---exam
+|   |   |   |       +---flashcard
+|   |   |   |       +---past_paper
+|   |   |   |       +---quiz
+|   |   |   |       +---short_note
+|   |   |   |       \---video
+|   |   |   +---mathematics
+|   |   |   |   +---Unit 1_ SEQUENCES AND SERIES
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 2_ INTRODUCTIONS TO CALCULUS
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 3_ STATISTICS
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   +---Unit 4_ INTRODUCTION TO LINEAR PROGRAMMING
+|   |   |   |   |   +---exam
+|   |   |   |   |   +---flashcard
+|   |   |   |   |   +---past_paper
+|   |   |   |   |   +---quiz
+|   |   |   |   |   +---short_note
+|   |   |   |   |   \---video
+|   |   |   |   \---Unit 5_ MATHEMATICAL APPLICATIONS IN BUSINESS
+|   |   |   |       +---exam
+|   |   |   |       +---flashcard
+|   |   |   |       +---past_paper
+|   |   |   |       +---quiz
+|   |   |   |       +---short_note
+|   |   |   |       \---video
+|   |   |   \---physics
+|   |   |       +---Unit 1_ APPLICATION OF PHYSICS IN OTHER FIELDS
+|   |   |       |   +---exam
+|   |   |       |   +---flashcard
+|   |   |       |   +---past_paper
+|   |   |       |   +---quiz
+|   |   |       |   +---short_note
+|   |   |       |   \---video
+|   |   |       +---Unit 2_ TWO-DIMENSIONAL MOTION
+|   |   |       |   +---exam
+|   |   |       |   +---flashcard
+|   |   |       |   +---past_paper
+|   |   |       |   +---quiz
+|   |   |       |   +---short_note
+|   |   |       |   \---video
+|   |   |       +---Unit 3_ FLUID MECHANICS
+|   |   |       |   +---exam
+|   |   |       |   +---flashcard
+|   |   |       |   +---past_paper
+|   |   |       |   +---quiz
+|   |   |       |   +---short_note
+|   |   |       |   \---video
+|   |   |       +---Unit 4_ ELECTROMAGNETISM
+|   |   |       |   +---exam
+|   |   |       |   +---flashcard
+|   |   |       |   +---past_paper
+|   |   |       |   +---quiz
+|   |   |       |   +---short_note
+|   |   |       |   \---video
+|   |   |       \---Unit 5_ BASICS OF ELECTRONICS
+|   |   |           +---exam
+|   |   |           +---flashcard
+|   |   |           +---past_paper
+|   |   |           +---quiz
+|   |   |           +---short_note
+|   |   |           \---video
+|   |   \---Grade_12_Social_Science
+|   |       +---aptitude
+|   |       |   +---Part 1_ Mathematical Part
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   \---Part 2_ English Part
+|   |       |       +---exam
+|   |       |       +---flashcard
+|   |       |       +---past_paper
+|   |       |       +---quiz
+|   |       |       +---short_note
+|   |       |       \---video
+|   |       +---citizenship
+|   |       |   +---Unit 1_ DEMOCRACY AND DEMOCRATIZATION
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 2_ CITIZENS IN THE DIGITAL TECHNOLOGY AGE
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 3_ UNDERSTANDING GOOD GOVERNANCE
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 4_ PEACE AND INDIGENOUS CONFLICT RESOLUTION MECHANISMS
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 5_ FEDERALISM IN ETHIOPIA
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 6_ HUMAN RIGHTS
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 7_ PATRIOTISM
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   \---Unit 8_ GLOBALIZATION AND GLOBAL ISSUES
+|   |       |       +---exam
+|   |       |       +---flashcard
+|   |       |       +---past_paper
+|   |       |       +---quiz
+|   |       |       +---short_note
+|   |       |       \---video
+|   |       +---economics
+|   |       |   +---Unit 1_ THE FUNDAMENTAL CONCEPTS OF MACROECONOMICS
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 2_ AGGREGATE DEMAND AND AGGREGATE SUPPLY ANALYSIS
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 3_ MARKET FAILURE AND CONSUMER PROTECTION
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 4_ MACROECONOMIC POLICY INSTRUMENTS
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 5_ TAX THEORY AND PRACTICE
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 6_ POVERTY AND INEQUALITY
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 7_ MACROECONOMIC REFORMS IN ETHIOPIA
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   \---Unit 8_ ECONOMY, ENVIRONMENT AND CLIMATE CHANGE
+|   |       |       +---exam
+|   |       |       +---flashcard
+|   |       |       +---past_paper
+|   |       |       +---quiz
+|   |       |       +---short_note
+|   |       |       \---video
+|   |       +---english
+|   |       |   +---Unit 10_ ROBOTICS
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 1_ SUSTAINABLE DEVELOPMENT
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 2_ TIME MANAGEMENT
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 3_ EVIDENCE ON TRAFFIC ACCIDENT
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 4_ NATURAL RESOURCE MANAGEMENT
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 5_ MECHANIZED AGRICULTURE
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 6_ GREEN ECONOMIES
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 7_ NATIONAL PRIDE
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 8_ TELEMEDICINE
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   \---Unit 9_ CONFLICT MANAGEMENT
+|   |       |       +---exam
+|   |       |       +---flashcard
+|   |       |       +---past_paper
+|   |       |       +---quiz
+|   |       |       +---short_note
+|   |       |       \---video
+|   |       +---geography
+|   |       |   +---Unit 1_ MAJOR GEOLOGICAL PROCESSES ASSOCIATED WITH PLATE TECTONICS
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 2_ CLIMATE CHANGE
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 3_ ISSUES IN SUSTAINABLE DEVELOPMENT I MANAGEMENT OF CONFLICT OVER RESOURCES
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 4_ ISSUES IN SUSTAINABLE DEVELOPMENT II POPULATION POLICIES, PROGRAMS AND THE ENVIRONMENT
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 5_ ISSUES IN SUSTAINABLE DEVELOPMENT III CHALLENGES OF ECONOMIC DEVELOPMENT
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 6_ ISSUES IN SUSTAINABLE DEVELOPMENT IV SOLUTIONS TO ENVIRONMENTAL AND SUSTAINABILITY PROBLEMS
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 7_ CONTEMPORARY GLOBAL GEOGRAPHIC ISSUES AND PUBLIC CONCERNS
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   \---Unit 8_ GEOGRAPHICAL ENQUIRY AND MAP MAKING
+|   |       |       +---exam
+|   |       |       +---flashcard
+|   |       |       +---past_paper
+|   |       |       +---quiz
+|   |       |       +---short_note
+|   |       |       \---video
+|   |       +---history
+|   |       |   +---Unit 1_ DEVELOPMENT OF CAPITALISM AND NATIONALISM FROM 1815 TO 1914
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 2_ AFRICA AND THE COLONIAL EXPERIENCE (1880s TO 1960s)
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 3_ SOCIAL, ECONOMIC AND POLITICAL DEVELOPMENTS IN ETHIOPIA, MID 19th C TO 1941
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 4_ SOCIETY AND POLITICS IN THE AGE OF WORLD WARS, 1914 TO 1945
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 5_ GLOBAL AND REGIONAL DEVELOPMENTS SINCE 1945
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 6_ ETHIOPIA INTERNAL DEVELOPMENTS AND EXTERNAL INFLUENCES FROM 1941 TO 1991
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 7_ AFRICA SINCE THE 1960s
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 8_ POST 1991 DEVELOPMENTS IN ETHIOPIA
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   \---Unit 9_ INDIGENOUS KNOWLEDGE SYSTEMS AND HERITAGES OF ETHIOPIA
+|   |       |       +---exam
+|   |       |       +---flashcard
+|   |       |       +---past_paper
+|   |       |       +---quiz
+|   |       |       +---short_note
+|   |       |       \---video
+|   |       +---it
+|   |       |   +---Unit 1_ INFORMATION SYSTEMS AND THEIR APPLICATIONS
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 2_ EMERGING TECHNOLOGIES
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 3_ DATABASE MANAGEMENT SYSTEM
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 4_ WEB AUTHORING
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   +---Unit 5_ MAINTENANCE AND TROUBLESHOOTING
+|   |       |   |   +---exam
+|   |       |   |   +---flashcard
+|   |       |   |   +---past_paper
+|   |       |   |   +---quiz
+|   |       |   |   +---short_note
+|   |       |   |   \---video
+|   |       |   \---Unit 6_ FUNDAMENTALS OF PROGRAMMING
+|   |       |       +---exam
+|   |       |       +---flashcard
+|   |       |       +---past_paper
+|   |       |       +---quiz
+|   |       |       +---short_note
+|   |       |       \---video
+|   |       \---mathematics
+|   |           +---Unit 1_ SEQUENCES AND SERIES
+|   |           |   +---exam
+|   |           |   +---flashcard
+|   |           |   +---past_paper
+|   |           |   +---quiz
+|   |           |   +---short_note
+|   |           |   \---video
+|   |           +---Unit 2_ INTRODUCTIONS TO CALCULUS
+|   |           |   +---exam
+|   |           |   +---flashcard
+|   |           |   +---past_paper
+|   |           |   +---quiz
+|   |           |   +---short_note
+|   |           |   \---video
+|   |           +---Unit 3_ STATISTICS
+|   |           |   +---exam
+|   |           |   +---flashcard
+|   |           |   +---past_paper
+|   |           |   +---quiz
+|   |           |   +---short_note
+|   |           |   \---video
+|   |           +---Unit 4_ INTRODUCTION TO LINEAR PROGRAMMING
+|   |           |   +---exam
+|   |           |   +---flashcard
+|   |           |   +---past_paper
+|   |           |   +---quiz
+|   |           |   +---short_note
+|   |           |   \---video
+|   |           \---Unit 5_ MATHEMATICAL APPLICATIONS IN BUSINESS
+|   |               +---exam
+|   |               +---flashcard
+|   |               +---past_paper
+|   |               +---quiz
+|   |               +---short_note
+|   |               \---video
+|   \---Grade_9
+|       +---biology
+|       |   +---Unit 1_ INTRODUCTION TO BIOLOGY
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 2_ CHARACTERISTICS AND CLASSIFICATION OF ORGANISMS
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 3_ CELLS
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 4_ REPRODUCTION
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 5_ HUMAN HEALTH, NUTRITION, AND DISEASE
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   \---Unit 6_ ECOLOGY
+|       |       +---exam
+|       |       +---flashcard
+|       |       +---past_paper
+|       |       +---quiz
+|       |       +---short_note
+|       |       \---video
+|       +---chemistry
+|       |   +---Unit 1_ CHEMISTRY AND ITS IMPORTANCE
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 2_ MEASUREMENTS AND SCIENTIFIC METHODS
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 3_ STRUCTURE OF THE ATOM
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 4_ PERIODIC CLASSIFICATION OF ELEMENTS
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   \---Unit 5_ CHEMICAL BONDING
+|       |       +---exam
+|       |       +---flashcard
+|       |       +---past_paper
+|       |       +---quiz
+|       |       +---short_note
+|       |       \---video
+|       +---citizenship
+|       |   +---Unit 1_ ETHICAL VALUES
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 2_ THE CULTURE OF USING DIGITAL TECHNOLOGY
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 3_ CONSTITUTION AND CONSTITUTIONALISM
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 4_ UNDERSTANDING INDIGENOUS KNOWLEDGE
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 5_ MULTICULTURALISM IN ETHIOPIA
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 6_ NATIONAL UNITY THROUGH DIVERSITY
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 7_ PROBLEM SOLVING SKILLS
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   \---Unit 8_ ETHIOPIA'S FOREIGN RELATIONS IN EAST AFRICA
+|       |       +---exam
+|       |       +---flashcard
+|       |       +---past_paper
+|       |       +---quiz
+|       |       +---short_note
+|       |       \---video
+|       +---economics
+|       |   +---Unit 1_ INTRODUCING ECONOMICS
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 2_ THE BASIC ECONOMIC PROBLEMS AND ECONOMIC SYSTEMS
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 3_ ECONOMIC RESOURCES AND MARKETS
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 4_ INTRODUCTION TO DEMAND AND SUPPLY
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 5_ INTRODUCTION TO PRODUCTION AND COST
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 6_ INTRODUCTION TO MONEY
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 7_ INTRODUCTION TO MACROECONOMICS
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   \---Unit 8_ BASIC ENTREPRENEURSHIP
+|       |       +---exam
+|       |       +---flashcard
+|       |       +---past_paper
+|       |       +---quiz
+|       |       +---short_note
+|       |       \---video
+|       +---english
+|       |   +---Unit 1_ LIVING IN URBAN AREAS
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 2_ STUDY SKILLS
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 3_ TRAFFIC ACCIDENT
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 4_ NATIONAL PARKS
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 5_ HORTICULTURE
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 6_ POVERTY IN ETHIOPIA
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 7_ COMMUNITY SERVICES
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   \---Unit 8_ COMMUNICABLE DISEASES
+|       |       +---exam
+|       |       +---flashcard
+|       |       +---past_paper
+|       |       +---quiz
+|       |       +---short_note
+|       |       \---video
+|       +---geography
+|       |   +---Unit 1_ INTRODUCTION TO GEOGRAPHY
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 2_ THE EARTH
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 3_ MAP READING AND INTERPRETATION
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 4_ THE PHYSICAL ENVIRONMENT OF ETHIOPIA
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 5_ POPULATION OF ETHIOPIA
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   \---Unit 6_ ECONOMIC ACTIVITIES IN ETHIOPIA
+|       |       +---exam
+|       |       +---flashcard
+|       |       +---past_paper
+|       |       +---quiz
+|       |       +---short_note
+|       |       \---video
+|       +---history
+|       |   +---Unit 1_ THE DISCIPLINE OF HISTORY AND HUMAN EVOLUTION
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 2_ ANCIENT WORLD CIVILIZATIONS UP TO c. 500 AD
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 3_ PEOPLES AND STATES IN ETHIOPIA AND THE HORN TO THE END OF 13th C
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 4_ THE MIDDLE AGES AND EARLY MODERN WORLD, C. 500 TO 1750s
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 5_ PEOPLES AND STATES OF AFRICA TO 1500
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 6_ AFRICA AND THE OUTSIDE WORLD 1500-1880s
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 7_ STATES, PRINCIPALITIES, POPULATION MOVEMENTS & INTERACTIONS IN ETHIOPIA 13th TO MID-16th C
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 8_ POLITICAL, SOCIAL AND ECONOMIC PROCESSES IN ETHIOPIA MID-16th TO MID-19th C
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   \---Unit 9_ THE AGE OF REVOLUTIONS 1750s TO 1815
+|       |       +---exam
+|       |       +---flashcard
+|       |       +---past_paper
+|       |       +---quiz
+|       |       +---short_note
+|       |       \---video
+|       +---it
+|       |   +---Unit 1_ ORGANIZATION OF FILES
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 2_ COMPUTER NETWORK
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 3_ APPLICATION SOFTWARE
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 4_ IMAGE PROCESSING AND MULTIMEDIA
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 5_ INFORMATION AND COMPUTER SECURITY
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   \---Unit 6_ FUNDAMENTALS OF PROGRAMMING
+|       |       +---exam
+|       |       +---flashcard
+|       |       +---past_paper
+|       |       +---quiz
+|       |       +---short_note
+|       |       \---video
+|       +---mathematics
+|       |   +---Unit 1_ FURTHER ON SETS
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 2_ THE NUMBER SYSTEM
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 3_ SOLVING EQUATIONS
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 4_ SOLVING INEQUALITIES
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 5_ INTRODUCTION TO TRIGONOMETRY
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 6_ REGULAR POLYGONS
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 7_ CONGRUENCY AND SIMILARITY
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   +---Unit 8_ VECTORS IN TWO DIMENSIONS
+|       |   |   +---exam
+|       |   |   +---flashcard
+|       |   |   +---past_paper
+|       |   |   +---quiz
+|       |   |   +---short_note
+|       |   |   \---video
+|       |   \---Unit 9_ STATISTICS AND PROBABILITY
+|       |       +---exam
+|       |       +---flashcard
+|       |       +---past_paper
+|       |       +---quiz
+|       |       +---short_note
+|       |       \---video
+|       \---physics
+|           +---Unit 1_ PHYSICS AND HUMAN SOCIETY
+|           |   +---exam
+|           |   +---flashcard
+|           |   +---past_paper
+|           |   +---quiz
+|           |   +---short_note
+|           |   \---video
+|           +---Unit 2_ PHYSICAL QUANTITIES
+|           |   +---exam
+|           |   +---flashcard
+|           |   +---past_paper
+|           |   +---quiz
+|           |   +---short_note
+|           |   \---video
+|           +---Unit 3_ MOTION IN A STRAIGHT LINE
+|           |   +---exam
+|           |   +---flashcard
+|           |   +---past_paper
+|           |   +---quiz
+|           |   +---short_note
+|           |   \---video
+|           +---Unit 4_ FORCE, WORK, ENERGY AND POWER
+|           |   +---exam
+|           |   +---flashcard
+|           |   +---past_paper
+|           |   +---quiz
+|           |   +---short_note
+|           |   \---video
+|           +---Unit 5_ SIMPLE MACHINES
+|           |   +---exam
+|           |   +---flashcard
+|           |   +---past_paper
+|           |   +---quiz
+|           |   +---short_note
+|           |   \---video
+|           +---Unit 6_ MECHANICAL OSCILLATION AND SOUND WAVE
+|           |   +---exam
+|           |   +---flashcard
+|           |   +---past_paper
+|           |   +---quiz
+|           |   +---short_note
+|           |   \---video
+|           \---Unit 7_ TEMPERATURE AND THERMOMETRY
+|               +---exam
+|               +---flashcard
+|               +---past_paper
+|               +---quiz
+|               +---short_note
+|               \---video
+\---university
+    +---freshman
+    |   +---first_semister
+    |   |   +---natural_science
+    |   |   |   +---english
+    |   |   |   |   +---Chapter 1_ study skills
+    |   |   |   |   |   +---exam
+    |   |   |   |   |   +---flashcard
+    |   |   |   |   |   +---past_paper
+    |   |   |   |   |   +---quiz
+    |   |   |   |   |   +---short_note
+    |   |   |   |   |   \---video
+    |   |   |   |   +---Chapter 2_ health and fitness
+    |   |   |   |   |   +---exam
+    |   |   |   |   |   +---flashcard
+    |   |   |   |   |   +---past_paper
+    |   |   |   |   |   +---quiz
+    |   |   |   |   |   +---short_note
+    |   |   |   |   |   \---video
+    |   |   |   |   +---Chapter 3_ cultural values
+    |   |   |   |   |   +---exam
+    |   |   |   |   |   +---flashcard
+    |   |   |   |   |   +---past_paper
+    |   |   |   |   |   +---quiz
+    |   |   |   |   |   +---short_note
+    |   |   |   |   |   \---video
+    |   |   |   |   +---Chapter 4_ wild life
+    |   |   |   |   |   +---exam
+    |   |   |   |   |   +---flashcard
+    |   |   |   |   |   +---past_paper
+    |   |   |   |   |   +---quiz
+    |   |   |   |   |   +---short_note
+    |   |   |   |   |   \---video
+    |   |   |   |   \---Chapter 5_ population
+    |   |   |   |       +---exam
+    |   |   |   |       +---flashcard
+    |   |   |   |       +---past_paper
+    |   |   |   |       +---quiz
+    |   |   |   |       +---short_note
+    |   |   |   |       \---video
+    |   |   |   +---geography
+    |   |   |   |   +---Chapter 1_ introduction
+    |   |   |   |   |   +---exam
+    |   |   |   |   |   +---flashcard
+    |   |   |   |   |   +---past_paper
+    |   |   |   |   |   +---quiz
+    |   |   |   |   |   +---short_note
+    |   |   |   |   |   \---video
+    |   |   |   |   +---Chapter 2_ the geology of Ethiopia and the horn
+    |   |   |   |   |   +---exam
+    |   |   |   |   |   +---flashcard
+    |   |   |   |   |   +---past_paper
+    |   |   |   |   |   +---quiz
+    |   |   |   |   |   +---short_note
+    |   |   |   |   |   \---video
+    |   |   |   |   +---Chapter 3_ the topography of Ethiopia and the horn
+    |   |   |   |   |   +---exam
+    |   |   |   |   |   +---flashcard
+    |   |   |   |   |   +---past_paper
+    |   |   |   |   |   +---quiz
+    |   |   |   |   |   +---short_note
+    |   |   |   |   |   \---video
+    |   |   |   |   +---Chapter 4_ drainage system and water resource of Ethiopia and the horn
+    |   |   |   |   |   +---exam
+    |   |   |   |   |   +---flashcard
+    |   |   |   |   |   +---past_paper
+    |   |   |   |   |   +---quiz
+    |   |   |   |   |   +---short_note
+    |   |   |   |   |   \---video
+    |   |   |   |   +---Chapter 5_ the climate of Ethiopia and the horn
+    |   |   |   |   |   +---exam
+    |   |   |   |   |   +---flashcard
+    |   |   |   |   |   +---past_paper
+    |   |   |   |   |   +---quiz
+    |   |   |   |   |   +---short_note
+    |   |   |   |   |   \---video
+    |   |   |   |   +---Chapter 6_ soils, natural vegetation and wildlife resource
+    |   |   |   |   |   +---exam
+    |   |   |   |   |   +---flashcard
+    |   |   |   |   |   +---past_paper
+    |   |   |   |   |   +---quiz
+    |   |   |   |   |   +---short_note
+    |   |   |   |   |   \---video
+    |   |   |   |   +---Chapter 7_ population of ethiopia and the horn
+    |   |   |   |   |   +---exam
+    |   |   |   |   |   +---flashcard
+    |   |   |   |   |   +---past_paper
+    |   |   |   |   |   +---quiz
+    |   |   |   |   |   +---short_note
+    |   |   |   |   |   \---video
+    |   |   |   |   \---Chapter 8_ economic activitie in Ethiopia
+    |   |   |   |       +---exam
+    |   |   |   |       +---flashcard
+    |   |   |   |       +---past_paper
+    |   |   |   |       +---quiz
+    |   |   |   |       +---short_note
+    |   |   |   |       \---video
+    |   |   |   +---logic
+    |   |   |   |   +---Chapter 1_ introduction to philosophy
+    |   |   |   |   |   +---exam
+    |   |   |   |   |   +---flashcard
+    |   |   |   |   |   +---past_paper
+    |   |   |   |   |   +---quiz
+    |   |   |   |   |   +---short_note
+    |   |   |   |   |   \---video
+    |   |   |   |   +---Chapter 2_ basic concept of logic
+    |   |   |   |   |   +---exam
+    |   |   |   |   |   +---flashcard
+    |   |   |   |   |   +---past_paper
+    |   |   |   |   |   +---quiz
+    |   |   |   |   |   +---short_note
+    |   |   |   |   |   \---video
+    |   |   |   |   +---Chapter 3_ logic and language
+    |   |   |   |   |   +---exam
+    |   |   |   |   |   +---flashcard
+    |   |   |   |   |   +---past_paper
+    |   |   |   |   |   +---quiz
+    |   |   |   |   |   +---short_note
+    |   |   |   |   |   \---video
+    |   |   |   |   +---Chapter 4_ basic concepts of critical thinking
+    |   |   |   |   |   +---exam
+    |   |   |   |   |   +---flashcard
+    |   |   |   |   |   +---past_paper
+    |   |   |   |   |   +---quiz
+    |   |   |   |   |   +---short_note
+    |   |   |   |   |   \---video
+    |   |   |   |   +---Chapter 5_ informal fallacies
+    |   |   |   |   |   +---exam
+    |   |   |   |   |   +---flashcard
+    |   |   |   |   |   +---past_paper
+    |   |   |   |   |   +---quiz
+    |   |   |   |   |   +---short_note
+    |   |   |   |   |   \---video
+    |   |   |   |   \---Chapter 6_ categorical propositions
+    |   |   |   |       +---exam
+    |   |   |   |       +---flashcard
+    |   |   |   |       +---past_paper
+    |   |   |   |       +---quiz
+    |   |   |   |       +---short_note
+    |   |   |   |       \---video
+    |   |   |   +---mathematics
+    |   |   |   |   +---Chapter 1_ propositional logic and set theory
+    |   |   |   |   |   +---exam
+    |   |   |   |   |   +---flashcard
+    |   |   |   |   |   +---past_paper
+    |   |   |   |   |   +---quiz
+    |   |   |   |   |   +---short_note
+    |   |   |   |   |   \---video
+    |   |   |   |   +---Chapter 2_ the real and complex number system
+    |   |   |   |   |   +---exam
+    |   |   |   |   |   +---flashcard
+    |   |   |   |   |   +---past_paper
+    |   |   |   |   |   +---quiz
+    |   |   |   |   |   +---short_note
+    |   |   |   |   |   \---video
+    |   |   |   |   +---Chapter 3_ function
+    |   |   |   |   |   +---exam
+    |   |   |   |   |   +---flashcard
+    |   |   |   |   |   +---past_paper
+    |   |   |   |   |   +---quiz
+    |   |   |   |   |   +---short_note
+    |   |   |   |   |   \---video
+    |   |   |   |   \---Chapter 4_ analytic geometry
+    |   |   |   |       +---exam
+    |   |   |   |       +---flashcard
+    |   |   |   |       +---past_paper
+    |   |   |   |       +---quiz
+    |   |   |   |       +---short_note
+    |   |   |   |       \---video
+    |   |   |   +---physics
+    |   |   |   |   +---Chapter 1_ preliminaries
+    |   |   |   |   |   +---exam
+    |   |   |   |   |   +---flashcard
+    |   |   |   |   |   +---past_paper
+    |   |   |   |   |   +---quiz
+    |   |   |   |   |   +---short_note
+    |   |   |   |   |   \---video
+    |   |   |   |   +---Chapter 2_ kinematic and dynamic of particles
+    |   |   |   |   |   +---exam
+    |   |   |   |   |   +---flashcard
+    |   |   |   |   |   +---past_paper
+    |   |   |   |   |   +---quiz
+    |   |   |   |   |   +---short_note
+    |   |   |   |   |   \---video
+    |   |   |   |   +---Chapter 3_ fluid dynamics
+    |   |   |   |   |   +---exam
+    |   |   |   |   |   +---flashcard
+    |   |   |   |   |   +---past_paper
+    |   |   |   |   |   +---quiz
+    |   |   |   |   |   +---short_note
+    |   |   |   |   |   \---video
+    |   |   |   |   +---Chapter 4_ heat and thermodynamics
+    |   |   |   |   |   +---exam
+    |   |   |   |   |   +---flashcard
+    |   |   |   |   |   +---past_paper
+    |   |   |   |   |   +---quiz
+    |   |   |   |   |   +---short_note
+    |   |   |   |   |   \---video
+    |   |   |   |   +---Chapter 5_ oscillation, waves and optics
+    |   |   |   |   |   +---exam
+    |   |   |   |   |   +---flashcard
+    |   |   |   |   |   +---past_paper
+    |   |   |   |   |   +---quiz
+    |   |   |   |   |   +---short_note
+    |   |   |   |   |   \---video
+    |   |   |   |   +---Chapter 6_ electromagnetism and electronics
+    |   |   |   |   |   +---exam
+    |   |   |   |   |   +---flashcard
+    |   |   |   |   |   +---past_paper
+    |   |   |   |   |   +---quiz
+    |   |   |   |   |   +---short_note
+    |   |   |   |   |   \---video
+    |   |   |   |   \---Chapter 7_ cross cutting application of physics
+    |   |   |   |       +---exam
+    |   |   |   |       +---flashcard
+    |   |   |   |       +---past_paper
+    |   |   |   |       +---quiz
+    |   |   |   |       +---short_note
+    |   |   |   |       \---video
+    |   |   |   \---psychology
+    |   |   |       +---Chapter 10_ academic skills
+    |   |   |       |   +---exam
+    |   |   |       |   +---flashcard
+    |   |   |       |   +---past_paper
+    |   |   |       |   +---quiz
+    |   |   |       |   +---short_note
+    |   |   |       |   \---video
+    |   |   |       +---Chapter 11_ social skills
+    |   |   |       |   +---exam
+    |   |   |       |   +---flashcard
+    |   |   |       |   +---past_paper
+    |   |   |       |   +---quiz
+    |   |   |       |   +---short_note
+    |   |   |       |   \---video
+    |   |   |       +---Chapter 1_ essence of psychology
+    |   |   |       |   +---exam
+    |   |   |       |   +---flashcard
+    |   |   |       |   +---past_paper
+    |   |   |       |   +---quiz
+    |   |   |       |   +---short_note
+    |   |   |       |   \---video
+    |   |   |       +---Chapter 2_ sensation and perception
+    |   |   |       |   +---exam
+    |   |   |       |   +---flashcard
+    |   |   |       |   +---past_paper
+    |   |   |       |   +---quiz
+    |   |   |       |   +---short_note
+    |   |   |       |   \---video
+    |   |   |       +---Chapter 3_ leaning and theories of learning
+    |   |   |       |   +---exam
+    |   |   |       |   +---flashcard
+    |   |   |       |   +---past_paper
+    |   |   |       |   +---quiz
+    |   |   |       |   +---short_note
+    |   |   |       |   \---video
+    |   |   |       +---Chapter 4_ memory and forgetting
+    |   |   |       |   +---exam
+    |   |   |       |   +---flashcard
+    |   |   |       |   +---past_paper
+    |   |   |       |   +---quiz
+    |   |   |       |   +---short_note
+    |   |   |       |   \---video
+    |   |   |       +---Chapter 5_ motivation and emotion
+    |   |   |       |   +---exam
+    |   |   |       |   +---flashcard
+    |   |   |       |   +---past_paper
+    |   |   |       |   +---quiz
+    |   |   |       |   +---short_note
+    |   |   |       |   \---video
+    |   |   |       +---Chapter 6_ personality
+    |   |   |       |   +---exam
+    |   |   |       |   +---flashcard
+    |   |   |       |   +---past_paper
+    |   |   |       |   +---quiz
+    |   |   |       |   +---short_note
+    |   |   |       |   \---video
+    |   |   |       +---Chapter 7_ psychological disorder and treatment techniques
+    |   |   |       |   +---exam
+    |   |   |       |   +---flashcard
+    |   |   |       |   +---past_paper
+    |   |   |       |   +---quiz
+    |   |   |       |   +---short_note
+    |   |   |       |   \---video
+    |   |   |       +---Chapter 8_ intro to life skills
+    |   |   |       |   +---exam
+    |   |   |       |   +---flashcard
+    |   |   |       |   +---past_paper
+    |   |   |       |   +---quiz
+    |   |   |       |   +---short_note
+    |   |   |       |   \---video
+    |   |   |       \---Chapter 9_ inta-personal and interpersonal skills
+    |   |   |           +---exam
+    |   |   |           +---flashcard
+    |   |   |           +---past_paper
+    |   |   |           +---quiz
+    |   |   |           +---short_note
+    |   |   |           \---video
+    |   |   \---social_science
+    |   |       +---economics
+    |   |       |   +---Chapter 1_ basics of economics
+    |   |       |   |   +---exam
+    |   |       |   |   +---flashcard
+    |   |       |   |   +---past_paper
+    |   |       |   |   +---quiz
+    |   |       |   |   +---short_note
+    |   |       |   |   \---video
+    |   |       |   +---Chapter 2_ theory of demand and supply
+    |   |       |   |   +---exam
+    |   |       |   |   +---flashcard
+    |   |       |   |   +---past_paper
+    |   |       |   |   +---quiz
+    |   |       |   |   +---short_note
+    |   |       |   |   \---video
+    |   |       |   +---Chapter 3_ theory of customer behaviour
+    |   |       |   |   +---exam
+    |   |       |   |   +---flashcard
+    |   |       |   |   +---past_paper
+    |   |       |   |   +---quiz
+    |   |       |   |   +---short_note
+    |   |       |   |   \---video
+    |   |       |   +---Chapter 4_ the theory of production and cost
+    |   |       |   |   +---exam
+    |   |       |   |   +---flashcard
+    |   |       |   |   +---past_paper
+    |   |       |   |   +---quiz
+    |   |       |   |   +---short_note
+    |   |       |   |   \---video
+    |   |       |   +---Chapter 5_ market structure
+    |   |       |   |   +---exam
+    |   |       |   |   +---flashcard
+    |   |       |   |   +---past_paper
+    |   |       |   |   +---quiz
+    |   |       |   |   +---short_note
+    |   |       |   |   \---video
+    |   |       |   \---Chapter 6_ fundamental concepts of macroeconomics
+    |   |       |       +---exam
+    |   |       |       +---flashcard
+    |   |       |       +---past_paper
+    |   |       |       +---quiz
+    |   |       |       +---short_note
+    |   |       |       \---video
+    |   |       +---english
+    |   |       |   +---Chapter 1_ study skills
+    |   |       |   |   +---exam
+    |   |       |   |   +---flashcard
+    |   |       |   |   +---past_paper
+    |   |       |   |   +---quiz
+    |   |       |   |   +---short_note
+    |   |       |   |   \---video
+    |   |       |   +---Chapter 2_ health and fitness
+    |   |       |   |   +---exam
+    |   |       |   |   +---flashcard
+    |   |       |   |   +---past_paper
+    |   |       |   |   +---quiz
+    |   |       |   |   +---short_note
+    |   |       |   |   \---video
+    |   |       |   +---Chapter 3_ cultural values
+    |   |       |   |   +---exam
+    |   |       |   |   +---flashcard
+    |   |       |   |   +---past_paper
+    |   |       |   |   +---quiz
+    |   |       |   |   +---short_note
+    |   |       |   |   \---video
+    |   |       |   +---Chapter 4_ wild life
+    |   |       |   |   +---exam
+    |   |       |   |   +---flashcard
+    |   |       |   |   +---past_paper
+    |   |       |   |   +---quiz
+    |   |       |   |   +---short_note
+    |   |       |   |   \---video
+    |   |       |   \---Chapter 5_ population
+    |   |       |       +---exam
+    |   |       |       +---flashcard
+    |   |       |       +---past_paper
+    |   |       |       +---quiz
+    |   |       |       +---short_note
+    |   |       |       \---video
+    |   |       +---geography
+    |   |       |   +---Chapter 1_ introduction
+    |   |       |   |   +---exam
+    |   |       |   |   +---flashcard
+    |   |       |   |   +---past_paper
+    |   |       |   |   +---quiz
+    |   |       |   |   +---short_note
+    |   |       |   |   \---video
+    |   |       |   +---Chapter 2_ the geology of Ethiopia and the horn
+    |   |       |   |   +---exam
+    |   |       |   |   +---flashcard
+    |   |       |   |   +---past_paper
+    |   |       |   |   +---quiz
+    |   |       |   |   +---short_note
+    |   |       |   |   \---video
+    |   |       |   +---Chapter 3_ the topography of Ethiopia and the horn
+    |   |       |   |   +---exam
+    |   |       |   |   +---flashcard
+    |   |       |   |   +---past_paper
+    |   |       |   |   +---quiz
+    |   |       |   |   +---short_note
+    |   |       |   |   \---video
+    |   |       |   +---Chapter 4_ drainage system and water resource of Ethiopia and the horn
+    |   |       |   |   +---exam
+    |   |       |   |   +---flashcard
+    |   |       |   |   +---past_paper
+    |   |       |   |   +---quiz
+    |   |       |   |   +---short_note
+    |   |       |   |   \---video
+    |   |       |   +---Chapter 5_ the climate of Ethiopia and the horn
+    |   |       |   |   +---exam
+    |   |       |   |   +---flashcard
+    |   |       |   |   +---past_paper
+    |   |       |   |   +---quiz
+    |   |       |   |   +---short_note
+    |   |       |   |   \---video
+    |   |       |   +---Chapter 6_ soils, natural vegetation and wildlife resource
+    |   |       |   |   +---exam
+    |   |       |   |   +---flashcard
+    |   |       |   |   +---past_paper
+    |   |       |   |   +---quiz
+    |   |       |   |   +---short_note
+    |   |       |   |   \---video
+    |   |       |   +---Chapter 7_ population of ethiopia and the horn
+    |   |       |   |   +---exam
+    |   |       |   |   +---flashcard
+    |   |       |   |   +---past_paper
+    |   |       |   |   +---quiz
+    |   |       |   |   +---short_note
+    |   |       |   |   \---video
+    |   |       |   \---Chapter 8_ economic activitie in Ethiopia
+    |   |       |       +---exam
+    |   |       |       +---flashcard
+    |   |       |       +---past_paper
+    |   |       |       +---quiz
+    |   |       |       +---short_note
+    |   |       |       \---video
+    |   |       +---logic
+    |   |       |   +---Chapter 1_ introduction to philosophy
+    |   |       |   |   +---exam
+    |   |       |   |   +---flashcard
+    |   |       |   |   +---past_paper
+    |   |       |   |   +---quiz
+    |   |       |   |   +---short_note
+    |   |       |   |   \---video
+    |   |       |   +---Chapter 2_ basic concept of logic
+    |   |       |   |   +---exam
+    |   |       |   |   +---flashcard
+    |   |       |   |   +---past_paper
+    |   |       |   |   +---quiz
+    |   |       |   |   +---short_note
+    |   |       |   |   \---video
+    |   |       |   +---Chapter 3_ logic and language
+    |   |       |   |   +---exam
+    |   |       |   |   +---flashcard
+    |   |       |   |   +---past_paper
+    |   |       |   |   +---quiz
+    |   |       |   |   +---short_note
+    |   |       |   |   \---video
+    |   |       |   +---Chapter 4_ basic concepts of critical thinking
+    |   |       |   |   +---exam
+    |   |       |   |   +---flashcard
+    |   |       |   |   +---past_paper
+    |   |       |   |   +---quiz
+    |   |       |   |   +---short_note
+    |   |       |   |   \---video
+    |   |       |   +---Chapter 5_ informal fallacies
+    |   |       |   |   +---exam
+    |   |       |   |   +---flashcard
+    |   |       |   |   +---past_paper
+    |   |       |   |   +---quiz
+    |   |       |   |   +---short_note
+    |   |       |   |   \---video
+    |   |       |   \---Chapter 6_ categorical propositions
+    |   |       |       +---exam
+    |   |       |       +---flashcard
+    |   |       |       +---past_paper
+    |   |       |       +---quiz
+    |   |       |       +---short_note
+    |   |       |       \---video
+    |   |       +---mathematics
+    |   |       |   +---Chapter 1_ propositional logic and set theory
+    |   |       |   |   +---exam
+    |   |       |   |   +---flashcard
+    |   |       |   |   +---past_paper
+    |   |       |   |   +---quiz
+    |   |       |   |   +---short_note
+    |   |       |   |   \---video
+    |   |       |   +---Chapter 2_ function
+    |   |       |   |   +---exam
+    |   |       |   |   +---flashcard
+    |   |       |   |   +---past_paper
+    |   |       |   |   +---quiz
+    |   |       |   |   +---short_note
+    |   |       |   |   \---video
+    |   |       |   +---Chapter 3_ matrices and determinant
+    |   |       |   |   +---exam
+    |   |       |   |   +---flashcard
+    |   |       |   |   +---past_paper
+    |   |       |   |   +---quiz
+    |   |       |   |   +---short_note
+    |   |       |   |   \---video
+    |   |       |   \---Chapter 4_ introduction to calculus
+    |   |       |       +---exam
+    |   |       |       +---flashcard
+    |   |       |       +---past_paper
+    |   |       |       +---quiz
+    |   |       |       +---short_note
+    |   |       |       \---video
+    |   |       \---psychology
+    |   |           +---Chapter 10_ academic skills
+    |   |           |   +---exam
+    |   |           |   +---flashcard
+    |   |           |   +---past_paper
+    |   |           |   +---quiz
+    |   |           |   +---short_note
+    |   |           |   \---video
+    |   |           +---Chapter 11_ social skills
+    |   |           |   +---exam
+    |   |           |   +---flashcard
+    |   |           |   +---past_paper
+    |   |           |   +---quiz
+    |   |           |   +---short_note
+    |   |           |   \---video
+    |   |           +---Chapter 1_ essence of psychology
+    |   |           |   +---exam
+    |   |           |   +---flashcard
+    |   |           |   +---past_paper
+    |   |           |   +---quiz
+    |   |           |   +---short_note
+    |   |           |   \---video
+    |   |           +---Chapter 2_ sensation and perception
+    |   |           |   +---exam
+    |   |           |   +---flashcard
+    |   |           |   +---past_paper
+    |   |           |   +---quiz
+    |   |           |   +---short_note
+    |   |           |   \---video
+    |   |           +---Chapter 3_ leaning and theories of learning
+    |   |           |   +---exam
+    |   |           |   +---flashcard
+    |   |           |   +---past_paper
+    |   |           |   +---quiz
+    |   |           |   +---short_note
+    |   |           |   \---video
+    |   |           +---Chapter 4_ memory and forgetting
+    |   |           |   +---exam
+    |   |           |   +---flashcard
+    |   |           |   +---past_paper
+    |   |           |   +---quiz
+    |   |           |   +---short_note
+    |   |           |   \---video
+    |   |           +---Chapter 5_ motivation and emotion
+    |   |           |   +---exam
+    |   |           |   +---flashcard
+    |   |           |   +---past_paper
+    |   |           |   +---quiz
+    |   |           |   +---short_note
+    |   |           |   \---video
+    |   |           +---Chapter 6_ personality
+    |   |           |   +---exam
+    |   |           |   +---flashcard
+    |   |           |   +---past_paper
+    |   |           |   +---quiz
+    |   |           |   +---short_note
+    |   |           |   \---video
+    |   |           +---Chapter 7_ psychological disorder and treatment techniques
+    |   |           |   +---exam
+    |   |           |   +---flashcard
+    |   |           |   +---past_paper
+    |   |           |   +---quiz
+    |   |           |   +---short_note
+    |   |           |   \---video
+    |   |           +---Chapter 8_ intro to life skills
+    |   |           |   +---exam
+    |   |           |   +---flashcard
+    |   |           |   +---past_paper
+    |   |           |   +---quiz
+    |   |           |   +---short_note
+    |   |           |   \---video
+    |   |           \---Chapter 9_ inta-personal and interpersonal skills
+    |   |               +---exam
+    |   |               +---flashcard
+    |   |               +---past_paper
+    |   |               +---quiz
+    |   |               +---short_note
+    |   |               \---video
+    |   \---second_semister
+    |       +---Other_Natural_Science
+    |       |   +---Anthropology
+    |       |   |   +---Unit 1_ Introducing Anthropology and its Subject Matter
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Unit 2_ Human Culture and Ties that Connect
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Unit 3_ Human Diversity, Culture Areas and Contact in Ethiopia
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Unit 4_ Marginalized, Minorities, and Vulnerable Groups
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Unit 5_ Identity, Inter-Ethnic Relations and Multiculturalism in Ethiopia
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Unit 6_ Customary and Local Governance Systems and Peace Making
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   \---Unit 7_ Indigenous Knowledge Systems (IKS) and Practices
+    |       |   |       +---exam
+    |       |   |       +---flashcard
+    |       |   |       +---past_paper
+    |       |   |       +---quiz
+    |       |   |       +---short_note
+    |       |   |       \---video
+    |       |   +---Biology
+    |       |   |   +---Chapter 10_ application of biological science
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Chapter 1_ introduction
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Chapter 2_ biological molecules
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Chapter 3_ the cellular basics of life
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Chapter 4_ cellular metabolism and metabolic disorder
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Chapter 5_ genetics and evolution
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Chapter 6_ infectious diseases and immunity
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Chapter 7_ taxonomy of organism
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Chapter 8_ ecology and conservation of natural resources
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   \---Chapter 9_ introduction to botany and zoology
+    |       |   |       +---exam
+    |       |   |       +---flashcard
+    |       |   |       +---past_paper
+    |       |   |       +---quiz
+    |       |   |       +---short_note
+    |       |   |       \---video
+    |       |   +---Chemistry
+    |       |   |   +---Chapter 1_ essential ideas in chemistry
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Chapter 2_ atoms, molecules and ions
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Chapter 3_ mass and mole concept
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Chapter 4_ stoichiometry of chemical reaction
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Chapter 5_ electronic structure and periodic properties of elements
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Chapter 6_ chemical bonding and molecular geometry
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Chapter 7_ equilibrium concepts and acid base equilibrium
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   \---Chapter 8_ organic chemistry
+    |       |   |       +---exam
+    |       |   |       +---flashcard
+    |       |   |       +---past_paper
+    |       |   |       +---quiz
+    |       |   |       +---short_note
+    |       |   |       \---video
+    |       |   +---Economics
+    |       |   |   +---Chapter 1_ basics of economics
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Chapter 2_ theory of demand and supply
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Chapter 3_ theory of customer behaviour
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Chapter 4_ the theory of production and cost
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Chapter 5_ market structure
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   \---Chapter 6_ fundamental concepts of macroeconomics
+    |       |   |       +---exam
+    |       |   |       +---flashcard
+    |       |   |       +---past_paper
+    |       |   |       +---quiz
+    |       |   |       +---short_note
+    |       |   |       \---video
+    |       |   +---Emerging Technologies
+    |       |   |   +---Chapter 1_ Introduction to Emerging Technologies
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Chapter 2_ Overview for Data Science
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Chapter 3_ Introduction to Artificial Intelligence (AI)
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Chapter 4_ Internet of Things (IoT)
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Chapter 5_ Augmented Reality
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Chapter 6_ Ethics and Professionalism of Emerging Technologies
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   \---Chapter 7_ Other Emerging Technologies
+    |       |   |       +---exam
+    |       |   |       +---flashcard
+    |       |   |       +---past_paper
+    |       |   |       +---quiz
+    |       |   |       +---short_note
+    |       |   |       \---video
+    |       |   +---English Skill II
+    |       |   |   +---Unit 1_ Life Skills
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Unit 2_ Speculations about the future of Science
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Unit 3_ Environmental Protection
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Unit 4_ Indigenous Knowledge
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   \---Unit 5_ Cultural Heritage
+    |       |   |       +---exam
+    |       |   |       +---flashcard
+    |       |   |       +---past_paper
+    |       |   |       +---quiz
+    |       |   |       +---short_note
+    |       |   |       \---video
+    |       |   +---History
+    |       |   |   +---Chapter 1_ introduction
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Chapter 2_ peoples and cultures in Ethiopia and the horn
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Chapter 3_ politics, economy and socio cultural processes in Ethiopia to end of the 13th century
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Chapter 4_ politics, economy and socio cultural processes in Ethiopia from late 13th to 16th century
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Chapter 5_ politics, economy and socio cultural processes in Ethiopia from early 16th to 18th century
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   +---Chapter 6_ internal interactions and external relations in Ethiopia 1800-1941
+    |       |   |   |   +---exam
+    |       |   |   |   +---flashcard
+    |       |   |   |   +---past_paper
+    |       |   |   |   +---quiz
+    |       |   |   |   +---short_note
+    |       |   |   |   \---video
+    |       |   |   \---Chapter 7_ internal developments and external relations, 1941-1994
+    |       |   |       +---exam
+    |       |   |       +---flashcard
+    |       |   |       +---past_paper
+    |       |   |       +---quiz
+    |       |   |       +---short_note
+    |       |   |       \---video
+    |       |   \---Moral and Citizenship Education
+    |       |       +---Chapter 1_ Understanding Civics and Ethics
+    |       |       |   +---exam
+    |       |       |   +---flashcard
+    |       |       |   +---past_paper
+    |       |       |   +---quiz
+    |       |       |   +---short_note
+    |       |       |   \---video
+    |       |       +---Chapter 2_ Approaches to Ethics
+    |       |       |   +---exam
+    |       |       |   +---flashcard
+    |       |       |   +---past_paper
+    |       |       |   +---quiz
+    |       |       |   +---short_note
+    |       |       |   \---video
+    |       |       +---Chapter 3_ Ethical Decision Making and Moral Judgments
+    |       |       |   +---exam
+    |       |       |   +---flashcard
+    |       |       |   +---past_paper
+    |       |       |   +---quiz
+    |       |       |   +---short_note
+    |       |       |   \---video
+    |       |       +---Chapter 4_ State, Government and Citizenship
+    |       |       |   +---exam
+    |       |       |   +---flashcard
+    |       |       |   +---past_paper
+    |       |       |   +---quiz
+    |       |       |   +---short_note
+    |       |       |   \---video
+    |       |       \---Chapter 5_ Constitution, Democracy and Human Rights
+    |       |           +---exam
+    |       |           +---flashcard
+    |       |           +---past_paper
+    |       |           +---quiz
+    |       |           +---short_note
+    |       |           \---video
+    |       \---Pre_Engineering_Courses
+    |           +---Anthropology
+    |           |   +---Unit 1_ Introducing Anthropology and its Subject Matter
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Unit 2_ Human Culture and Ties that Connect
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Unit 3_ Human Diversity, Culture Areas and Contact in Ethiopia
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Unit 4_ Marginalized, Minorities, and Vulnerable Groups
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Unit 5_ Identity, Inter-Ethnic Relations and Multiculturalism in Ethiopia
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Unit 6_ Customary and Local Governance Systems and Peace Making
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   \---Unit 7_ Indigenous Knowledge Systems (IKS) and Practices
+    |           |       +---exam
+    |           |       +---flashcard
+    |           |       +---past_paper
+    |           |       +---quiz
+    |           |       +---short_note
+    |           |       \---video
+    |           +---Applied Mathematics
+    |           |   +---Chapter 10_ Volume of Solids of Revolution
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Chapter 11_ Arc Length
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Chapter 12_ Surface Area
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Chapter 1_ Vectors and Vector Spaces
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Chapter 2_ Matrices and Determinants
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Chapter 3_ Limit and Continuity
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Chapter 4_ Derivatives
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Chapter 5_ Application of Derivative
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Chapter 6_ Integration
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Chapter 7_ Integration Techniques
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Chapter 8_ Improper Integrals
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   \---Chapter 9_ Application of Integration (Area)
+    |           |       +---exam
+    |           |       +---flashcard
+    |           |       +---past_paper
+    |           |       +---quiz
+    |           |       +---short_note
+    |           |       \---video
+    |           +---C++ Programming
+    |           |   +---Chapter 1_ Introduction to C++ Programming
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Chapter 2_ Basics of C++ (Comments, Case Sensitivity, Statements)
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Chapter 3_ Primitive Data Types
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Chapter 4_ flow of controls
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Chapter 5_ arrays and strings
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Chapter 6_ functions
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Chapter 7_ structures and unions
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   \---Chapter 8_ pointers
+    |           |       +---exam
+    |           |       +---flashcard
+    |           |       +---past_paper
+    |           |       +---quiz
+    |           |       +---short_note
+    |           |       \---video
+    |           +---Emerging Technologies
+    |           |   +---Chapter 1_ Introduction to Emerging Technologies
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Chapter 2_ Overview for Data Science
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Chapter 3_ Introduction to Artificial Intelligence (AI)
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Chapter 4_ Internet of Things (IoT)
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Chapter 5_ Augmented Reality
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Chapter 6_ Ethics and Professionalism of Emerging Technologies
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   \---Chapter 7_ Other Emerging Technologies
+    |           |       +---exam
+    |           |       +---flashcard
+    |           |       +---past_paper
+    |           |       +---quiz
+    |           |       +---short_note
+    |           |       \---video
+    |           +---English Skill 2
+    |           |   +---Unit III_ Environmental Protection
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Unit II_ Speculations about the future of Science
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Unit IV_ Indigenous Knowledge
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Unit I_ Life Skills
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   \---Unit V_ Cultural Heritage
+    |           |       +---exam
+    |           |       +---flashcard
+    |           |       +---past_paper
+    |           |       +---quiz
+    |           |       +---short_note
+    |           |       \---video
+    |           +---Entrepreneurship
+    |           |   +---Chapter 1_ The Nature of Entrepreneurship
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Chapter 2_ Business Planning
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Chapter 3_ Business Formation
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Chapter 4_ Product-Service Development
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Chapter 5_ Marketing
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Chapter 6_ Business Financing
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   \---Chapter 7_ Managing Growth and Transition
+    |           |       +---exam
+    |           |       +---flashcard
+    |           |       +---past_paper
+    |           |       +---quiz
+    |           |       +---short_note
+    |           |       \---video
+    |           +---History
+    |           |   +---Chapter 1_ introduction
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Chapter 2_ peoples and cultures in Ethiopia and the horn
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Chapter 3_ politics, economy and socio cultural processes in Ethiopia to end of the 13th century
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Chapter 4_ politics, economy and socio cultural processes in Ethiopia from late 13th to 16th century
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Chapter 5_ politics, economy and socio cultural processes in Ethiopia from early 16th to 18th century
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   +---Chapter 6_ internal interactions and external relations in Ethiopia 1800-1941
+    |           |   |   +---exam
+    |           |   |   +---flashcard
+    |           |   |   +---past_paper
+    |           |   |   +---quiz
+    |           |   |   +---short_note
+    |           |   |   \---video
+    |           |   \---Chapter 7_ internal developments and external relations, 1941-1994
+    |           |       +---exam
+    |           |       +---flashcard
+    |           |       +---past_paper
+    |           |       +---quiz
+    |           |       +---short_note
+    |           |       \---video
+    |           \---Moral and Citizenship Education
+    |               +---Chapter 1_ Understanding Civics and Ethics
+    |               |   +---exam
+    |               |   +---flashcard
+    |               |   +---past_paper
+    |               |   +---quiz
+    |               |   +---short_note
+    |               |   \---video
+    |               +---Chapter 2_ Approaches to Ethics
+    |               |   +---exam
+    |               |   +---flashcard
+    |               |   +---past_paper
+    |               |   +---quiz
+    |               |   +---short_note
+    |               |   \---video
+    |               +---Chapter 3_ Ethical Decision Making and Moral Judgments
+    |               |   +---exam
+    |               |   +---flashcard
+    |               |   +---past_paper
+    |               |   +---quiz
+    |               |   +---short_note
+    |               |   \---video
+    |               +---Chapter 4_ State, Government and Citizenship
+    |               |   +---exam
+    |               |   +---flashcard
+    |               |   +---past_paper
+    |               |   +---quiz
+    |               |   +---short_note
+    |               |   \---video
+    |               \---Chapter 5_ Constitution, Democracy and Human Rights
+    |                   +---exam
+    |                   +---flashcard
+    |                   +---past_paper
+    |                   +---quiz
+    |                   +---short_note
+    |                   \---video
+    \---senior

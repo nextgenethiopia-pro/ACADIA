@@ -495,8 +495,9 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     final isPro = user['is_pro'] == true;
     final message = isPro ? 'Revoke PRO status from ${user['full_name']}?' : 'Make ${user['full_name']} a PRO user?';
 
+    Map<String, dynamic>? result;
     if (!isPro) {
-      final result = await showDialog<Map<String, dynamic>>(
+      result = await showDialog<Map<String, dynamic>>(
         context: context,
         builder: (context) {
           String selectedPackage = 'Grade 11 Natural Science';

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:acadia/src/core/services/firebase_service.dart';
 import 'package:acadia/src/core/constants/colors.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:gal/gal.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io';
 
@@ -278,23 +278,18 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
       // Download image
       final response = await http.get(Uri.parse(imageUrl));
       if (response.statusCode == 200) {
-        final result = await ImageGallerySaver.saveImage(
+        await Gal.putImageBytes(
           response.bodyBytes,
-          quality: 90,
           name: 'receipt_${DateTime.now().millisecondsSinceEpoch}',
         );
-        
-        if (result['isSuccess'] == true) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Receipt saved to gallery!'),
-                backgroundColor: Colors.green,
-              ),
-            );
-          }
-        } else {
-          throw Exception('Failed to save');
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Receipt saved to gallery!'),
+              backgroundColor: Colors.green,
+            ),
+          );
         }
       } else {
         throw Exception('Failed to download');

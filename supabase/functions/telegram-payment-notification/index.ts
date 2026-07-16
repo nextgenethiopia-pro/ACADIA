@@ -1,10 +1,14 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 
-const TELEGRAM_BOT_TOKEN = 'AAHBymqTwrWhbIlIY1lyx1pdF7K-sB22hE'
-const TELEGRAM_CHAT_ID = '5221126249'
+const TELEGRAM_BOT_TOKEN = Deno.env.get('TELEGRAM_BOT_TOKEN') ?? ''
+const TELEGRAM_CHAT_ID = Deno.env.get('TELEGRAM_CHAT_ID') ?? ''
 
 serve(async (req) => {
   try {
+    if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
+      throw new Error('Telegram credentials are not configured (set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID)')
+    }
+
     const { record } = await req.json()
     
     // Get Supabase client

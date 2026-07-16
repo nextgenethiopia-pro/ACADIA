@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:acadia/src/core/services/firebase_service.dart';
 import 'package:acadia/src/core/constants/colors.dart';
 
 /// Report Management Screen
-/// 
-/// Allows admins to view and manage system reports including:
-/// - User activity reports
-/// - Content performance reports
-/// - Payment reports
-/// - System health reports
+///
+/// Shows real, Firestore-derived reports for the selected period:
+/// - User activity (total / new users)
+/// - Content performance (counts by status, downloads)
+/// - Payments (counts by status, revenue)
 class ReportManagementScreen extends StatefulWidget {
   const ReportManagementScreen({super.key});
 
@@ -17,8 +16,76 @@ class ReportManagementScreen extends StatefulWidget {
 }
 
 class _ReportManagementScreenState extends State<ReportManagementScreen> {
+  final FirebaseService _firebase = FirebaseService();
+
   String _selectedPeriod = '7d';
-  final List<String> _periods = ['24h', '7d', '30d', '90d', '1y'];
+  final List<String> _periods = ['24h', '7d', '30d', '90d', '1y', 'all'];
+
+  bool _isLoading = true;
+  List<Map<String, dynamic>> _users = [];
+  List<Map<String, dynamic>> _content = [];
+  List<Map<String, dynamic>> _payments = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    setState(() => _isLoading = true);
+    final results = await Future.wait([
+      _firebase.getDocuments('users'),
+      _firebase.getDocuments('content'),
+      _firebase.getDocuments('payments'),
+    ]);
+    if (!mounted) return;
+    setState(() {
+      _users = results[0];
+      _content = results[1];
+      _payments = results[2];
+      _isLoading = false;
+    });
+  }
+
+  DateTime? get _periodStart {
+    final now = DateTime.now();
+    switch (_selectedPeriod) {
+      case '24h':
+        return now.subtract(const Duration(hours: 24));
+      case '7d':
+        return now.subtract(const Duration(days: 7));
+      case '30d':
+        return now.subtract(const Duration(days: 30));
+      case '90d':
+        return now.subtract(const Duration(days: 90));
+      case '1y':
+        return now.subtract(const Duration(days: 365));
+      default:
+        return null; // 'all'
+    }
+  }
+
+  DateTime? _asDate(dynamic value) {
+    if (value == null) return null;
+    if (value is String) return DateTime.tryParse(value);
+    try {
+      return value.toDate() as DateTime;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  bool _inPeriod(dynamic dateValue) {
+    final start = _periodStart;
+    if (start == null) return true;
+    final date = _asDate(dateValue);
+    if (date == null) return false;
+    return date.isAfter(start);
+  }
+
+  int _countInPeriod(List<Map<String, dynamic>> docs, String dateField) =>
+      docs.where((d) => _inPeriod(d[dateField])).length;
 
   @override
   Widget build(BuildContext context) {
@@ -29,109 +96,142 @@ class _ReportManagementScreenState extends State<ReportManagementScreen> {
         foregroundColor: Colors.white,
         actions: [
           IconButton(
-            onPressed: () => _generateReport(),
-            icon: const Icon(Icons.download),
-            tooltip: 'Download Report',
+            onPressed: _isLoading ? null : _loadData,
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Refresh',
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // Period selector
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
               children: [
-                const Text('Period: ',
-                    style: TextStyle(fontWeight: FontWeight.w600)),
-                const SizedBox(width: 8),
-                DropdownButton<String>(
-                  value: _selectedPeriod,
-                  items: _periods.map((period) {
-                    return DropdownMenuItem(
-                      value: period,
-                      child: Text(period),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() => _selectedPeriod = value!);
-                  },
+                // Period selector
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      const Text('Period: ',
+                          style: TextStyle(fontWeight: FontWeight.w600)),
+                      const SizedBox(width: 8),
+                      DropdownButton<String>(
+                        value: _selectedPeriod,
+                        items: _periods.map((period) {
+                          return DropdownMenuItem(
+                            value: period,
+                            child: Text(period),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() => _selectedPeriod = value);
+                          }
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-              ],
-            ),
-          ),
 
-          // Report cards
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                _buildReportCard(
-                  'User Activity Report',
-                  'Total users, active users, new registrations',
-                  Icons.people,
-                  Colors.blue,
-                  () => _viewReport('user_activity'),
-                ),
-                const SizedBox(height: 12),
-                _buildReportCard(
-                  'Content Performance Report',
-                  'Most viewed content, completion rates',
-                  Icons.bar_chart,
-                  Colors.green,
-                  () => _viewReport('content_performance'),
-                ),
-                const SizedBox(height: 12),
-                _buildReportCard(
-                  'Payment Report',
-                  'Revenue, transactions, payment methods',
-                  Icons.payments,
-                  Colors.orange,
-                  () => _viewReport('payment'),
-                ),
-                const SizedBox(height: 12),
-                _buildReportCard(
-                  'System Health Report',
-                  'Server status, errors, performance metrics',
-                  Icons.health_and_safety,
-                  Colors.red,
-                  () => _viewReport('system_health'),
-                ),
-                const SizedBox(height: 12),
-                _buildReportCard(
-                  'Quiz/Exam Results Report',
-                  'Average scores, pass rates, subject performance',
-                  Icons.quiz,
-                  Colors.purple,
-                  () => _viewReport('quiz_results'),
-                ),
-                const SizedBox(height: 12),
-                _buildReportCard(
-                  'Storage Usage Report',
-                  'Downloaded content, storage by subject',
-                  Icons.storage,
-                  Colors.teal,
-                  () => _viewReport('storage_usage'),
+                // Report cards
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: _loadData,
+                    child: ListView(
+                      padding: const EdgeInsets.all(16),
+                      children: [
+                        _buildReportCard(
+                          'User Activity Report',
+                          '${_users.length} total • ${_countInPeriod(_users, 'created_at')} new in period',
+                          Icons.people,
+                          Colors.blue,
+                          _buildUserActivityMetrics,
+                        ),
+                        const SizedBox(height: 12),
+                        _buildReportCard(
+                          'Content Performance Report',
+                          '${_content.length} items • ${_totalDownloads()} downloads',
+                          Icons.bar_chart,
+                          Colors.green,
+                          _buildContentMetrics,
+                        ),
+                        const SizedBox(height: 12),
+                        _buildReportCard(
+                          'Payment Report',
+                          '${_payments.length} payments • ${_revenue().toStringAsFixed(0)} ETB revenue',
+                          Icons.payments,
+                          Colors.orange,
+                          _buildPaymentMetrics,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
-          ),
-        ],
-      ),
     );
+  }
+
+  int _totalDownloads() => _content.fold<int>(
+      0, (sum, c) => sum + ((c['download_count'] as num?)?.toInt() ?? 0));
+
+  double _revenue() => _payments
+      .where((p) =>
+          (p['status']?.toString() == 'approved') && _inPeriod(p['created_at']))
+      .fold<double>(
+          0, (sum, p) => sum + ((p['amount'] as num?)?.toDouble() ?? 0));
+
+  List<_Metric> _buildUserActivityMetrics() {
+    final premium = _users
+        .where((u) =>
+            (u['subscription']?.toString().toUpperCase() ?? '') == 'PREMIUM')
+        .length;
+    return [
+      _Metric('Total users', '${_users.length}'),
+      _Metric('New in period', '${_countInPeriod(_users, 'created_at')}'),
+      _Metric('Premium users', '$premium'),
+      _Metric('Free users', '${_users.length - premium}'),
+    ];
+  }
+
+  List<_Metric> _buildContentMetrics() {
+    int byStatus(String s) =>
+        _content.where((c) => (c['status']?.toString() ?? 'pending') == s).length;
+    return [
+      _Metric('Total content', '${_content.length}'),
+      _Metric('Approved', '${byStatus('approved')}'),
+      _Metric('Pending', '${byStatus('pending')}'),
+      _Metric('Rejected', '${byStatus('rejected')}'),
+      _Metric('Total downloads', '${_totalDownloads()}'),
+    ];
+  }
+
+  List<_Metric> _buildPaymentMetrics() {
+    int byStatus(String s) => _payments
+        .where((p) =>
+            (p['status']?.toString() ?? 'pending') == s &&
+            _inPeriod(p['created_at']))
+        .length;
+    final inPeriod = _payments.where((p) => _inPeriod(p['created_at'])).length;
+    return [
+      _Metric('Payments in period', '$inPeriod'),
+      _Metric('Approved', '${byStatus('approved')}'),
+      _Metric('Pending', '${byStatus('pending')}'),
+      _Metric('Rejected', '${byStatus('rejected')}'),
+      _Metric('Revenue (approved)', '${_revenue().toStringAsFixed(0)} ETB'),
+    ];
   }
 
   Widget _buildReportCard(
     String title,
-    String description,
+    String subtitle,
     IconData icon,
     Color color,
-    VoidCallback onTap,
+    List<_Metric> Function() metricsBuilder,
   ) {
     return Card(
       elevation: 2,
       child: InkWell(
-        onTap: onTap,
+        onTap: () => _viewReport(title, metricsBuilder()),
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -160,11 +260,8 @@ class _ReportManagementScreenState extends State<ReportManagementScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      description,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
+                      subtitle,
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                     ),
                   ],
                 ),
@@ -177,89 +274,48 @@ class _ReportManagementScreenState extends State<ReportManagementScreen> {
     );
   }
 
-  void _viewReport(String reportType) {
+  void _viewReport(String title, List<_Metric> metrics) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(_getReportTitle(reportType)),
-        content: SizedBox(
-          width: double.maxFinite,
-          height: 400,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(title),
+        content: SingleChildScrollView(
           child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Mock report data visualization
-              Expanded(
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.bar_chart, size: 64, color: Colors.grey[400]),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Report Data for $_selectedPeriod',
-                        style: TextStyle(color: Colors.grey[600]),
-                      ),
-                      const SizedBox(height: 8),
-                      const Text('Report visualization would appear here'),
-                    ],
-                  ),
-                ),
-              ),
+              Text('Period: $_selectedPeriod',
+                  style: const TextStyle(
+                      color: Colors.grey, fontWeight: FontWeight.w600)),
+              const Divider(),
+              ...metrics.map((m) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(m.label),
+                        Text(m.value,
+                            style:
+                                const TextStyle(fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  )),
             ],
           ),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Close'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _downloadReport(reportType);
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-            child: const Text('Download PDF'),
           ),
         ],
       ),
     );
   }
+}
 
-  String _getReportTitle(String reportType) {
-    switch (reportType) {
-      case 'user_activity':
-        return 'User Activity Report';
-      case 'content_performance':
-        return 'Content Performance Report';
-      case 'payment':
-        return 'Payment Report';
-      case 'system_health':
-        return 'System Health Report';
-      case 'quiz_results':
-        return 'Quiz/Exam Results Report';
-      case 'storage_usage':
-        return 'Storage Usage Report';
-      default:
-        return 'Report';
-    }
-  }
-
-  void _generateReport() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Generating comprehensive report...'),
-        backgroundColor: AppColors.primary,
-      ),
-    );
-  }
-
-  void _downloadReport(String reportType) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Downloading ${_getReportTitle(reportType)}...'),
-        backgroundColor: Colors.green,
-      ),
-    );
-  }
+class _Metric {
+  final String label;
+  final String value;
+  const _Metric(this.label, this.value);
 }

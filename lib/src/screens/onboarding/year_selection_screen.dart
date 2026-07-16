@@ -32,7 +32,7 @@ class _YearSelectionScreenState extends State<YearSelectionScreen> {
       description: 'Content is being prepared by the admin team',
       icon: Icons.school,
       color: Colors.orange,
-      badge: 'Coming Soon',
+      badge: 'Not available yet',
     ),
   ];
 

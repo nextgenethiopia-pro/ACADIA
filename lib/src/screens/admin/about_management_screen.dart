@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:acadia/src/core/services/firebase_service.dart';
 import 'package:acadia/src/core/constants/colors.dart';
 import 'package:acadia/src/widgets/common/gradient_button.dart';
@@ -145,9 +146,9 @@ class _AboutManagementScreenState extends State<AboutManagementScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(
-        appBar: AppBar(title: Text('About Management')),
-        body: Center(child: CircularProgressIndicator()),
+      return Scaffold(
+        appBar: AppBar(title: const Text('About Management')),
+        body: const Center(child: CircularProgressIndicator()),
       );
     }
 

@@ -3,92 +3,92 @@ import 'package:go_router/go_router.dart';
 // ============================================================
 // ONBOARDING (12 screens)
 // ============================================================
-import '../screens/onboarding/splash_screen.dart';
-import '../screens/onboarding/welcome_screen.dart';
-import '../screens/onboarding/academic_path_screen.dart';
-import '../screens/onboarding/grade_selection_screen.dart';
-import '../screens/onboarding/stream_selection_screen.dart';
-import '../screens/onboarding/generation_selection_screen.dart';
-import '../screens/onboarding/university_selection_screen.dart';
-import '../screens/onboarding/year_selection_screen.dart';
-import '../screens/onboarding/senior_year_screen.dart';
-import '../screens/onboarding/semester_selection_screen.dart';
-import '../screens/onboarding/university_stream_selection_screen.dart';
-import '../screens/onboarding/university_track_selection_screen.dart';
+import '../../screens/onboarding/splash_screen.dart';
+import '../../screens/onboarding/welcome_screen.dart';
+import '../../screens/onboarding/academic_path_screen.dart';
+import '../../screens/onboarding/grade_selection_screen.dart';
+import '../../screens/onboarding/stream_selection_screen.dart';
+import '../../screens/onboarding/generation_selection_screen.dart';
+import '../../screens/onboarding/university_selection_screen.dart';
+import '../../screens/onboarding/year_selection_screen.dart';
+import '../../screens/onboarding/senior_year_screen.dart';
+import '../../screens/onboarding/semester_selection_screen.dart';
+import '../../screens/onboarding/university_stream_selection_screen.dart';
+import '../../screens/onboarding/university_track_selection_screen.dart';
 
 // ============================================================
 // AUTH (5 screens)
 // ============================================================
-import '../screens/auth/login_screen.dart';
-import '../screens/auth/register_screen.dart';
-import '../screens/auth/forgot_password_screen.dart';
-import '../screens/auth/email_verification_screen.dart';
-import '../screens/auth/profile_setup_complete_screen.dart';
+import '../../screens/auth/login_screen.dart';
+import '../../screens/auth/register_screen.dart';
+import '../../screens/auth/forgot_password_screen.dart';
+import '../../screens/auth/email_verification_screen.dart';
+import '../../screens/auth/profile_setup_complete_screen.dart';
 
 // ============================================================
 // DASHBOARD (1 main + 6 tabs)
 // ============================================================
-import '../screens/dashboard/dashboard_screen.dart';
+import '../../screens/dashboard/dashboard_screen.dart';
 
 // ============================================================
 // SUBJECT PORTAL
 // ============================================================
-import '../screens/subject/subject_portal_screen.dart';
+import '../../screens/subject/subject_portal_screen.dart';
 
 // ============================================================
 // CONTENT (8 screens)
 // ============================================================
-import '../screens/content/chapter_content_screen.dart';
-import '../screens/content/video_player_screen.dart';
-import '../screens/content/pdf_viewer_screen.dart';
-import '../screens/content/quiz_screen.dart';
-import '../screens/content/quiz_result_screen.dart';
-import '../screens/content/exam_screen.dart';
-import '../screens/content/exam_result_screen.dart';
-import '../screens/content/flashcard_screen.dart';
+import '../../screens/content/chapter_content_screen.dart';
+import '../../screens/content/video_player_screen.dart';
+import '../../screens/content/pdf_viewer_screen.dart';
+import '../../screens/content/quiz_screen.dart';
+import '../../screens/content/quiz_result_screen.dart';
+import '../../screens/content/exam_screen.dart';
+import '../../screens/content/exam_result_screen.dart';
+import '../../screens/content/flashcard_screen.dart';
 
 // ============================================================
 // ENTRANCE (5 screens)
 // ============================================================
-import '../screens/entrance/entrance_past_papers_screen.dart';
-import '../screens/entrance/entrance_exam_screen.dart';
-import '../screens/entrance/entrance_subject_screen.dart';
-import '../screens/entrance/entrance_schedule_screen.dart';
-import '../screens/entrance/entrance_tips_screen.dart';
+import '../../screens/entrance/entrance_past_papers_screen.dart';
+import '../../screens/entrance/entrance_exam_screen.dart';
+import '../../screens/entrance/entrance_subject_screen.dart';
+import '../../screens/entrance/entrance_schedule_screen.dart';
+import '../../screens/entrance/entrance_tips_screen.dart';
 
 // ============================================================
 // PAYMENT (2 screens)
 // ============================================================
-import '../screens/payment/payment_screen.dart';
-import '../screens/payment/payment_history_screen.dart';
+import '../../screens/payment/payment_screen.dart';
+import '../../screens/payment/payment_history_screen.dart';
 
 // ============================================================
 // SETTINGS (9 screens)
 // ============================================================
-import '../screens/settings/edit_profile_screen.dart';
-import '../screens/settings/change_password_screen.dart';
-import '../screens/settings/app_settings_screen.dart';
-import '../screens/settings/downloads_manager_screen.dart';
-import '../screens/settings/help_center_screen.dart';
-import '../screens/settings/tutorial_video_screen.dart';
-import '../screens/settings/about_screen.dart';
-import '../screens/settings/privacy_policy_screen.dart';
-import '../screens/settings/terms_of_service_screen.dart';
+import '../../screens/settings/edit_profile_screen.dart';
+import '../../screens/settings/change_password_screen.dart';
+import '../../screens/settings/app_settings_screen.dart';
+import '../../screens/settings/downloads_manager_screen.dart';
+import '../../screens/settings/help_center_screen.dart';
+import '../../screens/settings/tutorial_video_screen.dart';
+import '../../screens/settings/about_screen.dart';
+import '../../screens/settings/privacy_policy_screen.dart';
+import '../../screens/settings/terms_of_service_screen.dart';
 
 // ============================================================
 // ADMIN (11 screens)
 // ============================================================
-import '../screens/admin/admin_dashboard_screen.dart';
-import '../screens/admin/content_upload_screen.dart';
-import '../screens/admin/content_management_screen.dart';
-import '../screens/admin/user_management_screen.dart';
-import '../screens/admin/payment_approval_screen.dart';
-import '../screens/admin/notification_creation_screen.dart';
-import '../screens/admin/analytics_dashboard_screen.dart';
-import '../screens/admin/app_settings_screen.dart' as admin_settings;
-import '../screens/admin/entrance_management_screen.dart';
-import '../screens/admin/about_management_screen.dart';
-import '../screens/admin/image_management_screen.dart';
+import '../../screens/admin/admin_dashboard_screen.dart';
+import '../../screens/admin/content_upload_screen.dart';
+import '../../screens/admin/content_management_screen.dart';
+import '../../screens/admin/user_management_screen.dart';
+import '../../screens/admin/payment_approval_screen.dart';
+import '../../screens/admin/notification_creation_screen.dart';
+import '../../screens/admin/analytics_dashboard_screen.dart';
+import '../../screens/admin/app_settings_screen.dart' as admin_settings;
+import '../../screens/admin/entrance_management_screen.dart';
+import '../../screens/admin/about_management_screen.dart';
+import '../../screens/admin/image_management_screen.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(

@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:acadia/src/core/services/firebase_service.dart';
 import 'package:acadia/src/core/services/offline_database.dart';
 import 'package:acadia/src/core/services/download_manager.dart';
+import 'package:acadia/src/core/content/github_content_service.dart';
 import 'package:acadia/src/core/constants/colors.dart';
 
 class EntranceExamScreen extends StatefulWidget {
@@ -130,20 +131,47 @@ class _EntranceExamScreenState extends State<EntranceExamScreen> {
   }
 
   Future<void> _loadContentForSubjectAndGrade() async {
+    // Primary: GitHub content repo (entrance/grade_<grade>/<subject>.json).
+    List<Map<String, dynamic>> github = const [];
+    try {
+      github = await GithubContentService.instance.fetchEntranceItems(
+        grade: _selectedGrade!,
+        subject: _selectedSubject!,
+      );
+    } catch (e) {
+      debugPrint('Error loading GitHub entrance content: $e');
+    }
+
+    // Fallback/merge: Firestore admin-uploaded entrance materials.
+    List<Map<String, dynamic>> firestore = const [];
     try {
       final firebase = FirebaseService();
-      final content = await firebase.getDocuments('entrance_materials', where: {
+      firestore = await firebase.getDocuments('entrance_materials', where: {
         'type': 'entrance_exam',
         'subject': _selectedSubject,
         'stream': _userStream,
         'grade': _selectedGrade,
         'status': 'active',
       });
-
-      _groupContentByChapter(content);
     } catch (e) {
-      debugPrint('Error loading grade content: $e');
+      debugPrint('Error loading Firestore entrance content: $e');
     }
+
+    _groupContentByChapter(_mergeById(github, firestore));
+  }
+
+  /// Merges two content lists, de-duplicating by `id` (GitHub items win).
+  List<Map<String, dynamic>> _mergeById(
+    List<Map<String, dynamic>> primary,
+    List<Map<String, dynamic>> fallback,
+  ) {
+    final byId = <String, Map<String, dynamic>>{};
+    for (final item in [...fallback, ...primary]) {
+      final id = item['id']?.toString();
+      if (id == null || id.isEmpty) continue;
+      byId[id] = item;
+    }
+    return byId.values.toList(growable: false);
   }
 
   Future<void> _groupContentByChapter(List<Map<String, dynamic>> content) async {
@@ -441,7 +469,13 @@ class _EntranceExamScreenState extends State<EntranceExamScreen> {
               elevation: 2,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               child: InkWell(
-                onTap: () => setState(() => _selectedGrade = grade),
+                onTap: () {
+                  setState(() {
+                    _selectedGrade = grade;
+                    _contentByChapter = {};
+                  });
+                  _loadContentForSubjectAndGrade();
+                },
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
                   padding: const EdgeInsets.all(16),
@@ -630,7 +664,7 @@ class _EntranceExamScreenState extends State<EntranceExamScreen> {
                           const SizedBox(width: 12),
                           Icon(Icons.update, size: 12, color: Colors.grey[500]),
                           const SizedBox(width: 4),
-                          Text('Updated: $_formatDate(lastUpdated)', style: TextStyle(color: Colors.grey[500], fontSize: 11)),
+                          Text('Updated: ${_formatDate(lastUpdated)}', style: TextStyle(color: Colors.grey[500], fontSize: 11)),
                         ],
                       ],
                     ),
@@ -646,7 +680,7 @@ class _EntranceExamScreenState extends State<EntranceExamScreen> {
                     color: Colors.grey[200],
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Text('Coming Soon', style: TextStyle(fontSize: 10, color: Colors.grey)),
+                  child: const Text('No content yet', style: TextStyle(fontSize: 10, color: Colors.grey)),
                 )
               else if (downloadProgress != null)
                 SizedBox(

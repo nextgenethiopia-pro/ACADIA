@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -23,13 +24,15 @@ class DownloadManager {
     return connectivityResult != ConnectivityResult.none;
   }
 
-  /// Check available storage space
+  /// Check available storage space.
+  ///
+  /// dart:io does not expose free-disk-space, so we simply confirm the
+  /// documents directory is reachable and assume space is available.
   Future<bool> hasEnoughSpace(int requiredBytes) async {
     try {
       final directory = await getApplicationDocumentsDirectory();
-      final stat = await directory.stat();
-      final freeSpace = stat.free;
-      return freeSpace > requiredBytes;
+      await directory.stat();
+      return true;
     } catch (e) {
       debugPrint('Error checking storage space: $e');
       return true; // Assume enough space if can't check

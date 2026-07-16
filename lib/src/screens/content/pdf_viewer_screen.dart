@@ -286,7 +286,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
               File(_localPath!),
               controller: _pdfController,
               scrollDirection: PdfScrollDirection.vertical,
-              enableDoubleTapZoom: true,
+              enableDoubleTapZooming: true,
               pageSpacing: 8,
               canShowScrollHead: true,
               canShowPaginationDialog: true,
@@ -312,7 +312,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
                   });
                 }
               },
-              pageLayout: PdfPageLayout.single,
+              pageLayoutMode: PdfPageLayoutMode.single,
               password: '',
             ),
           ),

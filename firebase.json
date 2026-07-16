@@ -1,1 +1,25 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"acedia-nextgen","appId":"1:208146666469:android:b2d35744ea9e4a1e21d50c","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"acedia-nextgen","configurations":{"android":"1:208146666469:android:b2d35744ea9e4a1e21d50c","web":"1:208146666469:web:f6902ddae87e85fe21d50c"}}}}}}
+{
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "acedia-nextgen",
+          "appId": "1:208146666469:android:b2d35744ea9e4a1e21d50c",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "acedia-nextgen",
+          "configurations": {
+            "android": "1:208146666469:android:b2d35744ea9e4a1e21d50c",
+            "web": "1:208146666469:web:f6902ddae87e85fe21d50c"
+          }
+        }
+      }
+    }
+  }
+}

@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:acadia/src/core/services/firebase_service.dart';
-import 'package:dio/dio.dart';
+import 'package:acadia/src/core/services/image_upload_service.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ProfileStorageService {
@@ -12,56 +12,25 @@ class ProfileStorageService {
 
   final FirebaseService _firebaseService = FirebaseService();
   
-  // FreeImage.host API Key
-  static const String _freeImageApiKey = '6d207e02198a847aa98d0a2a901485a5';
-  
   static const String _profilePhotoKey = 'profile_photo_url';
   static const String _profilePhotoUpdatedKey = 'profile_photo_updated_at';
 
   // Upload progress callback
   void Function(double progress)? onUploadProgress;
 
-  /// Upload profile photo to FreeImage.host
+  /// Upload profile photo to the image host (ImgBB).
   Future<String?> uploadProfilePhoto(File imageFile, {void Function(double progress)? onProgress}) async {
-    try {
-      final bytes = await imageFile.readAsBytes();
-      const uploadUrl = 'https://freeimage.host/api/1/upload';
-      
-      final dio = Dio();
-      final formData = FormData.fromMap({
-        'key': _freeImageApiKey,
-        'action': 'upload',
-        'source': MultipartFile.fromBytes(
-          bytes,
-          filename: 'profile_${DateTime.now().millisecondsSinceEpoch}.jpg',
-        ),
-        'format': 'json',
-      });
-      
-      final response = await dio.post(
-        uploadUrl,
-        data: formData,
-        onSendProgress: (sent, total) {
-          final progress = sent / total;
-          debugPrint('Upload progress: ${(progress * 100).toInt()}%');
-          onProgress?.call(progress);
-        },
-      );
-      
-      if (response.statusCode == 200 && response.data['status_code'] == 200) {
-        return response.data['image']['url'];
-      } else {
-        final errorMsg = response.data['status_txt']?.toString() ?? 'Upload failed';
-        debugPrint('FreeImage.host upload failed: $errorMsg');
-        throw Exception(errorMsg);
-      }
-    } on DioException catch (e) {
-      debugPrint('FreeImage.host Dio error: ${e.message}');
-      throw Exception('Network error: ${e.message}');
-    } catch (e) {
-      debugPrint('FreeImage.host upload error: $e');
-      rethrow;
+    final url = await ImageUploadService.uploadImage(
+      imageFile,
+      name: 'profile_${DateTime.now().millisecondsSinceEpoch}',
+      onSendProgress: (sent, total) {
+        if (total > 0) onProgress?.call(sent / total);
+      },
+    );
+    if (url == null) {
+      throw Exception('Image upload failed. Please try again.');
     }
+    return url;
   }
 
   /// Update user's profile photo URL in Firebase
@@ -230,10 +199,10 @@ class ProfileStorageService {
   /// Get the full profile photo flow: upload, get URL, update user
   Future<String?> updateProfilePhoto(String userId, File imageFile, {void Function(double progress)? onProgress}) async {
     try {
-      // 1. Upload to FreeImage.host
+      // 1. Upload to the image host
       final imageUrl = await uploadProfilePhoto(imageFile, onProgress: onProgress);
       if (imageUrl == null) {
-        throw Exception('Failed to upload image to FreeImage.host');
+        throw Exception('Failed to upload image');
       }
       
       // 2. Update user profile in Firebase
