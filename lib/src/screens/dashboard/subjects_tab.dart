@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:acadia/src/core/constants/academic_structure.dart';
+import 'package:acadia/src/core/content/structure_service.dart';
 import 'package:acadia/src/widgets/common/subject_icon_widget.dart';
 
 /// SubjectsTab
@@ -38,17 +39,28 @@ class _SubjectsTabState extends State<SubjectsTab> {
         prefs.getString('stream') ?? prefs.getString('selected_stream');
     final path = prefs.getString('academic_path');
 
+    // Prefer the dynamic structure (structure.txt from the content repo), fall
+    // back to the bundled AcademicStructure when it has no data.
+    await StructureService.instance.init();
+    final structure = StructureService.instance;
+
     List<String> subjects = [];
     if (path == 'university' || path == 'UNIVERSITY') {
       final semester = prefs.getString('semester') ?? '1';
       final track = prefs.getString('selected_track');
-      subjects = AcademicStructure.getUniversitySubjects(
-        semester,
-        stream ?? 'natural',
-        track,
-      );
+      subjects = structure.universitySubjects(semester, stream, track);
+      if (subjects.isEmpty) {
+        subjects = AcademicStructure.getUniversitySubjects(
+          semester,
+          stream ?? 'natural',
+          track,
+        );
+      }
     } else if (grade != null) {
-      subjects = AcademicStructure.getSubjects(grade, stream);
+      subjects = structure.highSchoolSubjects(grade, stream);
+      if (subjects.isEmpty) {
+        subjects = AcademicStructure.getSubjects(grade, stream);
+      }
     }
 
     if (!mounted) return;

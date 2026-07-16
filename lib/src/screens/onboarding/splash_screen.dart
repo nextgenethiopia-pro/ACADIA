@@ -2,7 +2,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:acadia/src/core/services/firebase_service.dart';
+import 'package:acadia/src/core/services/app_update_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../core/constants/colors.dart';
 
@@ -87,6 +89,15 @@ class _SplashScreenState extends State<SplashScreen>
     _imageTimer?.cancel();
     _controller.stop();
 
+    // Force-update / maintenance gate driven by Firestore settings/app.
+    final status = await AppUpdateService().checkStatus();
+    if (status.blocks) {
+      if (mounted) await _showBlockingDialog(status);
+      return;
+    }
+
+    if (!mounted) return;
+
     final prefs = await SharedPreferences.getInstance();
     final onboardingComplete = prefs.getBool('onboarding_complete') ?? false;
     final isAuthenticated = FirebaseAuth.instance.currentUser != null;
@@ -104,6 +115,39 @@ class _SplashScreenState extends State<SplashScreen>
     } else {
       context.go('/welcome');
     }
+  }
+
+  Future<void> _showBlockingDialog(AppUpdateStatus status) async {
+    final isMaintenance = status.action == AppUpdateAction.maintenance;
+    final title = isMaintenance ? 'Under Maintenance' : 'Update Required';
+    final body = status.message ??
+        (isMaintenance
+            ? 'ACADIA is temporarily unavailable for maintenance. Please try again later.'
+            : 'A new version of ACADIA is required to continue. Please update to keep learning.');
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => PopScope(
+        canPop: false,
+        child: AlertDialog(
+          title: Text(title),
+          content: Text(body),
+          actions: [
+            if (!isMaintenance && (status.updateUrl?.isNotEmpty ?? false))
+              ElevatedButton(
+                onPressed: () async {
+                  final uri = Uri.tryParse(status.updateUrl!);
+                  if (uri != null) {
+                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                  }
+                },
+                child: const Text('Update Now'),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override

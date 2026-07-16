@@ -98,6 +98,9 @@ flutter:
   uses-material-design: true
   
   assets:
+    # Canonical academic path/content structure (fallback for StructureService)
+    - assets/structure.txt
+
     # Images
     - assets/images/
     - assets/images/splash.jpg
