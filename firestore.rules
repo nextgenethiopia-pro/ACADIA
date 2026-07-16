@@ -1,0 +1,74 @@
+rules_version = '2';
+
+// Firestore security rules for ACADIA.
+//
+// Admin access is granted to any signed-in user whose email is listed in
+// settings/app.admin_emails. Populate that array with your admin emails,
+// otherwise admin-only writes (approving payments, editing settings,
+// creating announcements/notifications) will be denied.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function adminEmails() {
+      return get(/databases/$(database)/documents/settings/app).data.get('admin_emails', []);
+    }
+
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.email in adminEmails();
+    }
+
+    // User profiles: a user reads/writes only their own; admins may read/manage any.
+    match /users/{uid} {
+      allow read: if isSignedIn() && (request.auth.uid == uid || isAdmin());
+      allow create: if isSignedIn() && request.auth.uid == uid;
+      allow update, delete: if isSignedIn() && (request.auth.uid == uid || isAdmin());
+
+      // User-owned subcollections (activity, achievements, etc.).
+      match /{sub=**} {
+        allow read, write: if isSignedIn() && (request.auth.uid == uid || isAdmin());
+      }
+    }
+
+    // Progress: private to the owner.
+    match /progress/{uid} {
+      allow read, write: if isSignedIn() && request.auth.uid == uid;
+      match /{sub=**} {
+        allow read, write: if isSignedIn() && request.auth.uid == uid;
+      }
+    }
+
+    // Payments: a user may read and create ONLY their own payment. Only admins
+    // may modify (approve/reject) or delete a payment. This prevents a user
+    // from self-approving or tampering with any payment record.
+    match /payments/{paymentId} {
+      allow read: if isSignedIn() &&
+        (resource.data.user_id == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() &&
+        request.resource.data.user_id == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    // Announcements / app settings: public read, admin write.
+    match /settings/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /announcements/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Notifications: readable by signed-in users, writable by admins only.
+    match /notifications/{doc} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // Everything else is denied by default.
+  }
+}

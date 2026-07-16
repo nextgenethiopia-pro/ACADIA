@@ -8,9 +8,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:acadia/src/core/blocs/auth/auth_bloc.dart';
 import 'package:acadia/src/core/constants/colors.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:dio/dio.dart';
+import 'package:acadia/src/core/services/image_upload_service.dart';
 import 'dart:io';
-import 'dart:convert';
 
 class ProfileTab extends StatefulWidget {
   const ProfileTab({super.key});
@@ -34,9 +33,6 @@ class _ProfileTabState extends State<ProfileTab> {
   double _uploadProgress = 0.0;
   bool _isAdmin = false;
   final ImagePicker _picker = ImagePicker();
-
-  // FreeImage.host API Key
-  static const String _freeImageApiKey = '6d207e02198a847aa98d0a2a901485a5';
 
   // Hardcoded admin emails - always have admin access
   static const List<String> _hardcodedAdminEmails = [
@@ -120,52 +116,23 @@ class _ProfileTabState extends State<ProfileTab> {
   }
 
   // ============================================================
-  // FREEIMAGE.HOST UPLOAD
+  // IMAGE UPLOAD (ImgBB)
   // ============================================================
 
   Future<String?> _uploadToFreeImage(String imagePath) async {
-    try {
-      final file = File(imagePath);
-      final bytes = await file.readAsBytes();
-      
-      const uploadUrl = 'https://freeimage.host/api/1/upload';
-      
-      final dio = Dio();
-      final formData = FormData.fromMap({
-        'key': _freeImageApiKey,
-        'action': 'upload',
-        'source': MultipartFile.fromBytes(
-          bytes,
-          filename: 'profile_${DateTime.now().millisecondsSinceEpoch}.jpg',
-        ),
-        'format': 'json',
-      });
-      
-      final response = await dio.post(
-        uploadUrl,
-        data: formData,
-        onSendProgress: (sent, total) {
-          if (mounted) {
-            setState(() {
-              _uploadProgress = sent / total;
-            });
-          }
-        },
-      );
-      
-      if (response.statusCode == 200 && response.data['status_code'] == 200) {
-        return response.data['image']['url'];
-      } else {
-        debugPrint('FreeImage.host upload failed: ${response.data}');
-        throw Exception(response.data['status_txt'] ?? 'Upload failed');
-      }
-    } on DioException catch (e) {
-      debugPrint('FreeImage.host Dio error: $e');
-      throw Exception('Network error: ${e.message}');
-    } catch (e) {
-      debugPrint('FreeImage.host upload error: $e');
-      rethrow;
+    final url = await ImageUploadService.uploadImage(
+      File(imagePath),
+      name: 'profile_${DateTime.now().millisecondsSinceEpoch}',
+      onSendProgress: (sent, total) {
+        if (mounted && total > 0) {
+          setState(() => _uploadProgress = sent / total);
+        }
+      },
+    );
+    if (url == null) {
+      throw Exception('Image upload failed. Please try again.');
     }
+    return url;
   }
 
   Future<void> _updateProfilePhoto(String imageUrl) async {

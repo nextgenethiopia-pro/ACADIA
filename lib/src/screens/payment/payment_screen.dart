@@ -2,15 +2,15 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
+import 'package:acadia/src/core/config/app_config.dart';
 import 'package:acadia/src/core/services/firebase_service.dart';
+import 'package:acadia/src/core/services/image_upload_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:acadia/src/core/constants/colors.dart';
 import 'package:acadia/src/widgets/common/gradient_button.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class PaymentScreen extends StatefulWidget {
   const PaymentScreen({super.key});
@@ -37,12 +37,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
   String _userPackageName = '';
   int _userPackagePrice = 300;
 
-  // FreeImage.host API Key
-  static const String _freeImageApiKey = '6d207e02198a847aa98d0a2a901485a5';
-
-  // Telegram Bot Config
-  static const String _telegramBotToken = '8768821280:AAHBymqTwrxWhbIlIY1lyx1PdF7K-sB22hE';
-  static const String _adminChatId = '5221126249';
 
   // Receipt image
   File? _receiptFile;
@@ -158,43 +152,15 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   Future<String?> _uploadToFreeImage(File imageFile) async {
-    try {
-      final bytes = await imageFile.readAsBytes();
-      const uploadUrl = 'https://freeimage.host/api/1/upload';
-      
-      final dio = Dio();
-      final formData = FormData.fromMap({
-        'key': _freeImageApiKey,
-        'action': 'upload',
-        'source': MultipartFile.fromBytes(
-          bytes,
-          filename: 'receipt_${DateTime.now().millisecondsSinceEpoch}.jpg',
-        ),
-        'format': 'json',
-      });
-      
-      final response = await dio.post(
-        uploadUrl,
-        data: formData,
-        onSendProgress: (sent, total) {
-          if (mounted) {
-            setState(() {
-              _uploadProgress = sent / total;
-            });
-          }
-        },
-      );
-      
-      if (response.statusCode == 200 && response.data['status_code'] == 200) {
-        return response.data['image']['url'];
-      } else {
-        debugPrint('FreeImage.host upload failed: ${response.data}');
-        return null;
-      }
-    } catch (e) {
-      debugPrint('FreeImage.host upload error: $e');
-      return null;
-    }
+    return ImageUploadService.uploadImage(
+      imageFile,
+      name: 'receipt_${DateTime.now().millisecondsSinceEpoch}',
+      onSendProgress: (sent, total) {
+        if (mounted && total > 0) {
+          setState(() => _uploadProgress = sent / total);
+        }
+      },
+    );
   }
 
   Future<void> _pickReceipt() async {
@@ -256,10 +222,19 @@ class _PaymentScreenState extends State<PaymentScreen> {
 ⏰ Time: ${DateTime.now().toString().substring(0, 19)}
       ''';
 
+      // Telegram credentials are supplied at build time; if absent, the
+      // payment is still recorded in Firestore and notified server-side.
+      if (!AppConfig.telegramConfigured) {
+        debugPrint('Telegram not configured; skipping client notification');
+        return;
+      }
+      final token = AppConfig.telegramBotToken;
+      final adminChatId = AppConfig.telegramAdminChatId;
+
       // Send text message
       await http.post(
-        Uri.parse('https://api.telegram.org/bot$_telegramBotToken/sendMessage'),
-        body: {'chat_id': _adminChatId, 'text': message, 'parse_mode': 'HTML'},
+        Uri.parse('https://api.telegram.org/bot$token/sendMessage'),
+        body: {'chat_id': adminChatId, 'text': message, 'parse_mode': 'HTML'},
       );
 
       // Send receipt image
@@ -267,9 +242,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
         final bytes = await _receiptFile!.readAsBytes();
         final request = http.MultipartRequest(
           'POST',
-          Uri.parse('https://api.telegram.org/bot$_telegramBotToken/sendPhoto'),
+          Uri.parse('https://api.telegram.org/bot$token/sendPhoto'),
         )
-          ..fields['chat_id'] = _adminChatId
+          ..fields['chat_id'] = adminChatId
           ..fields['caption'] = '📸 Payment Receipt - $userName (${_userPackageName})'
           ..files.add(http.MultipartFile.fromBytes('photo', bytes, filename: 'receipt.jpg'));
 
