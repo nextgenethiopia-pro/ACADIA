@@ -469,7 +469,13 @@ class _EntranceExamScreenState extends State<EntranceExamScreen> {
               elevation: 2,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               child: InkWell(
-                onTap: () => setState(() => _selectedGrade = grade),
+                onTap: () {
+                  setState(() {
+                    _selectedGrade = grade;
+                    _contentByChapter = {};
+                  });
+                  _loadContentForSubjectAndGrade();
+                },
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
                   padding: const EdgeInsets.all(16),
