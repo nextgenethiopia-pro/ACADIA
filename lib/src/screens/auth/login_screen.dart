@@ -325,7 +325,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               : () => context.push('/academic-path'),
                           style: TextButton.styleFrom(
                             foregroundColor: AppColors.primary,
-                            fontWeight: FontWeight.bold,
+                            textStyle: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           child: const Text('Sign Up'),
                         ),

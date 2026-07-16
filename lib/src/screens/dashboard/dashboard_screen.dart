@@ -56,7 +56,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     // Update in Firebase if user is logged in
     try {
       final firebase = FirebaseService();
-      final user = firebase.auth.currentUser;
+      final user = firebase.currentUser;
       if (user != null) {
         await firebase.updateDocument('users', user.uid, {
           'last_active': DateTime.now().toIso8601String(),
@@ -165,7 +165,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Future<void> _markAllNotificationsRead() async {
     try {
       final firebase = FirebaseService();
-      final user = firebase.auth.currentUser;
+      final user = firebase.currentUser;
       if (user != null) {
         // Mark all notifications as read
         final notifications = await firebase.getDocuments('notifications', where: {

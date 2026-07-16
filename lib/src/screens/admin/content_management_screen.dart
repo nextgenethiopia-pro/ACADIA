@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:acadia/src/core/services/firebase_service.dart';
 import 'package:acadia/src/core/constants/colors.dart';
-import 'package:acadia/src/utils/academic_structure.dart'; // Fixed import
+import 'package:acadia/src/core/constants/academic_structure.dart';
 
 class ContentManagementScreen extends StatefulWidget {
   const ContentManagementScreen({super.key});

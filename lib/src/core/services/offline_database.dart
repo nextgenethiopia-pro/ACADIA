@@ -306,6 +306,43 @@ class OfflineDatabase {
     return {};
   }
 
+  /// Upsert the local user_progress row using data restored from Firebase.
+  ///
+  /// Only known columns are copied; unknown keys are ignored so the schema
+  /// stays authoritative.
+  Future<void> updateUserProgressFromFirebase(
+    String userId,
+    Map<String, dynamic> progress,
+  ) async {
+    final db = await database;
+    final row = <String, dynamic>{'user_id': userId};
+
+    void copyInt(String key) {
+      final value = progress[key];
+      if (value is num) row[key] = value.toInt();
+    }
+
+    void copyDouble(String key) {
+      final value = progress[key];
+      if (value is num) row[key] = value.toDouble();
+    }
+
+    copyInt('total_study_time');
+    copyInt('lessons_completed');
+    copyInt('quizzes_passed');
+    copyDouble('average_score');
+    copyInt('current_streak');
+    copyInt('longest_streak');
+    final lastStudyDate = progress['last_study_date'];
+    if (lastStudyDate is String) row['last_study_date'] = lastStudyDate;
+
+    await db.insert(
+      'user_progress',
+      row,
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
   Future<void> updateStudyTime(String userId, int seconds) async {
     final db = await database;
     await db.rawUpdate('''
@@ -387,17 +424,26 @@ class OfflineDatabase {
     }
   }
 
-  Future<void> updateSubjectProgress(String userId, String subject, int totalLessons) async {
+  Future<void> updateSubjectProgress(
+    String userId,
+    String subject,
+    int totalLessons, {
+    int? lessonsCompleted,
+  }) async {
     final db = await database;
     final result = await db.query('subject_progress',
         where: 'user_id = ? AND subject = ?',
         whereArgs: [userId, subject]);
-    
+
+    final safeTotal = totalLessons <= 0 ? 1 : totalLessons;
+
     if (result.isNotEmpty) {
-      final lessonsCompleted = result.first['lessons_completed'] as int? ?? 0;
-      final newCompleted = lessonsCompleted + 1;
-      final percentage = (newCompleted / totalLessons) * 100;
-      
+      final existingCompleted = result.first['lessons_completed'] as int? ?? 0;
+      // When an explicit value is supplied (e.g. syncing from Firebase) use it
+      // directly; otherwise increment the local count by one.
+      final newCompleted = lessonsCompleted ?? (existingCompleted + 1);
+      final percentage = (newCompleted / safeTotal) * 100;
+
       await db.update('subject_progress', {
         'lessons_completed': newCompleted,
         'total_lessons': totalLessons,
@@ -405,12 +451,13 @@ class OfflineDatabase {
       }, where: 'user_id = ? AND subject = ?',
       whereArgs: [userId, subject]);
     } else {
+      final newCompleted = lessonsCompleted ?? 1;
       await db.insert('subject_progress', {
         'user_id': userId,
         'subject': subject,
-        'lessons_completed': 1,
+        'lessons_completed': newCompleted,
         'total_lessons': totalLessons,
-        'completion_percentage': (1.0 / totalLessons) * 100,
+        'completion_percentage': (newCompleted / safeTotal) * 100,
       }, conflictAlgorithm: ConflictAlgorithm.replace);
     }
 

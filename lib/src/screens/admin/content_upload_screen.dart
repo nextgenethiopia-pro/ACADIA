@@ -4,7 +4,7 @@ import 'package:acadia/src/core/services/firebase_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:acadia/src/core/constants/colors.dart';
 import 'package:acadia/src/widgets/common/gradient_button.dart';
-import 'package:acadia/src/utils/academic_structure.dart';
+import 'package:acadia/src/core/constants/academic_structure.dart';
 
 class ContentUploadScreen extends StatefulWidget {
   const ContentUploadScreen({super.key});

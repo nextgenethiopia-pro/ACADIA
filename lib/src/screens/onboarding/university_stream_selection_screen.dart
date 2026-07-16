@@ -93,7 +93,7 @@ class _UniversityStreamSelectionScreenState extends State<UniversityStreamSelect
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.semester, size: 16, color: AppColors.primary),
+                    Icon(Icons.calendar_today, size: 16, color: AppColors.primary),
                     const SizedBox(width: 6),
                     Text(
                       'Freshman - First Semester',

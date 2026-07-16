@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:acadia/src/core/services/offline_database.dart';
 import 'package:acadia/src/core/constants/colors.dart';
@@ -381,7 +382,7 @@ class _DownloadsManagerScreenState extends State<DownloadsManagerScreen> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Icon(
-                                      Icons.download_off,
+                                      Icons.file_download_off,
                                       size: 80,
                                       color: Colors.grey[400],
                                     ),

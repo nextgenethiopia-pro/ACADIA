@@ -16,8 +16,8 @@ class FirebaseAuthService {
 
   static const List<String> adminEmails = [
     'nextgenethiopia@gmail.com',
-    'adminacadia@gmail.com'
-    'firaoltadesa21@gmail.com'
+    'adminacadia@gmail.com',
+    'firaoltadesa21@gmail.com',
   ];
 
   /// Sign Up with Email & Password
@@ -29,6 +29,11 @@ class FirebaseAuthService {
     String? grade,
     String? stream,
     String? academicPath,
+    String? generation,
+    String? university,
+    String? universityYear,
+    String? semester,
+    String? track,
   }) async {
     try {
       final userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
@@ -55,6 +60,11 @@ class FirebaseAuthService {
         'grade': grade,
         'stream': stream,
         'academic_path': academicPath,
+        'generation': generation,
+        'university': university,
+        'university_year': universityYear,
+        'semester': semester,
+        'track': track,
         'is_admin': isAdmin,
         'created_at': FieldValue.serverTimestamp(),
         'updated_at': FieldValue.serverTimestamp(),

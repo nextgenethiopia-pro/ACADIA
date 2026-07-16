@@ -116,6 +116,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         grade: event.grade,
         stream: event.stream,
         academicPath: event.academicPath,
+        generation: event.generation,
+        university: event.university,
+        universityYear: event.universityYear,
+        semester: event.semester,
+        track: event.track,
       );
       
       if (response['success'] == true) {
