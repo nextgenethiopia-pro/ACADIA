@@ -392,7 +392,7 @@ class _QuizScreenState extends State<QuizScreen> {
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                       decoration: BoxDecoration(
-                                        color: AppColors.primary.withOpacity(0.1),
+                                        color: AppColors.primary.withAlpha(((255 * 0.1)).toInt()),
                                         borderRadius: BorderRadius.circular(20),
                                       ),
                                       child: Text(
@@ -404,7 +404,7 @@ class _QuizScreenState extends State<QuizScreen> {
                                       Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                         decoration: BoxDecoration(
-                                          color: isCorrect ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1),
+                                          color: isCorrect ? Colors.green.withAlpha(((255 * 0.1)).toInt()) : Colors.red.withAlpha(((255 * 0.1)).toInt()),
                                           borderRadius: BorderRadius.circular(20),
                                         ),
                                         child: Row(
@@ -464,15 +464,15 @@ class _QuizScreenState extends State<QuizScreen> {
                             final isCorrectOption = (optionText == correctAnswer);
 
                             if (isSelected && isCorrectOption) {
-                              optionColor = Colors.green.withOpacity(0.15);
+                              optionColor = Colors.green.withAlpha(((255 * 0.15)).toInt());
                               feedbackIcon = Icons.check_circle;
                               feedbackColor = Colors.green;
                             } else if (isSelected && !isCorrectOption) {
-                              optionColor = Colors.red.withOpacity(0.15);
+                              optionColor = Colors.red.withAlpha(((255 * 0.15)).toInt());
                               feedbackIcon = Icons.cancel;
                               feedbackColor = Colors.red;
                             } else if (!isSelected && isCorrectOption) {
-                              optionColor = Colors.green.withOpacity(0.08);
+                              optionColor = Colors.green.withAlpha(((255 * 0.08)).toInt());
                               feedbackIcon = Icons.check_circle_outline;
                               feedbackColor = Colors.green;
                             }
@@ -486,7 +486,7 @@ class _QuizScreenState extends State<QuizScreen> {
                               child: Container(
                                 padding: const EdgeInsets.all(14),
                                 decoration: BoxDecoration(
-                                  color: optionColor ?? (isSelected ? AppColors.primary.withOpacity(0.08) : Colors.grey[50]),
+                                  color: optionColor ?? (isSelected ? AppColors.primary.withAlpha(((255 * 0.08)).toInt()) : Colors.grey[50]),
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
                                     color: isSelected ? AppColors.primary : Colors.grey[200]!,
@@ -555,9 +555,9 @@ class _QuizScreenState extends State<QuizScreen> {
                                     style: const TextStyle(fontSize: 13),
                                   ),
                                   style: OutlinedButton.styleFrom(
-                                    backgroundColor: AppColors.primary.withOpacity(0.05),
+                                    backgroundColor: AppColors.primary.withAlpha(((255 * 0.05)).toInt()),
                                     foregroundColor: AppColors.primary,
-                                    side: BorderSide(color: AppColors.primary.withOpacity(0.3)),
+                                    side: BorderSide(color: AppColors.primary.withAlpha(((255 * 0.3)).toInt())),
                                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                                   ),
                                 ),
@@ -566,9 +566,9 @@ class _QuizScreenState extends State<QuizScreen> {
                                     margin: const EdgeInsets.only(top: 12),
                                     padding: const EdgeInsets.all(16),
                                     decoration: BoxDecoration(
-                                      color: Colors.blue.withOpacity(0.05),
+                                      color: Colors.blue.withAlpha(((255 * 0.05)).toInt()),
                                       borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(color: Colors.blue.withOpacity(0.2)),
+                                      border: Border.all(color: Colors.blue.withAlpha(((255 * 0.2)).toInt())),
                                     ),
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -610,7 +610,7 @@ class _QuizScreenState extends State<QuizScreen> {
                     color: Colors.white,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withAlpha(((255 * 0.05)).toInt()),
                         blurRadius: 8,
                         offset: const Offset(0, -4),
                       )
@@ -628,7 +628,7 @@ class _QuizScreenState extends State<QuizScreen> {
                             child: Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: _currentQuestion > 1 ? AppColors.primary.withOpacity(0.1) : Colors.grey[100],
+                                color: _currentQuestion > 1 ? AppColors.primary.withAlpha(((255 * 0.1)).toInt()) : Colors.grey[100],
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Icon(
@@ -704,7 +704,7 @@ class _QuizScreenState extends State<QuizScreen> {
                               } else if (isWrongAnswer) {
                                 bgColor = Colors.red;
                               } else if (isAnswered) {
-                                bgColor = Colors.green.withOpacity(0.5);
+                                bgColor = Colors.green.withAlpha(((255 * 0.5)).toInt());
                               } else {
                                 bgColor = Colors.grey[700];
                               }

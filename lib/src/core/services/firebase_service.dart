@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:dio/dio.dart';
 import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 
 /// Firebase Service (Firestore + Auth)

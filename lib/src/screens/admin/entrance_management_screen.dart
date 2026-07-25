@@ -868,7 +868,7 @@ class _EntranceManagementScreenState extends State<EntranceManagementScreen> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: subjectColor.withOpacity(0.1),
+          backgroundColor: subjectColor.withAlpha((255 * 0.1).toInt()),
           child: Icon(icon, color: subjectColor),
         ),
         title: Text(

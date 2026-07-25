@@ -177,7 +177,7 @@ class _SubjectPortalScreenState extends State<SubjectPortalScreen> {
               background: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [subjectColor, subjectColor.withOpacity(0.7)],
+                    colors: [subjectColor, subjectColor.withAlpha(((255 * 0.7)).toInt())],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -192,7 +192,7 @@ class _SubjectPortalScreenState extends State<SubjectPortalScreen> {
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
+                            color: Colors.white.withAlpha(((255 * 0.2)).toInt()),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: SubjectIconWidget(
@@ -205,7 +205,7 @@ class _SubjectPortalScreenState extends State<SubjectPortalScreen> {
                         Text(
                           '${_contentStructure.length} Units',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withAlpha(((255 * 0.9)).toInt()),
                             fontSize: 16,
                           ),
                         ),
@@ -224,13 +224,13 @@ class _SubjectPortalScreenState extends State<SubjectPortalScreen> {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: _isPurchased
-                    ? subjectColor.withOpacity(0.1)
-                    : Colors.orange.withOpacity(0.1),
+                    ? subjectColor.withAlpha(((255 * 0.1)).toInt())
+                    : Colors.orange.withAlpha(((255 * 0.1)).toInt()),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: _isPurchased
-                      ? subjectColor.withOpacity(0.3)
-                      : Colors.orange.withOpacity(0.5),
+                      ? subjectColor.withAlpha(((255 * 0.3)).toInt())
+                      : Colors.orange.withAlpha(((255 * 0.5)).toInt()),
                 ),
               ),
               child: Column(
@@ -424,9 +424,9 @@ class _SubjectPortalScreenState extends State<SubjectPortalScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withAlpha(((255 * 0.1)).toInt()),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: color.withOpacity(0.3)),
+          border: Border.all(color: color.withAlpha(((255 * 0.3)).toInt())),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -466,19 +466,17 @@ class _SubjectPortalScreenState extends State<SubjectPortalScreen> {
         ),
       ),
       child: InkWell(
-        onTap: _isPurchased
-            ? () {
-                final contentTypes = _contentStructure[unit] ?? [];
-                context.push(
-                  '/chapter/${Uri.encodeComponent(unit)}',
-                  extra: {
-                    'unit': unit,
-                    'subjectId': widget.subjectId,
-                    'contentTypes': contentTypes,
-                  },
-                );
-              }
-            : null,
+        onTap: () {
+          final contentTypes = _contentStructure[unit] ?? [];
+          context.push(
+            '/chapter/${Uri.encodeComponent(unit)}',
+            extra: {
+              'unit': unit,
+              'subjectId': widget.subjectId,
+              'contentTypes': contentTypes,
+            },
+          );
+        },
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -489,7 +487,7 @@ class _SubjectPortalScreenState extends State<SubjectPortalScreen> {
                 height: 50,
                 decoration: BoxDecoration(
                   color: _isPurchased
-                      ? subjectColor.withOpacity(0.1)
+                      ? subjectColor.withAlpha(((255 * 0.1)).toInt())
                       : Colors.grey[200],
                   borderRadius: BorderRadius.circular(12),
                 ),

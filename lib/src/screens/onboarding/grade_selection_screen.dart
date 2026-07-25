@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../core/constants/colors.dart';
 import '../../widgets/common/gradient_button.dart';
 
@@ -15,11 +16,27 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> {
   int? _selectedGrade;
   bool _isNavigating = false;
 
-  final List<GradeOption> _grades = [
-    GradeOption(grade: 9, color: Colors.blue, description: 'Foundation Level'),
-    GradeOption(grade: 10, color: Colors.green, description: 'Secondary Level'),
-    GradeOption(grade: 11, color: Colors.orange, description: 'College Prep'),
-    GradeOption(grade: 12, color: Colors.purple, description: 'Exit Exam Prep'),
+  final List<GradeOption> _grades = const [
+    GradeOption(
+      grade: 9,
+      shade: AppColors.primary,
+      description: 'Foundation Level',
+    ),
+    GradeOption(
+      grade: 10,
+      shade: AppColors.primaryLight,
+      description: 'Secondary Level',
+    ),
+    GradeOption(
+      grade: 11,
+      shade: AppColors.primary,
+      description: 'College Prep',
+    ),
+    GradeOption(
+      grade: 12,
+      shade: AppColors.primaryDark,
+      description: 'Exit Exam Prep',
+    ),
   ];
 
   Future<void> _saveGradeAndContinue() async {
@@ -28,148 +45,181 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> {
     setState(() => _isNavigating = true);
 
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('selected_grade', _selectedGrade.toString());
-    await prefs.setString('grade', _selectedGrade.toString());
+    final selectedGrade = _selectedGrade!.toString();
+
+    await prefs.setString('selected_grade', selectedGrade);
+    await prefs.setString('grade', selectedGrade);
+    await prefs.setBool('onboarding_complete', false);
+
+    if (_selectedGrade == 9 || _selectedGrade == 10) {
+      await prefs.setString('selected_stream', 'general');
+      await prefs.setString('stream', 'general');
+    } else {
+      await prefs.remove('selected_stream');
+      await prefs.remove('stream');
+    }
 
     if (!mounted) return;
 
     if (_selectedGrade == 11 || _selectedGrade == 12) {
       context.pushReplacement('/stream-selection');
     } else {
-      // For grades 9-10, skip stream selection
-      // Set default stream as 'natural' for grade 9-10 (no stream choice)
-      await prefs.setString('selected_stream', 'natural');
-      await prefs.setString('stream', 'natural');
-      
-      // Mark that onboarding is complete
-      await prefs.setBool('onboarding_complete', true);
-      
-      context.go('/dashboard');
+      context.pushReplacement('/register');
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
+        elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
+          onPressed: _isNavigating ? null : () => context.pop(),
         ),
         title: const Text('Select Your Grade'),
-        elevation: 0,
       ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Subtitle
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.05),
-                  borderRadius: BorderRadius.circular(12),
+                  color: AppColors.primary.withAlpha(((255 * 0.06)).toInt()),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: AppColors.primary.withAlpha(((255 * 0.12)).toInt()),
+                  ),
                 ),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.school, color: AppColors.primary, size: 20),
+                    const Padding(
+                      padding: EdgeInsets.only(top: 1),
+                      child: Icon(
+                        Icons.school,
+                        color: AppColors.primary,
+                        size: 20,
+                      ),
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'Choose your current grade level',
-                        style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                        'Choose your current grade level. Grades 11 and 12 will continue to stream selection, while Grades 9 and 10 will continue directly to registration.',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: AppColors.primary,
+                          height: 1.4,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
-
-              // Grade Grid (2x2)
+              const SizedBox(height: 24),
               Expanded(
                 child: GridView.builder(
+                  itemCount: _grades.length,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     crossAxisSpacing: 16,
                     mainAxisSpacing: 16,
-                    childAspectRatio: 0.9,
+                    childAspectRatio: 0.92,
                   ),
-                  itemCount: _grades.length,
                   itemBuilder: (context, index) {
-                    final gradeOption = _grades[index];
-                    final grade = gradeOption.grade;
-                    final color = gradeOption.color;
-                    final isSelected = _selectedGrade == grade;
+                    final option = _grades[index];
+                    final isSelected = _selectedGrade == option.grade;
 
-                    return GestureDetector(
-                      onTap: () => setState(() => _selectedGrade = grade),
+                    return InkWell(
+                      borderRadius: BorderRadius.circular(22),
+                      onTap: _isNavigating
+                          ? null
+                          : () => setState(() => _selectedGrade = option.grade),
                       child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
+                        duration: const Duration(milliseconds: 220),
+                        padding: const EdgeInsets.all(18),
                         decoration: BoxDecoration(
-                          gradient: isSelected
-                              ? null
-                              : LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [Colors.grey[50]!, Colors.grey[100]!],
-                                ),
-                          color: isSelected ? color.withOpacity(0.1) : null,
+                          color: isSelected
+                              ? option.shade.withAlpha(((255 * 0.08)).toInt())
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(22),
                           border: Border.all(
-                            color: isSelected ? color : Colors.grey[200]!,
-                            width: isSelected ? 2.5 : 1.5,
+                            color: isSelected
+                                ? option.shade
+                                : Colors.grey.shade300,
+                            width: isSelected ? 2.4 : 1.2,
                           ),
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: isSelected
-                              ? [BoxShadow(color: color.withOpacity(0.3), blurRadius: 12, offset: const Offset(0, 4))]
-                              : [],
+                          boxShadow: [
+                            BoxShadow(
+                              color: isSelected
+                                  ? option.shade.withAlpha(((255 * 0.16)).toInt())
+                                  : Colors.black.withAlpha(((255 * 0.04)).toInt()),
+                              blurRadius: isSelected ? 18 : 10,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                Text(
-                                  '$grade',
-                                  style: TextStyle(
-                                    fontSize: 56,
-                                    fontWeight: FontWeight.bold,
-                                    color: isSelected ? color : Colors.grey[500],
+                            Align(
+                              alignment: Alignment.topRight,
+                              child: AnimatedOpacity(
+                                duration: const Duration(milliseconds: 180),
+                                opacity: isSelected ? 1 : 0,
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: const BoxDecoration(
+                                    color: AppColors.primary,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.check,
+                                    size: 16,
+                                    color: Colors.white,
                                   ),
                                 ),
-                                if (isSelected)
-                                  Positioned(
-                                    bottom: 0,
-                                    right: 20,
-                                    child: Container(
-                                      padding: const EdgeInsets.all(4),
-                                      decoration: BoxDecoration(
-                                        color: color,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(Icons.check, color: Colors.white, size: 16),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Grade $grade',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: isSelected ? color : Colors.grey[500],
-                                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                               ),
                             ),
-                            const SizedBox(height: 4),
+                            const Spacer(),
                             Text(
-                              gradeOption.description,
+                              '${option.grade}',
                               style: TextStyle(
-                                fontSize: 11,
-                                color: isSelected ? color.withOpacity(0.7) : Colors.grey[400],
+                                fontSize: 54,
+                                height: 0.95,
+                                fontWeight: FontWeight.w800,
+                                color: isSelected
+                                    ? option.shade
+                                    : Colors.grey.shade500,
                               ),
                             ),
+                            const SizedBox(height: 12),
+                            Text(
+                              'Grade ${option.grade}',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color:
+                                    isSelected ? option.shade : Colors.black87,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              option.description,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey.shade600,
+                                height: 1.35,
+                              ),
+                            ),
+                            const Spacer(),
                           ],
                         ),
                       ),
@@ -177,60 +227,55 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> {
                   },
                 ),
               ),
-              const SizedBox(height: 24),
-
-              // Info text based on selection
+              const SizedBox(height: 20),
               if (_selectedGrade != null)
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: _selectedGrade == 11 || _selectedGrade == 12
-                        ? Colors.orange.withOpacity(0.1)
-                        : Colors.blue.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(12),
+                    color: AppColors.primary.withAlpha(((255 * 0.06)).toInt()),
+                    borderRadius: BorderRadius.circular(14),
                     border: Border.all(
-                      color: _selectedGrade == 11 || _selectedGrade == 12
-                          ? Colors.orange.withOpacity(0.3)
-                          : AppColors.primary.withOpacity(0.2),
+                      color: AppColors.primary.withAlpha(((255 * 0.12)).toInt()),
                     ),
                   ),
                   child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(
-                        _selectedGrade == 11 || _selectedGrade == 12
-                            ? Icons.track_changes
-                            : Icons.info_outline,
-                        color: _selectedGrade == 11 || _selectedGrade == 12
-                            ? Colors.orange
-                            : AppColors.primary,
-                        size: 18,
+                      const Padding(
+                        padding: EdgeInsets.only(top: 1),
+                        child: Icon(
+                          Icons.info_outline,
+                          color: AppColors.primary,
+                          size: 18,
+                        ),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 10),
                       Expanded(
                         child: Text(
                           _selectedGrade == 11 || _selectedGrade == 12
-                              ? 'You will need to select a stream (Natural Science or Social Science)'
-                              : 'Grade $_selectedGrade includes all core subjects with no stream selection',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: _selectedGrade == 11 || _selectedGrade == 12
-                                ? Colors.orange[700]
-                                : Colors.grey[700],
+                              ? 'Next step: choose your stream before registration.'
+                              : 'Next step: continue directly to registration.',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: AppColors.primary,
+                            height: 1.4,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
                     ],
                   ),
                 ),
-
-              // Continue Button
               GradientButton(
                 text: 'CONTINUE',
-                onPressed: _selectedGrade != null && !_isNavigating ? _saveGradeAndContinue : () {},
+                onPressed: _selectedGrade != null && !_isNavigating
+                    ? _saveGradeAndContinue
+                    : () {},
                 isDisabled: _selectedGrade == null || _isNavigating,
+                isLoading: _isNavigating,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
             ],
           ),
         ),
@@ -241,12 +286,12 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> {
 
 class GradeOption {
   final int grade;
-  final Color color;
+  final Color shade;
   final String description;
 
-  GradeOption({
+  const GradeOption({
     required this.grade,
-    required this.color,
+    required this.shade,
     required this.description,
   });
 }

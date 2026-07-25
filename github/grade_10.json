@@ -1,0 +1,518 @@
+{
+    "grade": "9",
+    "version": "1.0.0",
+    "subjects": [
+        {
+            "id": "biology",
+            "name": "Biology",
+            "status": "available",
+            "icon": "biology_icon.jpg",
+            "units": [
+                {
+                    "id": "unit_1",
+                    "title": "Unit 1: Introduction to Biology",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_2",
+                    "title": "Unit 2: Characteristics and Classification of Organisms",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_3",
+                    "title": "Unit 3: Cells",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_4",
+                    "title": "Unit 4: Reproduction",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_5",
+                    "title": "Unit 5: Human Health, Nutrition, and Disease",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_6",
+                    "title": "Unit 6: Ecology",
+                    "has_content": false,
+                    "content": {}
+                }
+            ]
+        },
+        {
+            "id": "chemistry",
+            "name": "Chemistry",
+            "status": "available",
+            "icon": "chemistry_icon.jpg",
+            "units": [
+                {
+                    "id": "unit_1",
+                    "title": "Unit 1: Chemistry and Its Importance",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_2",
+                    "title": "Unit 2: Measurements and Scientific Methods",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_3",
+                    "title": "Unit 3: Structure of the Atom",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_4",
+                    "title": "Unit 4: Periodic Classification of Elements",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_5",
+                    "title": "Unit 5: Chemical Bonding",
+                    "has_content": false,
+                    "content": {}
+                }
+            ]
+        },
+        {
+            "id": "citizenship",
+            "name": "Citizenship",
+            "status": "available",
+            "icon": "citizenship_icon.jpg",
+            "units": [
+                {
+                    "id": "unit_1",
+                    "title": "Unit 1: Ethical Values",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_2",
+                    "title": "Unit 2: The Culture of Using Digital Technology",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_3",
+                    "title": "Unit 3: Constitution and Constitutionalism",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_4",
+                    "title": "Unit 4: Understanding Indigenous Knowledge",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_5",
+                    "title": "Unit 5: Multiculturalism in Ethiopia",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_6",
+                    "title": "Unit 6: National Unity Through Diversity",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_7",
+                    "title": "Unit 7: Problem Solving Skills",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_8",
+                    "title": "Unit 8: Ethiopia's Foreign Relations in East Africa",
+                    "has_content": false,
+                    "content": {}
+                }
+            ]
+        },
+        {
+            "id": "economics",
+            "name": "Economics",
+            "status": "available",
+            "icon": "economics_icon.jpg",
+            "units": [
+                {
+                    "id": "unit_1",
+                    "title": "Unit 1: Introducing Economics",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_2",
+                    "title": "Unit 2: The Basic Economic Problems and Economic Systems",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_3",
+                    "title": "Unit 3: Economic Resources and Markets",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_4",
+                    "title": "Unit 4: Introduction to Demand and Supply",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_5",
+                    "title": "Unit 5: Introduction to Production and Cost",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_6",
+                    "title": "Unit 6: Introduction to Money",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_7",
+                    "title": "Unit 7: Introduction to Macroeconomics",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_8",
+                    "title": "Unit 8: Basic Entrepreneurship",
+                    "has_content": false,
+                    "content": {}
+                }
+            ]
+        },
+        {
+            "id": "english",
+            "name": "English",
+            "status": "available",
+            "icon": "english_icon.jpg",
+            "units": [
+                {
+                    "id": "unit_1",
+                    "title": "Unit 1: Living in Urban Areas",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_2",
+                    "title": "Unit 2: Study Skills",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_3",
+                    "title": "Unit 3: Traffic Accident",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_4",
+                    "title": "Unit 4: National Parks",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_5",
+                    "title": "Unit 5: Horticulture",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_6",
+                    "title": "Unit 6: Poverty in Ethiopia",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_7",
+                    "title": "Unit 7: Community Services",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_8",
+                    "title": "Unit 8: Communicable Diseases",
+                    "has_content": false,
+                    "content": {}
+                }
+            ]
+        },
+        {
+            "id": "geography",
+            "name": "Geography",
+            "status": "available",
+            "icon": "geography_icon.jpg",
+            "units": [
+                {
+                    "id": "unit_1",
+                    "title": "Unit 1: Introduction to Geography",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_2",
+                    "title": "Unit 2: The Earth",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_3",
+                    "title": "Unit 3: Map Reading and Interpretation",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_4",
+                    "title": "Unit 4: The Physical Environment of Ethiopia",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_5",
+                    "title": "Unit 5: Population of Ethiopia",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_6",
+                    "title": "Unit 6: Economic Activities in Ethiopia",
+                    "has_content": false,
+                    "content": {}
+                }
+            ]
+        },
+        {
+            "id": "history",
+            "name": "History",
+            "status": "available",
+            "icon": "history_icon.jpg",
+            "units": [
+                {
+                    "id": "unit_1",
+                    "title": "Unit 1: The Discipline of History and Human Evolution",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_2",
+                    "title": "Unit 2: Ancient World Civilizations Up to c. 500 AD",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_3",
+                    "title": "Unit 3: Peoples and States in Ethiopia and the Horn to the End of 13th C",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_4",
+                    "title": "Unit 4: The Middle Ages and Early Modern World, C. 500 to 1750s",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_5",
+                    "title": "Unit 5: Peoples and States of Africa to 1500",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_6",
+                    "title": "Unit 6: Africa and the Outside World 1500-1880s",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_7",
+                    "title": "Unit 7: States, Principalities, Population Movements & Interactions in Ethiopia 13th to Mid-16th C",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_8",
+                    "title": "Unit 8: Political, Social and Economic Processes in Ethiopia Mid-16th to Mid-19th C",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_9",
+                    "title": "Unit 9: The Age of Revolutions 1750s to 1815",
+                    "has_content": false,
+                    "content": {}
+                }
+            ]
+        },
+        {
+            "id": "it",
+            "name": "IT",
+            "status": "available",
+            "icon": "it_icon.jpg",
+            "units": [
+                {
+                    "id": "unit_1",
+                    "title": "Unit 1: Organization of Files",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_2",
+                    "title": "Unit 2: Computer Network",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_3",
+                    "title": "Unit 3: Application Software",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_4",
+                    "title": "Unit 4: Image Processing and Multimedia",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_5",
+                    "title": "Unit 5: Information and Computer Security",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_6",
+                    "title": "Unit 6: Fundamentals of Programming",
+                    "has_content": false,
+                    "content": {}
+                }
+            ]
+        },
+        {
+            "id": "mathematics",
+            "name": "Mathematics",
+            "status": "available",
+            "icon": "mathematics_icon.jpg",
+            "units": [
+                {
+                    "id": "unit_1",
+                    "title": "Unit 1: Further on Sets",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_2",
+                    "title": "Unit 2: The Number System",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_3",
+                    "title": "Unit 3: Solving Equations",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_4",
+                    "title": "Unit 4: Solving Inequalities",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_5",
+                    "title": "Unit 5: Introduction to Trigonometry",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_6",
+                    "title": "Unit 6: Regular Polygons",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_7",
+                    "title": "Unit 7: Congruency and Similarity",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_8",
+                    "title": "Unit 8: Vectors in Two Dimensions",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_9",
+                    "title": "Unit 9: Statistics and Probability",
+                    "has_content": false,
+                    "content": {}
+                }
+            ]
+        },
+        {
+            "id": "physics",
+            "name": "Physics",
+            "status": "available",
+            "icon": "physics_icon.jpg",
+            "units": [
+                {
+                    "id": "unit_1",
+                    "title": "Unit 1: Physics and Human Society",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_2",
+                    "title": "Unit 2: Physical Quantities",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_3",
+                    "title": "Unit 3: Motion in a Straight Line",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_4",
+                    "title": "Unit 4: Force, Work, Energy and Power",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_5",
+                    "title": "Unit 5: Simple Machines",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_6",
+                    "title": "Unit 6: Mechanical Oscillation and Sound Wave",
+                    "has_content": false,
+                    "content": {}
+                },
+                {
+                    "id": "unit_7",
+                    "title": "Unit 7: Temperature and Thermometry",
+                    "has_content": false,
+                    "content": {}
+                }
+            ]
+        }
+    ]
+}

@@ -644,7 +644,7 @@ class _NotificationCreationScreenState
                               }
                             });
                           },
-                          selectedColor: AppColors.primary.withOpacity(0.2),
+                          selectedColor: AppColors.primary.withAlpha((255 * 0.2).toInt()),
                         );
                       }).toList(),
                     ),
@@ -1070,7 +1070,7 @@ class _NotificationCreationScreenState
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: typeInfo.color.withOpacity(0.1),
+          backgroundColor: typeInfo.color.withAlpha((255 * 0.1).toInt()),
           child: Icon(typeInfo.icon, color: typeInfo.color, size: 20),
         ),
         title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w500)),
@@ -1132,9 +1132,9 @@ class _NotificationCreationScreenState
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withAlpha((255 * 0.1).toInt()),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withAlpha((255 * 0.3).toInt())),
       ),
       child: Text(label, style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold)),
     );

@@ -1,0 +1,126 @@
+{
+    "grade": "11",
+    "stream": "social",
+    "version": "1.0.0",
+    "subjects": [
+        {
+            "id": "aptitude",
+            "name": "Aptitude",
+            "status": "available",
+            "icon": "aptitude_icon.jpg",
+            "units": [
+                {"id": "part_1", "title": "Part 1: Mathematical Part", "has_content": false, "content": {}},
+                {"id": "part_2", "title": "Part 2: English Part", "has_content": false, "content": {}}
+            ]
+        },
+        {
+            "id": "citizenship",
+            "name": "Citizenship",
+            "status": "available",
+            "icon": "citizenship_icon.jpg",
+            "units": [
+                {"id": "unit_1", "title": "Unit 1: Democracy and Democratization", "has_content": false, "content": {}},
+                {"id": "unit_2", "title": "Unit 2: Citizens in the Digital Technology Age", "has_content": false, "content": {}},
+                {"id": "unit_3", "title": "Unit 3: Understanding Good Governance", "has_content": false, "content": {}},
+                {"id": "unit_4", "title": "Unit 4: Peace and Indigenous Conflict Resolution Mechanisms", "has_content": false, "content": {}},
+                {"id": "unit_5", "title": "Unit 5: Federalism in Ethiopia", "has_content": false, "content": {}},
+                {"id": "unit_6", "title": "Unit 6: Human Rights", "has_content": false, "content": {}},
+                {"id": "unit_7", "title": "Unit 7: Patriotism", "has_content": false, "content": {}},
+                {"id": "unit_8", "title": "Unit 8: Globalization and Global Issues", "has_content": false, "content": {}}
+            ]
+        },
+        {
+            "id": "economics",
+            "name": "Economics",
+            "status": "available",
+            "icon": "economics_icon.jpg",
+            "units": [
+                {"id": "unit_1", "title": "Unit 1: Theory of Consumer Behavior and Demand", "has_content": false, "content": {}},
+                {"id": "unit_2", "title": "Unit 2: Market Structure and the Decision of Firms", "has_content": false, "content": {}},
+                {"id": "unit_3", "title": "Unit 3: National Income Accounting", "has_content": false, "content": {}},
+                {"id": "unit_4", "title": "Unit 4: Consumption, Saving and Investment", "has_content": false, "content": {}},
+                {"id": "unit_5", "title": "Unit 5: Trade and Finance", "has_content": false, "content": {}},
+                {"id": "unit_6", "title": "Unit 6: Economic Development", "has_content": false, "content": {}},
+                {"id": "unit_7", "title": "Unit 7: Main Sectors, Sectorial Policies and Strategies of Ethiopia", "has_content": false, "content": {}}
+            ]
+        },
+        {
+            "id": "english",
+            "name": "English",
+            "status": "available",
+            "icon": "english_icon.jpg",
+            "units": [
+                {"id": "unit_1", "title": "Unit 1: Environmental Hazards", "has_content": false, "content": {}},
+                {"id": "unit_2", "title": "Unit 2: Civilization", "has_content": false, "content": {}},
+                {"id": "unit_3", "title": "Unit 3: Causes of Road Traffic Accidents", "has_content": false, "content": {}},
+                {"id": "unit_4", "title": "Unit 4: People and Natural Resources", "has_content": false, "content": {}},
+                {"id": "unit_5", "title": "Unit 5: Irrigation", "has_content": false, "content": {}},
+                {"id": "unit_6", "title": "Unit 6: Global Warming", "has_content": false, "content": {}},
+                {"id": "unit_7", "title": "Unit 7: Patriotism", "has_content": false, "content": {}},
+                {"id": "unit_8", "title": "Unit 8: Efficiency of Health Services", "has_content": false, "content": {}},
+                {"id": "unit_9", "title": "Unit 9: Indigenous Conflict Resolution", "has_content": false, "content": {}},
+                {"id": "unit_10", "title": "Unit 10: Artificial Intelligence", "has_content": false, "content": {}}
+            ]
+        },
+        {
+            "id": "geography",
+            "name": "Geography",
+            "status": "available",
+            "icon": "geography_icon.jpg",
+            "units": [
+                {"id": "unit_1", "title": "Unit 1: Formation of the Continents", "has_content": false, "content": {}},
+                {"id": "unit_2", "title": "Unit 2: Climate Classification and Climate Regions of Our World", "has_content": false, "content": {}},
+                {"id": "unit_3", "title": "Unit 3: Natural Resources and Conflicts over Resources", "has_content": false, "content": {}},
+                {"id": "unit_4", "title": "Unit 4: Global Population Dynamics and Challenges", "has_content": false, "content": {}},
+                {"id": "unit_5", "title": "Unit 5: Geography and Economic Development", "has_content": false, "content": {}},
+                {"id": "unit_6", "title": "Unit 6: Major Global Environmental Changes", "has_content": false, "content": {}},
+                {"id": "unit_7", "title": "Unit 7: Geographic Issues and Public Concerns", "has_content": false, "content": {}},
+                {"id": "unit_8", "title": "Unit 8: Geo-Spatial Information and Data Processing", "has_content": false, "content": {}}
+            ]
+        },
+        {
+            "id": "history",
+            "name": "History",
+            "status": "available",
+            "icon": "history_icon.jpg",
+            "units": [
+                {"id": "unit_1", "title": "Unit 1: History, Historiography, and Human Evolution", "has_content": false, "content": {}},
+                {"id": "unit_2", "title": "Unit 2: Major Spots of Ancient World Civilizations Up to c.500 A.D", "has_content": false, "content": {}},
+                {"id": "unit_3", "title": "Unit 3: Peoples, States and Historical Processes in Ethiopia and the Horn to the End of the 13th Century", "has_content": false, "content": {}},
+                {"id": "unit_4", "title": "Unit 4: The Middle Ages and Early Modern World, C. 500 AD-1789", "has_content": false, "content": {}},
+                {"id": "unit_5", "title": "Unit 5: Peoples and States of Africa to 1500", "has_content": false, "content": {}},
+                {"id": "unit_6", "title": "Unit 6: Africa and the Outside World 1500-1880s", "has_content": false, "content": {}},
+                {"id": "unit_7", "title": "Unit 7: States, Principalities, Population Movements and Interactions in Ethiopia", "has_content": false, "content": {}},
+                {"id": "unit_8", "title": "Unit 8: Political, Social and Economic Processes in Ethiopia, Mid 16th to Mid-19th Century", "has_content": false, "content": {}},
+                {"id": "unit_9", "title": "Unit 9: The Age of Revolutions, 1789 to 1815", "has_content": false, "content": {}}
+            ]
+        },
+        {
+            "id": "it",
+            "name": "IT",
+            "status": "available",
+            "icon": "it_icon.jpg",
+            "units": [
+                {"id": "unit_1", "title": "Unit 1: Information Systems and Its Applications", "has_content": false, "content": {}},
+                {"id": "unit_2", "title": "Unit 2: Emerging Technologies", "has_content": false, "content": {}},
+                {"id": "unit_3", "title": "Unit 3: Database Management", "has_content": false, "content": {}},
+                {"id": "unit_4", "title": "Unit 4: Web Development", "has_content": false, "content": {}},
+                {"id": "unit_5", "title": "Unit 5: Hardware Troubleshooting and Preventive Maintenance", "has_content": false, "content": {}},
+                {"id": "unit_6", "title": "Unit 6: Fundamentals of Programming", "has_content": false, "content": {}}
+            ]
+        },
+        {
+            "id": "mathematics",
+            "name": "Mathematics",
+            "status": "available",
+            "icon": "mathematics_icon.jpg",
+            "units": [
+                {"id": "unit_1", "title": "Unit 1: Relations and Functions", "has_content": false, "content": {}},
+                {"id": "unit_2", "title": "Unit 2: Rational Expressions and Rational Functions", "has_content": false, "content": {}},
+                {"id": "unit_3", "title": "Unit 3: Matrices", "has_content": false, "content": {}},
+                {"id": "unit_4", "title": "Unit 4: Determinants and Their Properties", "has_content": false, "content": {}},
+                {"id": "unit_5", "title": "Unit 5: Population and Natural Resources", "has_content": false, "content": {}}
+            ]
+        }
+    ]
+}

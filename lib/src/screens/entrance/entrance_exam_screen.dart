@@ -75,15 +75,15 @@ class _EntranceExamScreenState extends State<EntranceExamScreen> {
   };
 
   static const Map<String, Color> _subjectColors = {
-    'Mathematics': Color(0xFF9C27B0),
-    'English': Color(0xFF2196F3),
-    'Physics': Color(0xFFFF9800),
-    'Chemistry': Color(0xFF4CAF50),
-    'Biology': Color(0xFFE91E63),
-    'Aptitude': Color(0xFF708090),
-    'Geography': Color(0xFF009688),
-    'History': Color(0xFF795548),
-    'Economics': Color(0xFFFF5722),
+    'Mathematics': Color(0xFF093C5D),
+    'English': Color(0xFF093C5D),
+    'Physics': Color(0xFF093C5D),
+    'Chemistry': Color(0xFF093C5D),
+    'Biology': Color(0xFF093C5D),
+    'Aptitude': Color(0xFF093C5D),
+    'Geography': Color(0xFF093C5D),
+    'History': Color(0xFF093C5D),
+    'Economics': Color(0xFF093C5D),
   };
 
   @override
@@ -215,10 +215,11 @@ class _EntranceExamScreenState extends State<EntranceExamScreen> {
         contentId: contentId,
         title: content['title']?.toString() ?? 'Entrance Questions',
         downloadUrl: content['download_url']?.toString() ?? content['url']?.toString() ?? '',
-        contentType: 'quiz', // Use quiz viewer for entrance exam
+        contentType: 'quiz',
         fileFormat: 'json',
         subject: content['subject']?.toString() ?? '',
         chapter: content['chapter']?.toString() ?? '',
+        grade: _selectedGrade ?? '',
         onProgress: (progress) {
           if (mounted) setState(() => _downloadProgress[contentId] = progress);
         },
@@ -323,7 +324,7 @@ class _EntranceExamScreenState extends State<EntranceExamScreen> {
                 const Text('Entrance Exam', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22)),
                 const SizedBox(height: 4),
                 Text('Practice questions by grade and chapter',
-                    style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 14)),
+                    style: TextStyle(color: Colors.white.withAlpha(((255 * 0.8)).toInt()), fontSize: 14)),
               ],
             ),
           ),
@@ -361,7 +362,7 @@ class _EntranceExamScreenState extends State<EntranceExamScreen> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
                       gradient: LinearGradient(
-                        colors: [color.withOpacity(0.12), color.withOpacity(0.03)],
+                        colors: [color.withAlpha(((255 * 0.12)).toInt()), color.withAlpha(((255 * 0.03)).toInt())],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -402,9 +403,9 @@ class _EntranceExamScreenState extends State<EntranceExamScreen> {
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withAlpha(((255 * 0.1)).toInt()),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: color.withOpacity(0.3)),
+            border: Border.all(color: color.withAlpha(((255 * 0.3)).toInt())),
           ),
           child: Row(
             children: [
@@ -448,7 +449,7 @@ class _EntranceExamScreenState extends State<EntranceExamScreen> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
                     gradient: LinearGradient(
-                      colors: [color.withOpacity(0.1), color.withOpacity(0.03)],
+                      colors: [color.withAlpha(((255 * 0.1)).toInt()), color.withAlpha(((255 * 0.03)).toInt())],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -535,7 +536,7 @@ class _EntranceExamScreenState extends State<EntranceExamScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withAlpha(((255 * 0.1)).toInt()),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -558,7 +559,7 @@ class _EntranceExamScreenState extends State<EntranceExamScreen> {
                     Text('No content available yet',
                         style: TextStyle(fontSize: 16, color: Colors.grey)),
                     SizedBox(height: 8),
-                    Text('Content will be uploaded soon by admin',
+                    Text('Content will be uploaded soon by NextGen team',
                         style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic, fontSize: 13)),
                   ],
                 ),
@@ -602,7 +603,7 @@ class _EntranceExamScreenState extends State<EntranceExamScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withAlpha(((255 * 0.1)).toInt()),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(Icons.menu_book, color: color, size: 28),
@@ -664,9 +665,9 @@ class _EntranceExamScreenState extends State<EntranceExamScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.1),
+                    color: Colors.green.withAlpha(((255 * 0.1)).toInt()),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.green.withOpacity(0.3)),
+                    border: Border.all(color: Colors.green.withAlpha(((255 * 0.3)).toInt())),
                   ),
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,

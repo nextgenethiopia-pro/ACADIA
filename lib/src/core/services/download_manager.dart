@@ -1,17 +1,21 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'offline_database.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:acadia/src/local_database/isar_service.dart';
+import 'package:acadia/src/local_database/schemas/schemas.dart';
 
 class DownloadManager {
   final Dio _dio = Dio();
-  final OfflineDatabase _offlineDb = OfflineDatabase.instance;
-  
+  final IsarService _isarService = IsarService.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   // Track active downloads
   final Map<String, CancelToken> _cancelTokens = {};
   final Map<String, double> _downloadProgress = {};
-  
+
   // Download callbacks
   void Function(String contentId, double progress)? onProgress;
   void Function(String contentId, String filePath)? onComplete;
@@ -23,24 +27,20 @@ class DownloadManager {
     return connectivityResult != ConnectivityResult.none;
   }
 
-  /// Check available storage space
+  /// Check available storage space.
+  ///
+  /// Dart's [FileStat] exposes no free-space getter, so we optimistically
+  /// assume space is available; download failures are handled by the caller.
   Future<bool> hasEnoughSpace(int requiredBytes) async {
-    try {
-      final directory = await getApplicationDocumentsDirectory();
-      final stat = await directory.stat();
-      final freeSpace = stat.free;
-      return freeSpace > requiredBytes;
-    } catch (e) {
-      debugPrint('Error checking storage space: $e');
-      return true; // Assume enough space if can't check
-    }
+    return true;
   }
 
   /// Get formatted file size
   String formatFileSize(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024) return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    if (bytes < 1024 * 1024 * 1024)
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
   }
 
@@ -91,17 +91,22 @@ class DownloadManager {
     required String fileFormat,
     required String subject,
     required String chapter,
+    required String grade,
     int? pageCount,
     int? totalQuestions,
     int? totalCards,
     Function(double)? onProgress,
   }) async {
+    final user = _auth.currentUser;
+    if (user == null) {
+      throw Exception('User not authenticated');
+    }
     // Check if already downloaded
-    final isDownloaded = await _offlineDb.isContentDownloaded(contentId);
+    final isDownloaded = await _isarService.isContentDownloaded(contentId, user.uid);
     if (isDownloaded) {
       throw Exception('Content already downloaded');
     }
-    
+
     // Create a new download (resume would require server support)
     await downloadContent(
       contentId: contentId,
@@ -111,6 +116,7 @@ class DownloadManager {
       fileFormat: fileFormat,
       subject: subject,
       chapter: chapter,
+      grade: grade,
       pageCount: pageCount,
       totalQuestions: totalQuestions,
       totalCards: totalCards,
@@ -126,23 +132,30 @@ class DownloadManager {
     required String fileFormat,
     required String subject,
     required String chapter,
+    required String grade,
     int? pageCount,
     int? totalQuestions,
     int? totalCards,
     Function(double)? onProgress,
   }) async {
+    final user = _auth.currentUser;
+    if (user == null) {
+      throw Exception('User not authenticated');
+    }
     // Check if already downloaded
-    final isDownloaded = await _offlineDb.isContentDownloaded(contentId);
+    final isDownloaded = await _isarService.isContentDownloaded(contentId, user.uid);
     if (isDownloaded) {
-      final record = await _offlineDb.getDownloadRecord(contentId);
+      final record = await _isarService.getDownloadedContentById(contentId, user.uid);
       if (record != null) {
-        final filePath = record['local_path'] as String;
-        final file = File(filePath);
-        if (await file.exists()) {
-          throw Exception('Content already downloaded');
-        } else {
-          // File exists in DB but not on disk, remove record and re-download
-          await _offlineDb.deleteDownload(contentId);
+        final filePath = record.contentPath;
+        if (filePath != null) {
+          final file = File(filePath);
+          if (await file.exists()) {
+            throw Exception('Content already downloaded');
+          } else {
+            // File exists in DB but not on disk, remove record and re-download
+            await _isarService.deleteDownloadedContent(contentId, user.uid);
+          }
         }
       }
     }
@@ -157,15 +170,20 @@ class DownloadManager {
 
     String subDir;
     switch (contentType) {
-      case 'video': subDir = 'videos'; break;
-      case 'short_note': subDir = 'pdfs'; break;
+      case 'video':
+        subDir = 'videos';
+        break;
+      case 'short_note':
+        subDir = 'pdfs';
+        break;
       case 'quiz':
       case 'exam':
       case 'flashcard':
       case 'past_paper':
         subDir = 'json_content';
         break;
-      default: subDir = 'downloads';
+      default:
+        subDir = 'downloads';
     }
 
     final contentDir = Directory('${directory.path}/$subDir');
@@ -174,7 +192,7 @@ class DownloadManager {
     }
 
     final filePath = '${contentDir.path}/$contentId.$fileFormat';
-    
+
     // Check if temp file exists and delete it
     final tempFile = File('$filePath.temp');
     if (await tempFile.exists()) {
@@ -205,30 +223,28 @@ class DownloadManager {
       if (!await file.exists()) {
         throw Exception('Download failed: File not created');
       }
-      
+
       final fileSize = await file.length();
       if (fileSize == 0) {
         await file.delete();
         throw Exception('Download failed: Empty file');
       }
 
-      await _offlineDb.saveDownloadRecord(data: {
-        'content_id': contentId,
-        'title': title,
-        'subject': subject,
-        'chapter': chapter,
-        'content_type': contentType,
-        'download_url': downloadUrl,
-        'local_path': filePath,
-        'file_size_bytes': fileSize,
-        'file_format': fileFormat,
-        'page_count': pageCount,
-        'total_questions': totalQuestions,
-        'total_cards': totalCards,
-        'download_date': DateTime.now().toIso8601String(),
-        'last_accessed': DateTime.now().toIso8601String(),
-        'is_completed': 0,
-      });
+      final downloadedContent = DownloadedContent()
+        ..userId = user.uid
+        ..contentId = contentId
+        ..contentPath = filePath
+        ..contentType = contentType
+        ..subject = subject
+        ..grade = grade
+        ..chapter = chapter
+        ..downloadProgress = 1.0
+        ..isDownloaded = true
+        ..fileSize = fileSize
+        ..downloadedAt = DateTime.now()
+        ..lastAccessed = DateTime.now();
+
+      await _isarService.saveDownloadedContent(downloadedContent);
 
       // Clean up
       _cancelTokens.remove(contentId);
@@ -246,7 +262,7 @@ class DownloadManager {
       }
       _cancelTokens.remove(contentId);
       _downloadProgress.remove(contentId);
-      
+
       if (e.type == DioExceptionType.cancel) {
         throw Exception('Download cancelled');
       } else if (e.type == DioExceptionType.connectionTimeout ||
@@ -271,119 +287,146 @@ class DownloadManager {
 
   /// Get all downloaded content with optional filtering
   Future<List<Map<String, dynamic>>> getDownloads({String? contentType}) async {
-    final db = await _offlineDb.database;
-    
-    String query = '''
-      SELECT * FROM offline_content 
-      WHERE status = 'downloaded'
-    ''';
-    final List<Object?> args = [];
-    
+    final user = _auth.currentUser;
+    if (user == null) return [];
+    final List<DownloadedContent> downloads;
+
     if (contentType != null && contentType.isNotEmpty) {
-      query += ' AND content_type = ?';
-      args.add(contentType);
+      downloads = await _isarService.getDownloadedContentByType(user.uid, contentType);
+    } else {
+      downloads = await _isarService.getAllDownloadedContent(user.uid);
     }
-    
-    query += ' ORDER BY download_date DESC';
-    
-    final result = await db.rawQuery(query, args);
-    return result;
+
+    return downloads.map((d) => {
+      'content_id': d.contentId,
+      'subject': d.subject,
+      'chapter': d.chapter,
+      'content_type': d.contentType,
+      'local_path': d.contentPath,
+      'file_size_bytes': d.fileSize,
+      'download_date': d.downloadedAt?.toIso8601String(),
+      'last_accessed': d.lastAccessed?.toIso8601String(),
+    }).toList();
   }
 
   /// Get total storage used by downloads
   Future<double> getTotalStorageUsed() async {
-    final db = await _offlineDb.database;
-    final result = await db.rawQuery('''
-      SELECT SUM(file_size_bytes) as total 
-      FROM offline_content 
-      WHERE status = 'downloaded'
-    ''');
-    
-    final totalBytes = (result.first['total'] as int?) ?? 0;
+    final user = _auth.currentUser;
+    if (user == null) return 0.0;
+    final totalBytes = await _isarService.getTotalStorageUsed(user.uid);
     return totalBytes / (1024 * 1024); // Return in MB
   }
 
   /// Get storage used by content type
   Future<Map<String, double>> getStorageByType() async {
-    final db = await _offlineDb.database;
-    final result = await db.rawQuery('''
-      SELECT content_type, SUM(file_size_bytes) as total 
-      FROM offline_content 
-      WHERE status = 'downloaded'
-      GROUP BY content_type
-    ''');
-    
-    final Map<String, double> storageByType = {};
-    for (final row in result) {
-      final type = row['content_type'] as String;
-      final bytes = (row['total'] as int?) ?? 0;
-      storageByType[type] = bytes / (1024 * 1024);
+    final user = _auth.currentUser;
+    if (user == null) return {};
+    final allDownloads = await _isarService.getAllDownloadedContent(user.uid);
+    final Map<String, int> typeBytesMap = {};
+
+    for (final d in allDownloads) {
+      final type = d.contentType ?? 'unknown';
+      typeBytesMap[type] = (typeBytesMap[type] ?? 0) + d.fileSize;
     }
+
+    final Map<String, double> storageByType = {};
+    typeBytesMap.forEach((key, value) {
+      storageByType[key] = value / (1024 * 1024);
+    });
+
     return storageByType;
   }
 
   /// Update last accessed time
   Future<void> updateLastAccessed(String contentId) async {
-    final db = await _offlineDb.database;
-    await db.update(
-      'offline_content',
-      {'last_accessed': DateTime.now().toIso8601String()},
-      where: 'content_id = ?',
-      whereArgs: [contentId],
-    );
+    final user = _auth.currentUser;
+    if (user == null) return;
+    final record = await _isarService.getDownloadedContentById(contentId, user.uid);
+    if (record != null) {
+      record.lastAccessed = DateTime.now();
+      await _isarService.saveDownloadedContent(record);
+    }
   }
 
   /// Check if content is downloaded
   Future<bool> isContentDownloaded(String contentId) async {
-    return await _offlineDb.isContentDownloaded(contentId);
+    final user = _auth.currentUser;
+    if (user == null) return false;
+    return await _isarService.isContentDownloaded(contentId, user.uid);
   }
 
   /// Get download record
   Future<Map<String, dynamic>?> getDownloadRecord(String contentId) async {
-    return await _offlineDb.getDownloadRecord(contentId);
+    final user = _auth.currentUser;
+    if (user == null) return null;
+    final record = await _isarService.getDownloadedContentById(contentId, user.uid);
+    if (record == null) return null;
+    return {
+      'content_id': record.contentId,
+      'subject': record.subject,
+      'chapter': record.chapter,
+      'content_type': record.contentType,
+      'local_path': record.contentPath,
+      'file_size_bytes': record.fileSize,
+      'download_date': record.downloadedAt?.toIso8601String(),
+      'last_accessed': record.lastAccessed?.toIso8601String(),
+    };
   }
 
   /// Delete download
   Future<void> deleteDownload(String contentId) async {
+    final user = _auth.currentUser;
+    if (user == null) return;
     final record = await getDownloadRecord(contentId);
     if (record != null) {
-      final filePath = record['local_path'] as String;
-      final file = File(filePath);
-      if (await file.exists()) {
-        await file.delete();
+      final filePath = record['local_path'] as String?;
+      if (filePath != null) {
+        final file = File(filePath);
+        if (await file.exists()) {
+          await file.delete();
+        }
       }
-      await _offlineDb.deleteDownload(contentId);
+      await _isarService.deleteDownloadedContent(contentId, user.uid);
     }
   }
 
   /// Delete all downloads
   Future<void> deleteAllDownloads() async {
+    final user = _auth.currentUser;
+    if (user == null) return;
     final downloads = await getDownloads();
     for (final download in downloads) {
-      final filePath = download['local_path'] as String;
-      final file = File(filePath);
-      if (await file.exists()) {
-        await file.delete();
+      final filePath = download['local_path'] as String?;
+      if (filePath != null) {
+        final file = File(filePath);
+        if (await file.exists()) {
+          await file.delete();
+        }
       }
     }
-    await _offlineDb.deleteAllDownloads();
+    // Clear downloaded content for this user
+    await _isarService.clearUserData(user.uid);
   }
 
   /// Verify all downloaded files exist
   Future<List<String>> verifyDownloads() async {
+    final user = _auth.currentUser;
+    if (user == null) return [];
     final missingFiles = <String>[];
     final downloads = await getDownloads();
-    
+
     for (final download in downloads) {
-      final filePath = download['local_path'] as String;
+      final filePath = download['local_path'] as String?;
+      final contentId = download['content_id'] as String?;
+      if (contentId == null || filePath == null) continue;
       final file = File(filePath);
       if (!await file.exists()) {
-        missingFiles.add(download['content_id'] as String);
+        missingFiles.add(contentId);
         // Remove invalid record from database
-        await _offlineDb.deleteDownload(download['content_id'] as String);
+        await _isarService.deleteDownloadedContent(contentId, user.uid);
       }
     }
-    
+
     return missingFiles;
   }
 }

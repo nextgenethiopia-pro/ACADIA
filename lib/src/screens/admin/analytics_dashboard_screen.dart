@@ -308,7 +308,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
                           label: Text(range),
                           selected: isSelected,
                           onSelected: (v) => setState(() => _dateRange = range),
-                          selectedColor: AppColors.primary.withOpacity(0.2),
+                          selectedColor: AppColors.primary.withAlpha(((255 * 0.2)).toInt()),
                         ),
                       );
                     }).toList()),
@@ -364,7 +364,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: (_userGrowthPercentage >= 0 ? Colors.green : Colors.red).withOpacity(0.1),
+                      color: (_userGrowthPercentage >= 0 ? Colors.green : Colors.red).withAlpha(((255 * 0.1)).toInt()),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
@@ -410,7 +410,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
                         leading: Container(
                           padding: const EdgeInsets.all(6),
                           decoration: BoxDecoration(
-                            color: _getTypeColor(c['type'] as String).withOpacity(0.1),
+                            color: _getTypeColor(c['type'] as String).withAlpha(((255 * 0.1)).toInt()),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Icon(Icons.trending_up, color: _getTypeColor(c['type'] as String), size: 18),
@@ -443,9 +443,9 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withAlpha(((255 * 0.1)).toInt()),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.2)),
+          border: Border.all(color: color.withAlpha(((255 * 0.2)).toInt())),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -486,7 +486,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
                   height: (d.value / maxVal) * 120,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [color, color.withOpacity(0.5)],
+                      colors: [color, color.withAlpha(((255 * 0.5)).toInt())],
                       begin: Alignment.bottomCenter,
                       end: Alignment.topCenter,
                     ),

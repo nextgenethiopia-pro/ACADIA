@@ -145,7 +145,7 @@ class _EntranceSubjectScreenState extends State<EntranceSubjectScreen> {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [color.withOpacity(0.8), color],
+                  colors: [color.withAlpha((255 * 0.8).toInt()), color],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -156,7 +156,7 @@ class _EntranceSubjectScreenState extends State<EntranceSubjectScreen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withAlpha((255 * 0.2).toInt()),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: _getSubjectIcon(widget.subject, size: 36),
@@ -173,7 +173,7 @@ class _EntranceSubjectScreenState extends State<EntranceSubjectScreen> {
                         const SizedBox(height: 4),
                         Text(
                           widget.stream == 'natural' ? 'Natural Science Stream' : 'Social Science Stream',
-                          style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 14),
+                          style: TextStyle(color: Colors.white.withAlpha((255 * 0.8).toInt()), fontSize: 14),
                         ),
                       ],
                     ),
@@ -191,7 +191,7 @@ class _EntranceSubjectScreenState extends State<EntranceSubjectScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
+                    color: color.withAlpha((255 * 0.1).toInt()),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -239,7 +239,7 @@ class _EntranceSubjectScreenState extends State<EntranceSubjectScreen> {
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             color: hasContent
-                                ? (isCurrentGrade ? color.withOpacity(0.1) : Colors.grey[100])
+                                ? (isCurrentGrade ? color.withAlpha((255 * 0.1).toInt()) : Colors.grey[100])
                                 : Colors.grey[200],
                             borderRadius: BorderRadius.circular(10),
                           ),

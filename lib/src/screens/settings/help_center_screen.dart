@@ -202,7 +202,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                   Text(
                     'Search for answers or browse categories below.',
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withAlpha(((255 * 0.9)).toInt()),
                     ),
                   ),
                 ],
@@ -253,7 +253,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                       label: Text('$category ($count)', style: const TextStyle(fontSize: 12)),
                       selected: isSelected,
                       onSelected: (v) => setState(() => _selectedCategory = category),
-                      selectedColor: AppColors.primary.withOpacity(0.2),
+                      selectedColor: AppColors.primary.withAlpha(((255 * 0.2)).toInt()),
                       backgroundColor: Colors.grey[100],
                     ),
                   );
@@ -273,7 +273,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.1),
+                    color: AppColors.primary.withAlpha(((255 * 0.1)).toInt()),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -357,7 +357,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.1),
+                          color: AppColors.primary.withAlpha(((255 * 0.1)).toInt()),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: const Icon(Icons.headset_mic, color: AppColors.primary, size: 20),
@@ -421,7 +421,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withAlpha(((255 * 0.1)).toInt()),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(icon, color: color, size: 28),
@@ -444,7 +444,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
         leading: Container(
           padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.1),
+            color: AppColors.primary.withAlpha(((255 * 0.1)).toInt()),
             borderRadius: BorderRadius.circular(8),
           ),
           child: const Icon(Icons.help_outline, color: AppColors.primary, size: 20),
@@ -469,9 +469,9 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
             margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(0.03),
+              color: Colors.blue.withAlpha(((255 * 0.03)).toInt()),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.blue.withOpacity(0.1)),
+              border: Border.all(color: Colors.blue.withAlpha(((255 * 0.1)).toInt())),
             ),
             child: Text(
               faq['answer'],
@@ -497,7 +497,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
+                  color: AppColors.primary.withAlpha(((255 * 0.1)).toInt()),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(Icons.play_circle_filled, color: AppColors.primary, size: 32),
@@ -533,7 +533,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
             Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
+                color: AppColors.primary.withAlpha(((255 * 0.1)).toInt()),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, size: 14, color: AppColors.primary),

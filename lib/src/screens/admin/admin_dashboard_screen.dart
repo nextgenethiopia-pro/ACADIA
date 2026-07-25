@@ -209,12 +209,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.1),
+                      color: AppColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
                       'v1.0.0',
-                      style: TextStyle(color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.bold),
+                      style: const TextStyle(color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],
@@ -242,7 +242,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.1),
+                      color: Colors.red.withAlpha((255 * 0.1).toInt()),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Column(
@@ -297,7 +297,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 crossAxisSpacing: 10,
                 mainAxisSpacing: 10,
                 children: [
-                  _buildQuickAction('Upload', Icons.cloud_upload, () => context.push('/admin/content-upload')),
                   _buildQuickAction('Content', Icons.folder_open, () => context.push('/admin/content-management'), badge: _pendingContent > 0 ? '$_pendingContent' : null),
                   _buildQuickAction('Users', Icons.people, () => context.push('/admin/user-management')),
                   _buildQuickAction('Payments', Icons.payment, () => context.push('/admin/payment-approval'), badge: _pendingPayments > 0 ? '$_pendingPayments' : null),
@@ -329,7 +328,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     leading: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: (a['color'] as Color).withOpacity(0.1),
+                        color: (a['color'] as Color).withAlpha(((255 * 0.1)).toInt()),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(a['icon'] as IconData, color: a['color'] as Color, size: 20),
@@ -353,9 +352,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withAlpha(((255 * 0.1)).toInt()),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.2)),
+          border: Border.all(color: color.withAlpha(((255 * 0.2)).toInt())),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -418,7 +417,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.1),
+                        color: AppColors.primary.withAlpha((255 * 0.1).toInt()),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(icon, color: AppColors.primary, size: 24),

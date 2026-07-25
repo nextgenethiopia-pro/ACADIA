@@ -75,7 +75,7 @@ class _YearSelectionScreenState extends State<YearSelectionScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.05),
+                  color: AppColors.primary.withAlpha(((255 * 0.05)).toInt()),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -110,13 +110,13 @@ class _YearSelectionScreenState extends State<YearSelectionScreen> {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        (_selectedYear == 'freshman' ? AppColors.primary : Colors.orange).withOpacity(0.1),
-                        (_selectedYear == 'freshman' ? AppColors.primary : Colors.orange).withOpacity(0.05),
+                        (_selectedYear == 'freshman' ? AppColors.primary : Colors.orange).withAlpha(((255 * 0.1)).toInt()),
+                        (_selectedYear == 'freshman' ? AppColors.primary : Colors.orange).withAlpha(((255 * 0.05)).toInt()),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: (_selectedYear == 'freshman' ? AppColors.primary : Colors.orange).withOpacity(0.2),
+                      color: (_selectedYear == 'freshman' ? AppColors.primary : Colors.orange).withAlpha(((255 * 0.2)).toInt()),
                     ),
                   ),
                   child: Row(
@@ -149,7 +149,7 @@ class _YearSelectionScreenState extends State<YearSelectionScreen> {
                 onPressed: _selectedYear != null && !_isNavigating ? _saveAndContinue : () {},
                 isDisabled: _selectedYear == null || _isNavigating,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
             ],
           ),
         ),
@@ -168,14 +168,14 @@ class _YearSelectionScreenState extends State<YearSelectionScreen> {
         width: double.infinity,
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.05) : Colors.grey[50],
+          color: isSelected ? color.withAlpha(((255 * 0.05)).toInt()) : Colors.grey[50],
           border: Border.all(
             color: isSelected ? color : Colors.grey[200]!,
             width: isSelected ? 2.5 : 1.5,
           ),
           borderRadius: BorderRadius.circular(16),
           boxShadow: isSelected
-              ? [BoxShadow(color: color.withOpacity(0.2), blurRadius: 12, offset: const Offset(0, 4))]
+              ? [BoxShadow(color: color.withAlpha(((255 * 0.2)).toInt()), blurRadius: 12, offset: const Offset(0, 4))]
               : [],
         ),
         child: Row(
@@ -184,7 +184,7 @@ class _YearSelectionScreenState extends State<YearSelectionScreen> {
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: isSelected ? color.withOpacity(0.1) : Colors.grey[200],
+                color: isSelected ? color.withAlpha(((255 * 0.1)).toInt()) : Colors.grey[200],
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Icon(year.icon, color: isSelected ? color : Colors.grey[600], size: 32),
@@ -210,7 +210,7 @@ class _YearSelectionScreenState extends State<YearSelectionScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: year.color.withOpacity(0.1),
+                          color: year.color.withAlpha(((255 * 0.1)).toInt()),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(

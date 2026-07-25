@@ -427,9 +427,9 @@ class _ProgressTabState extends State<ProgressTab> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.1),
+                    color: Colors.orange.withAlpha(((255 * 0.1)).toInt()),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                    border: Border.all(color: Colors.orange.withAlpha(((255 * 0.3)).toInt())),
                   ),
                   child: Row(
                     children: [
@@ -476,7 +476,7 @@ class _ProgressTabState extends State<ProgressTab> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
-                boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.1), blurRadius: 8)],
+                boxShadow: [BoxShadow(color: Colors.grey.withAlpha(((255 * 0.1)).toInt()), blurRadius: 8)],
               ),
               child: BarChart(
                 BarChartData(
@@ -581,9 +581,9 @@ class _ProgressTabState extends State<ProgressTab> {
                 return Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: unlocked ? color.withOpacity(0.1) : Colors.grey[100],
+                    color: unlocked ? color.withAlpha(((255 * 0.1)).toInt()) : Colors.grey[100],
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: unlocked ? color.withOpacity(0.3) : Colors.grey[300]!),
+                    border: Border.all(color: unlocked ? color.withAlpha(((255 * 0.3)).toInt()) : Colors.grey[300]!),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -627,9 +627,9 @@ class _ProgressTabState extends State<ProgressTab> {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withAlpha(((255 * 0.1)).toInt()),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.2)),
+          border: Border.all(color: color.withAlpha(((255 * 0.2)).toInt())),
         ),
         child: Column(
           children: [

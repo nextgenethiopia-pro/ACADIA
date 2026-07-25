@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -12,7 +13,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 ///
 /// Admin updates content via Admin Panel → saves to Firestore → App fetches on startup
 class ContentConfigService {
-  static final ContentConfigService _instance = ContentConfigService._internal();
+  static final ContentConfigService _instance =
+      ContentConfigService._internal();
   factory ContentConfigService() => _instance;
   ContentConfigService._internal();
 
@@ -24,7 +26,6 @@ class ContentConfigService {
 
   // Cached config data
   Map<String, dynamic>? _cachedConfig;
-  String? _cachedVersion;
 
   // Listeners for config updates
   final List<void Function(Map<String, dynamic>)> _listeners = [];
@@ -39,7 +40,8 @@ class ContentConfigService {
 
     // Try to fetch from Firestore
     try {
-      final doc = await _firestore.collection('settings').doc('content_config').get();
+      final doc =
+          await _firestore.collection('settings').doc('content_config').get();
 
       if (doc.exists) {
         final config = doc.data()!;
@@ -50,7 +52,6 @@ class ContentConfigService {
 
         // Update cached config
         _cachedConfig = config;
-        _cachedVersion = version;
 
         // Notify listeners
         _notifyListeners(config);
@@ -109,7 +110,8 @@ class ContentConfigService {
         streamData = gradeData;
       }
 
-      final subjectData = streamData[subject.toLowerCase()] as Map<String, dynamic>?;
+      final subjectData =
+          streamData[subject.toLowerCase()] as Map<String, dynamic>?;
       if (subjectData == null) return null;
 
       final chapterData = subjectData[chapter] as Map<String, dynamic>?;
@@ -148,10 +150,11 @@ class ContentConfigService {
       } else {
         streamData = gradeData;
       }
-      
+
       if (streamData == null) return [];
 
-      final subjectData = streamData[subject.toLowerCase()] as Map<String, dynamic>?;
+      final subjectData =
+          streamData[subject.toLowerCase()] as Map<String, dynamic>?;
       if (subjectData == null) return [];
 
       final chapters = <Map<String, dynamic>>[];
@@ -224,7 +227,6 @@ class ContentConfigService {
       if (configJson != null) {
         final config = json.decode(configJson);
         _cachedConfig = config as Map<String, dynamic>;
-        _cachedVersion = config['version'] as String?;
         return config;
       }
     } catch (e) {
@@ -242,7 +244,6 @@ class ContentConfigService {
       await prefs.remove(_cacheKey);
       await prefs.remove(_configVersionKey);
       _cachedConfig = null;
-      _cachedVersion = null;
     } catch (e) {
       debugPrint('Error clearing cache: $e');
     }

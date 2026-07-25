@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:video_player/video_player.dart';
@@ -27,9 +28,12 @@ class _TutorialVideoScreenState extends State<TutorialVideoScreen> {
 
   // Video descriptions
   final Map<String, String> _videoDescriptions = {
-    'English': 'Learn how to browse subjects, purchase packages, submit payments, download content for offline use, and track your progress.',
-    'Amharic': 'ትምህርቶችን እንዴት ማሰስ፣ ፓኬጆችን መግዛት፣ ክፍያ ማስረከብ፣ ይዘትን ለኦፍላይን አጠቃቀም ማውረድ እና እድገትዎን መከታተል እንደሚችሉ ይማሩ።',
-    'Afaan Oromoo': 'Akka itti barnoota barbaaddan, paakeejii bittan, kaffaltii galmeessitan, qabiyyee offilaayinii fayyadamtuuf buufattanii fi akka itti dammaqina keessan hordoftan baradhaa.',
+    'English':
+        'Learn how to browse subjects, purchase packages, submit payments, download content for offline use, and track your progress.',
+    'Amharic':
+        'ትምህርቶችን እንዴት ማሰስ፣ ፓኬጆችን መግዛት፣ ክፍያ ማስረከብ፣ ይዘትን ለኦፍላይን አጠቃቀም ማውረድ እና እድገትዎን መከታተል እንደሚችሉ ይማሩ።',
+    'Afaan Oromoo':
+        'Akka itti barnoota barbaaddan, paakeejii bittan, kaffaltii galmeessitan, qabiyyee offilaayinii fayyadamtuuf buufattanii fi akka itti dammaqina keessan hordoftan baradhaa.',
   };
 
   @override
@@ -117,12 +121,15 @@ class _TutorialVideoScreenState extends State<TutorialVideoScreen> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [AppColors.primary.withOpacity(0.05), AppColors.secondary.withOpacity(0.02)],
+                colors: [
+                  AppColors.primary.withAlpha(((255 * 0.05)).toInt()),
+                  AppColors.secondary.withAlpha(((255 * 0.02)).toInt())
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+              border: Border.all(color: AppColors.primary.withAlpha(((255 * 0.2)).toInt())),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,20 +139,25 @@ class _TutorialVideoScreenState extends State<TutorialVideoScreen> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.1),
+                        color: AppColors.primary.withAlpha(((255 * 0.1)).toInt()),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(Icons.language, color: AppColors.primary, size: 20),
+                      child: const Icon(Icons.language,
+                          color: AppColors.primary, size: 20),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Select Language', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                          const Text('Select Language',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 14)),
                           const SizedBox(height: 2),
-                          Text('Choose your preferred language for the tutorial',
-                              style: TextStyle(color: Colors.grey[600], fontSize: 11)),
+                          Text(
+                              'Choose your preferred language for the tutorial',
+                              style: TextStyle(
+                                  color: Colors.grey[600], fontSize: 11)),
                         ],
                       ),
                     ),
@@ -160,7 +172,8 @@ class _TutorialVideoScreenState extends State<TutorialVideoScreen> {
                         value: _selectedLanguage,
                         underline: const SizedBox(),
                         items: ['English', 'Amharic', 'Afaan Oromoo']
-                            .map((lang) => DropdownMenuItem(value: lang, child: Text(lang)))
+                            .map((lang) => DropdownMenuItem(
+                                value: lang, child: Text(lang)))
                             .toList(),
                         onChanged: (value) {
                           if (value != null) {
@@ -177,17 +190,21 @@ class _TutorialVideoScreenState extends State<TutorialVideoScreen> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: Colors.blue.withOpacity(0.05),
+                      color: Colors.blue.withAlpha(((255 * 0.05)).toInt()),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.info_outline, size: 16, color: Colors.blue[700]),
+                        Icon(Icons.info_outline,
+                            size: 16, color: Colors.blue[700]),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             description,
-                            style: TextStyle(color: Colors.blue[700], fontSize: 12, height: 1.4),
+                            style: TextStyle(
+                                color: Colors.blue[700],
+                                fontSize: 12,
+                                height: 1.4),
                           ),
                         ),
                       ],
@@ -208,7 +225,7 @@ class _TutorialVideoScreenState extends State<TutorialVideoScreen> {
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withAlpha(((255 * 0.1)).toInt()),
                       blurRadius: 20,
                       offset: const Offset(0, 10),
                     ),
@@ -225,7 +242,8 @@ class _TutorialVideoScreenState extends State<TutorialVideoScreen> {
                               children: [
                                 CircularProgressIndicator(color: Colors.white),
                                 SizedBox(height: 16),
-                                Text('Loading video...', style: TextStyle(color: Colors.white70)),
+                                Text('Loading video...',
+                                    style: TextStyle(color: Colors.white70)),
                               ],
                             ),
                           ),
@@ -239,7 +257,8 @@ class _TutorialVideoScreenState extends State<TutorialVideoScreen> {
                                   child: VideoPlayer(_controller!),
                                 ),
                                 // Play/Pause overlay
-                                if (_showControls && !_controller!.value.isPlaying)
+                                if (_showControls &&
+                                    !_controller!.value.isPlaying)
                                   GestureDetector(
                                     onTap: () {
                                       setState(() => _controller!.play());
@@ -251,13 +270,16 @@ class _TutorialVideoScreenState extends State<TutorialVideoScreen> {
                                       decoration: BoxDecoration(
                                         color: Colors.black54,
                                         shape: BoxShape.circle,
-                                        border: Border.all(color: Colors.white24, width: 2),
+                                        border: Border.all(
+                                            color: Colors.white24, width: 2),
                                       ),
-                                      child: const Icon(Icons.play_arrow, color: Colors.white, size: 36),
+                                      child: const Icon(Icons.play_arrow,
+                                          color: Colors.white, size: 36),
                                     ),
                                   ),
                                 // Pause overlay when paused and controls visible
-                                if (_showControls && _controller!.value.isPlaying)
+                                if (_showControls &&
+                                    _controller!.value.isPlaying)
                                   GestureDetector(
                                     onTap: () {
                                       setState(() => _controller!.pause());
@@ -269,9 +291,11 @@ class _TutorialVideoScreenState extends State<TutorialVideoScreen> {
                                       decoration: BoxDecoration(
                                         color: Colors.black54,
                                         shape: BoxShape.circle,
-                                        border: Border.all(color: Colors.white24, width: 2),
+                                        border: Border.all(
+                                            color: Colors.white24, width: 2),
                                       ),
-                                      child: const Icon(Icons.pause, color: Colors.white, size: 36),
+                                      child: const Icon(Icons.pause,
+                                          color: Colors.white, size: 36),
                                     ),
                                   ),
                               ],
@@ -282,17 +306,22 @@ class _TutorialVideoScreenState extends State<TutorialVideoScreen> {
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(Icons.video_library, size: 80, color: Colors.grey[400]),
+                                    Icon(Icons.video_library,
+                                        size: 80, color: Colors.grey[400]),
                                     const SizedBox(height: 16),
                                     Text(
                                       'Tutorial video not available',
-                                      style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                                      style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontSize: 16),
                                       textAlign: TextAlign.center,
                                     ),
                                     const SizedBox(height: 8),
                                     Text(
                                       'Please add MP4 files to assets/videos/',
-                                      style: TextStyle(color: Colors.grey[500], fontSize: 13),
+                                      style: TextStyle(
+                                          color: Colors.grey[500],
+                                          fontSize: 13),
                                       textAlign: TextAlign.center,
                                     ),
                                     const SizedBox(height: 16),
@@ -316,12 +345,13 @@ class _TutorialVideoScreenState extends State<TutorialVideoScreen> {
               opacity: _showControls ? 1.0 : 0.0,
               duration: const Duration(milliseconds: 300),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.black.withAlpha(((255 * 0.05)).toInt()),
                       blurRadius: 10,
                       offset: const Offset(0, -2),
                     ),
@@ -336,7 +366,7 @@ class _TutorialVideoScreenState extends State<TutorialVideoScreen> {
                         allowScrubbing: true,
                         colors: VideoProgressColors(
                           playedColor: AppColors.primary,
-                          bufferedColor: AppColors.primary.withOpacity(0.3),
+                          bufferedColor: AppColors.primary.withAlpha(((255 * 0.3)).toInt()),
                           backgroundColor: Colors.grey[300]!,
                         ),
                       ),
@@ -347,9 +377,11 @@ class _TutorialVideoScreenState extends State<TutorialVideoScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(_formatDuration(_controller!.value.position),
-                              style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                              style: TextStyle(
+                                  fontSize: 12, color: Colors.grey[600])),
                           Text(_formatDuration(_controller!.value.duration),
-                              style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                              style: TextStyle(
+                                  fontSize: 12, color: Colors.grey[600])),
                         ],
                       ),
                       const SizedBox(height: 8),
@@ -363,7 +395,8 @@ class _TutorialVideoScreenState extends State<TutorialVideoScreen> {
                             onPressed: () {
                               final position = _controller!.value.position;
                               _controller!.seekTo(
-                                position - const Duration(seconds: 10) < Duration.zero
+                                position - const Duration(seconds: 10) <
+                                        Duration.zero
                                     ? Duration.zero
                                     : position - const Duration(seconds: 10),
                               );
@@ -377,14 +410,16 @@ class _TutorialVideoScreenState extends State<TutorialVideoScreen> {
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.primary.withOpacity(0.3),
+                                  color: AppColors.primary.withAlpha(((255 * 0.3)).toInt()),
                                   blurRadius: 8,
                                 ),
                               ],
                             ),
                             child: IconButton(
                               icon: Icon(
-                                _controller!.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                                _controller!.value.isPlaying
+                                    ? Icons.pause
+                                    : Icons.play_arrow,
                                 color: Colors.white,
                                 size: 32,
                               ),
@@ -405,7 +440,8 @@ class _TutorialVideoScreenState extends State<TutorialVideoScreen> {
                               final position = _controller!.value.position;
                               final duration = _controller!.value.duration;
                               _controller!.seekTo(
-                                position + const Duration(seconds: 10) > duration
+                                position + const Duration(seconds: 10) >
+                                        duration
                                     ? duration
                                     : position + const Duration(seconds: 10),
                               );

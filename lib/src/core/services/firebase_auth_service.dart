@@ -1,26 +1,22 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
-import 'firebase_service.dart';
 
 /// Firebase Auth Service (Auth + Firestore Profiles)
-/// Fully migrated from Supabase
+/// Stores rich ACADIA registration data in Firebase Auth + Firestore.
 class FirebaseAuthService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseService _firebaseService = FirebaseService();
 
-  // Get current user
   User? get currentUser => _firebaseAuth.currentUser;
   Stream<User?> get authStateChanges => _firebaseAuth.authStateChanges();
 
   static const List<String> adminEmails = [
     'nextgenethiopia@gmail.com',
-    'adminacadia@gmail.com'
-    'firaoltadesa21@gmail.com'
+    'adminacadia@gmail.com',
+    'firaoltadesa21@gmail.com',
   ];
 
-  /// Sign Up with Email & Password
   Future<Map<String, dynamic>> signUp({
     required String email,
     required String password,
@@ -29,6 +25,12 @@ class FirebaseAuthService {
     String? grade,
     String? stream,
     String? academicPath,
+    String? generation,
+    String? university,
+    String? universityYear,
+    String? semester,
+    String? track,
+    String? highSchoolName,
   }) async {
     try {
       final userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
@@ -41,26 +43,55 @@ class FirebaseAuthService {
         return {'success': false, 'error': 'Failed to create user'};
       }
 
-      // Update display name in Firebase
       await user.updateDisplayName(fullName);
 
-      // Create profile in Firestore
-      final isAdmin = adminEmails.contains(email.toLowerCase());
+      final normalizedEmail = email.trim().toLowerCase();
+      final normalizedPath = _normalizeAcademicPath(academicPath);
+      final normalizedGrade = _normalizeNullable(grade);
+      final normalizedStream = _normalizeNullable(stream);
+      final normalizedGeneration = _normalizeNullable(generation);
+      final normalizedUniversity = _normalizeNullable(university);
+      final normalizedUniversityYear = _normalizeNullable(universityYear);
+      final normalizedSemester = _normalizeNullable(semester);
+      final normalizedTrack = _normalizeNullable(track);
+      final normalizedPhone = _normalizePhone(phoneNumber);
+      final normalizedHighSchoolName = _normalizeNullable(highSchoolName);
+      final isAdmin = adminEmails.contains(normalizedEmail);
 
-      await _firestore.collection('users').doc(user.uid).set({
+      final profileData = <String, dynamic>{
         'uid': user.uid,
-        'email': email,
-        'full_name': fullName,
-        'phone_number': phoneNumber,
-        'grade': grade,
-        'stream': stream,
-        'academic_path': academicPath,
+        'email': normalizedEmail,
+        'full_name': fullName.trim(),
+        'phone_number': normalizedPhone,
+        'academic_path': normalizedPath,
+        'academic_level': _academicLevelFromPath(normalizedPath),
+        'grade': normalizedGrade,
+        'stream': normalizedStream,
+        'generation': normalizedGeneration,
+        'selected_generation': normalizedGeneration,
+        'university': normalizedUniversity,
+        'selected_university': normalizedUniversity,
+        'university_name': normalizedUniversity,
+        'university_year': normalizedUniversityYear,
+        'selected_year': normalizedUniversityYear,
+        'semester': normalizedSemester,
+        'track': normalizedTrack,
+        'selected_track': normalizedTrack,
+        'high_school_name': normalizedHighSchoolName,
         'is_admin': isAdmin,
+        'is_email_verified': false,
+        'is_profile_complete': true,
+        'onboarding_complete': true,
+        'registration_source': 'email_password',
+        'device_binding_enabled': true,
         'created_at': FieldValue.serverTimestamp(),
         'updated_at': FieldValue.serverTimestamp(),
-      });
+      };
 
-      // Send email verification
+      profileData.removeWhere((key, value) => value == null);
+
+      await _firestore.collection('users').doc(user.uid).set(profileData);
+
       await user.sendEmailVerification();
 
       return {
@@ -75,7 +106,6 @@ class FirebaseAuthService {
     }
   }
 
-  /// Sign In with Email & Password
   Future<Map<String, dynamic>> signIn({
     required String email,
     required String password,
@@ -91,7 +121,6 @@ class FirebaseAuthService {
         return {'success': false, 'error': 'Failed to sign in'};
       }
 
-      // Check if email is verified (skip for hardcoded admins)
       final isHardcodedAdmin = adminEmails.contains(email.toLowerCase());
       if (!user.emailVerified && !isHardcodedAdmin) {
         return {
@@ -101,11 +130,11 @@ class FirebaseAuthService {
         };
       }
 
-      // Update last sign in
-      await _firestore.collection('users').doc(user.uid).update({
+      await _firestore.collection('users').doc(user.uid).set({
         'last_sign_in': FieldValue.serverTimestamp(),
         'updated_at': FieldValue.serverTimestamp(),
-      });
+        'is_email_verified': user.emailVerified,
+      }, SetOptions(merge: true));
 
       return {'success': true, 'user': user};
     } on FirebaseAuthException catch (e) {
@@ -115,12 +144,10 @@ class FirebaseAuthService {
     }
   }
 
-  /// Sign Out
   Future<void> signOut() async {
     await _firebaseAuth.signOut();
   }
 
-  /// Reset Password
   Future<Map<String, dynamic>> resetPassword(String email) async {
     try {
       await _firebaseAuth.sendPasswordResetEmail(email: email);
@@ -133,7 +160,6 @@ class FirebaseAuthService {
     }
   }
 
-  /// Update Password
   Future<Map<String, dynamic>> updatePassword(String newPassword) async {
     try {
       final user = _firebaseAuth.currentUser;
@@ -148,10 +174,11 @@ class FirebaseAuthService {
     }
   }
 
-  /// Update Profile
   Future<Map<String, dynamic>> updateProfile({
     String? fullName,
     String? avatarUrl,
+    String? phoneNumber,
+    String? highSchoolName,
   }) async {
     try {
       final user = _firebaseAuth.currentUser;
@@ -159,17 +186,34 @@ class FirebaseAuthService {
         return {'success': false, 'error': 'No user signed in'};
       }
 
-      if (fullName != null) {
-        await user.updateDisplayName(fullName);
-      }
-
       final updates = <String, dynamic>{
         'updated_at': FieldValue.serverTimestamp(),
       };
-      if (fullName != null) updates['full_name'] = fullName;
-      if (avatarUrl != null) updates['avatar_url'] = avatarUrl;
 
-      await _firestore.collection('users').doc(user.uid).update(updates);
+      if (fullName != null && fullName.trim().isNotEmpty) {
+        await user.updateDisplayName(fullName.trim());
+        updates['full_name'] = fullName.trim();
+      }
+
+      if (avatarUrl != null && avatarUrl.trim().isNotEmpty) {
+        updates['avatar_url'] = avatarUrl.trim();
+      }
+
+      final normalizedPhone = _normalizePhone(phoneNumber);
+      if (phoneNumber != null) {
+        updates['phone_number'] = normalizedPhone;
+      }
+
+      if (highSchoolName != null) {
+        updates['high_school_name'] = _normalizeNullable(highSchoolName);
+      }
+
+      updates.removeWhere((key, value) => value == null);
+
+      await _firestore.collection('users').doc(user.uid).set(
+            updates,
+            SetOptions(merge: true),
+          );
 
       return {'success': true, 'message': 'Profile updated successfully'};
     } catch (e) {
@@ -177,7 +221,6 @@ class FirebaseAuthService {
     }
   }
 
-  /// Resend Verification Email
   Future<Map<String, dynamic>> resendVerificationEmail() async {
     try {
       final user = _firebaseAuth.currentUser;
@@ -195,19 +238,16 @@ class FirebaseAuthService {
     }
   }
 
-  /// Check if user is admin
   Future<bool> isAdmin() async {
     try {
       final user = _firebaseAuth.currentUser;
       if (user == null) return false;
 
-      // Hardcoded admin emails bypass Firestore check
       if (user.email != null &&
           adminEmails.contains(user.email!.toLowerCase())) {
         return true;
       }
 
-      // For other users, check Firestore
       final doc = await _firestore.collection('users').doc(user.uid).get();
       return doc.data()?['is_admin'] ?? false;
     } catch (e) {
@@ -216,7 +256,6 @@ class FirebaseAuthService {
     }
   }
 
-  /// Get user profile
   Future<Map<String, dynamic>?> getUserProfile() async {
     try {
       final user = _firebaseAuth.currentUser;
@@ -224,13 +263,13 @@ class FirebaseAuthService {
 
       final doc = await _firestore.collection('users').doc(user.uid).get();
       if (!doc.exists) {
-        // Create profile if it doesn't exist (e.g. legacy users)
         final isAdmin = adminEmails.contains(user.email?.toLowerCase());
-        final data = {
+        final data = <String, dynamic>{
           'uid': user.uid,
           'email': user.email,
           'full_name': user.displayName ?? 'Student',
           'is_admin': isAdmin,
+          'is_email_verified': user.emailVerified,
           'created_at': FieldValue.serverTimestamp(),
           'updated_at': FieldValue.serverTimestamp(),
         };
@@ -238,14 +277,59 @@ class FirebaseAuthService {
         return data;
       }
 
-      return doc.data();
+      final profile = doc.data()!;
+      if (profile['is_email_verified'] != user.emailVerified) {
+        await _firestore.collection('users').doc(user.uid).set({
+          'is_email_verified': user.emailVerified,
+          'updated_at': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+        profile['is_email_verified'] = user.emailVerified;
+      }
+
+      return profile;
     } catch (e) {
       debugPrint('Error getting profile: $e');
       return null;
     }
   }
 
-  /// Convert Firebase error codes to user-friendly messages
+  String? _normalizeNullable(String? value) {
+    if (value == null) return null;
+    final trimmed = value.trim();
+    return trimmed.isEmpty ? null : trimmed;
+  }
+
+  String? _normalizePhone(String? value) {
+    final normalized = _normalizeNullable(value);
+    if (normalized == null) return null;
+    return normalized.replaceAll(RegExp(r'\s+'), '');
+  }
+
+  String? _normalizeAcademicPath(String? value) {
+    final normalized = _normalizeNullable(value);
+    if (normalized == null) return null;
+
+    final upper = normalized.toUpperCase();
+    if (upper == 'HIGH SCHOOL' || upper == 'HIGH_SCHOOL') {
+      return 'HIGH SCHOOL';
+    }
+    if (upper == 'UNIVERSITY') {
+      return 'UNIVERSITY';
+    }
+    return normalized;
+  }
+
+  String? _academicLevelFromPath(String? academicPath) {
+    switch (academicPath) {
+      case 'HIGH SCHOOL':
+        return 'high_school';
+      case 'UNIVERSITY':
+        return 'university';
+      default:
+        return null;
+    }
+  }
+
   String _getFirebaseErrorMessage(FirebaseAuthException e) {
     switch (e.code) {
       case 'user-not-found':

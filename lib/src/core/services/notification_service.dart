@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:acadia/src/core/constants/colors.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();

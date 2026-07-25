@@ -12,7 +12,8 @@ class EntrancePastPapersScreen extends StatefulWidget {
   const EntrancePastPapersScreen({super.key});
 
   @override
-  State<EntrancePastPapersScreen> createState() => _EntrancePastPapersScreenState();
+  State<EntrancePastPapersScreen> createState() =>
+      _EntrancePastPapersScreenState();
 }
 
 class _EntrancePastPapersScreenState extends State<EntrancePastPapersScreen> {
@@ -26,10 +27,20 @@ class _EntrancePastPapersScreenState extends State<EntrancePastPapersScreen> {
 
   // 6 subjects per stream (from ACADIA spec)
   final List<String> _naturalSubjects = [
-    'Mathematics', 'English', 'Biology', 'Chemistry', 'Physics', 'Aptitude'
+    'Mathematics',
+    'English',
+    'Biology',
+    'Chemistry',
+    'Physics',
+    'Aptitude'
   ];
   final List<String> _socialSubjects = [
-    'Mathematics', 'English', 'Aptitude', 'Economics', 'Geography', 'History'
+    'Mathematics',
+    'English',
+    'Aptitude',
+    'Economics',
+    'Geography',
+    'History'
   ];
 
   final DownloadManager _downloadManager = DownloadManager();
@@ -49,15 +60,15 @@ class _EntrancePastPapersScreenState extends State<EntrancePastPapersScreen> {
   };
 
   static const Map<String, Color> _subjectColors = {
-    'Mathematics': Color(0xFF9C27B0),
-    'English': Color(0xFF2196F3),
-    'Physics': Color(0xFFFF9800),
-    'Chemistry': Color(0xFF4CAF50),
-    'Biology': Color(0xFFE91E63),
-    'Aptitude': Color(0xFF708090),
-    'Geography': Color(0xFF009688),
-    'History': Color(0xFF795548),
-    'Economics': Color(0xFFFF5722),
+    'Mathematics': Color(0xFF093C5D),
+    'English': Color(0xFF093C5D),
+    'Physics': Color(0xFF093C5D),
+    'Chemistry': Color(0xFF093C5D),
+    'Biology': Color(0xFF093C5D),
+    'Aptitude': Color(0xFF093C5D),
+    'Geography': Color(0xFF093C5D),
+    'History': Color(0xFF093C5D),
+    'Economics': Color(0xFF093C5D),
   };
 
   @override
@@ -72,10 +83,12 @@ class _EntrancePastPapersScreenState extends State<EntrancePastPapersScreen> {
         if (!_isLoading) _isRefreshing = true;
       });
     }
-    
+
     try {
       final prefs = await SharedPreferences.getInstance();
-      _userStream = prefs.getString('stream') ?? prefs.getString('selected_stream') ?? 'natural';
+      _userStream = prefs.getString('stream') ??
+          prefs.getString('selected_stream') ??
+          'natural';
 
       final firebase = FirebaseService();
       final papers = await firebase.getDocuments('entrance_materials', where: {
@@ -110,7 +123,8 @@ class _EntrancePastPapersScreenState extends State<EntrancePastPapersScreen> {
       final downloaded = <String>{};
       for (final paper in filteredPapers) {
         final contentId = paper['id']?.toString() ?? '';
-        if (contentId.isNotEmpty && await _offlineDb.isContentDownloaded(contentId)) {
+        if (contentId.isNotEmpty &&
+            await _offlineDb.isContentDownloaded(contentId)) {
           downloaded.add(contentId);
         }
       }
@@ -175,14 +189,20 @@ class _EntrancePastPapersScreenState extends State<EntrancePastPapersScreen> {
     setState(() => _downloadProgress[contentId] = 0);
 
     try {
+      final prefs = await SharedPreferences.getInstance();
+      final userGrade =
+          prefs.getString('grade') ?? prefs.getString('selected_grade') ?? '';
+
       await _downloadManager.downloadContent(
         contentId: contentId,
         title: paper['title']?.toString() ?? 'Past Paper',
-        downloadUrl: paper['download_url']?.toString() ?? paper['url']?.toString() ?? '',
+        downloadUrl:
+            paper['download_url']?.toString() ?? paper['url']?.toString() ?? '',
         contentType: 'exam',
         fileFormat: 'json',
         subject: paper['subject']?.toString() ?? '',
         chapter: 'Past Paper ${paper['year'] ?? ''}',
+        grade: userGrade,
         onProgress: (progress) {
           if (mounted) setState(() => _downloadProgress[contentId] = progress);
         },
@@ -206,7 +226,8 @@ class _EntrancePastPapersScreenState extends State<EntrancePastPapersScreen> {
         setState(() => _downloadProgress.remove(contentId));
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Download failed: ${e.toString().replaceFirst('Exception: ', '')}'),
+            content: Text(
+                'Download failed: ${e.toString().replaceFirst('Exception: ', '')}'),
             backgroundColor: Colors.red,
           ),
         );
@@ -230,9 +251,12 @@ class _EntrancePastPapersScreenState extends State<EntrancePastPapersScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Past Paper'),
-        content: const Text('Remove this past paper from your device? You can download it again later.'),
+        content: const Text(
+            'Remove this past paper from your device? You can download it again later.'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel')),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             child: const Text('Delete', style: TextStyle(color: Colors.red)),
@@ -240,12 +264,14 @@ class _EntrancePastPapersScreenState extends State<EntrancePastPapersScreen> {
         ],
       ),
     );
-    
+
     if (confirmed == true) {
       await _offlineDb.deleteDownload(contentId);
       setState(() => _downloadedContentIds.remove(contentId));
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Past paper deleted'), backgroundColor: Colors.orange),
+        const SnackBar(
+            content: Text('Past paper deleted'),
+            backgroundColor: Colors.orange),
       );
     }
   }
@@ -256,7 +282,9 @@ class _EntrancePastPapersScreenState extends State<EntrancePastPapersScreen> {
       return Scaffold(
         appBar: AppBar(
           title: const Text('Past Papers'),
-          leading: IconButton(onPressed: () => context.pop(), icon: const Icon(Icons.arrow_back)),
+          leading: IconButton(
+              onPressed: () => context.pop(),
+              icon: const Icon(Icons.arrow_back)),
         ),
         body: const Center(child: CircularProgressIndicator()),
       );
@@ -268,12 +296,16 @@ class _EntrancePastPapersScreenState extends State<EntrancePastPapersScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Past Papers'),
-        leading: IconButton(onPressed: () => context.pop(), icon: const Icon(Icons.arrow_back)),
+        leading: IconButton(
+            onPressed: () => context.pop(), icon: const Icon(Icons.arrow_back)),
         actions: [
           if (_isRefreshing)
             const Padding(
               padding: EdgeInsets.only(right: 16),
-              child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+              child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2)),
             ),
         ],
       ),
@@ -299,15 +331,21 @@ class _EntrancePastPapersScreenState extends State<EntrancePastPapersScreen> {
                 children: [
                   const Icon(Icons.description, color: Colors.white, size: 36),
                   const SizedBox(height: 12),
-                  const Text('Past Papers', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22)),
+                  const Text('Past Papers',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 22)),
                   const SizedBox(height: 4),
                   Text(
                     'Complete national exams from 2014 onwards',
-                    style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 14),
+                    style: TextStyle(
+                        color: Colors.white.withAlpha(((255 * 0.8)).toInt()), fontSize: 14),
                   ),
                   const SizedBox(height: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: Colors.white24,
                       borderRadius: BorderRadius.circular(20),
@@ -333,7 +371,8 @@ class _EntrancePastPapersScreenState extends State<EntrancePastPapersScreen> {
     );
   }
 
-  Widget _buildSubjectSection(String subject, List<Map<String, dynamic>> papers) {
+  Widget _buildSubjectSection(
+      String subject, List<Map<String, dynamic>> papers) {
     final color = _getSubjectColor(subject);
     final hasPapers = papers.isNotEmpty;
 
@@ -348,7 +387,7 @@ class _EntrancePastPapersScreenState extends State<EntrancePastPapersScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withAlpha(((255 * 0.1)).toInt()),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: _getSubjectIcon(subject, size: 22),
@@ -356,18 +395,20 @@ class _EntrancePastPapersScreenState extends State<EntrancePastPapersScreen> {
               const SizedBox(width: 12),
               Text(
                 subject,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: color),
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, fontSize: 18, color: color),
               ),
               const Spacer(),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withAlpha(((255 * 0.1)).toInt()),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   '${papers.length} papers',
-                  style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      color: color, fontSize: 12, fontWeight: FontWeight.bold),
                 ),
               ),
             ],
@@ -378,7 +419,8 @@ class _EntrancePastPapersScreenState extends State<EntrancePastPapersScreen> {
         if (!hasPapers)
           Card(
             margin: const EdgeInsets.only(bottom: 16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: const Padding(
               padding: EdgeInsets.all(16),
               child: Row(
@@ -387,8 +429,9 @@ class _EntrancePastPapersScreenState extends State<EntrancePastPapersScreen> {
                   SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'Content will be uploaded soon by admin',
-                      style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
+                      'Content will be uploaded soon by NextGen team',
+                      style: TextStyle(
+                          color: Colors.grey, fontStyle: FontStyle.italic),
                     ),
                   ),
                 ],
@@ -417,7 +460,9 @@ class _EntrancePastPapersScreenState extends State<EntrancePastPapersScreen> {
       elevation: 1,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
-        onTap: isDownloaded ? () => _openPaper(paper) : () => _downloadPaper(paper),
+        onTap: isDownloaded
+            ? () => _openPaper(paper)
+            : () => _downloadPaper(paper),
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(12),
@@ -429,7 +474,7 @@ class _EntrancePastPapersScreenState extends State<EntrancePastPapersScreen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: color.withOpacity(0.1),
+                      color: color.withAlpha(((255 * 0.1)).toInt()),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(Icons.assignment, color: color, size: 24),
@@ -440,14 +485,16 @@ class _EntrancePastPapersScreenState extends State<EntrancePastPapersScreen> {
                       bottom: 0,
                       child: Container(
                         padding: const EdgeInsets.all(2),
-                        decoration: const BoxDecoration(color: Colors.green, shape: BoxShape.circle),
-                        child: const Icon(Icons.check, color: Colors.white, size: 10),
+                        decoration: const BoxDecoration(
+                            color: Colors.green, shape: BoxShape.circle),
+                        child: const Icon(Icons.check,
+                            color: Colors.white, size: 10),
                       ),
                     ),
                 ],
               ),
               const SizedBox(width: 16),
-              
+
               // Paper info
               Expanded(
                 child: Column(
@@ -455,7 +502,8 @@ class _EntrancePastPapersScreenState extends State<EntrancePastPapersScreen> {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w600, fontSize: 15),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -466,15 +514,17 @@ class _EntrancePastPapersScreenState extends State<EntrancePastPapersScreen> {
                       children: [
                         _buildInfoChip(Icons.calendar_today, year, color),
                         if (questions.isNotEmpty)
-                          _buildInfoChip(Icons.quiz, '$questions questions', Colors.blue),
+                          _buildInfoChip(
+                              Icons.quiz, '$questions questions', Colors.blue),
                         if (timeLimit.isNotEmpty)
-                          _buildInfoChip(Icons.timer, '$timeLimit min', Colors.orange),
+                          _buildInfoChip(
+                              Icons.timer, '$timeLimit min', Colors.orange),
                       ],
                     ),
                   ],
                 ),
               ),
-              
+
               // Action button
               if (downloadProgress != null)
                 SizedBox(
@@ -483,8 +533,10 @@ class _EntrancePastPapersScreenState extends State<EntrancePastPapersScreen> {
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      CircularProgressIndicator(value: downloadProgress, strokeWidth: 3),
-                      Text('${(downloadProgress * 100).toInt()}%', style: const TextStyle(fontSize: 9)),
+                      CircularProgressIndicator(
+                          value: downloadProgress, strokeWidth: 3),
+                      Text('${(downloadProgress * 100).toInt()}%',
+                          style: const TextStyle(fontSize: 9)),
                     ],
                   ),
                 )
@@ -493,13 +545,19 @@ class _EntrancePastPapersScreenState extends State<EntrancePastPapersScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.1),
+                        color: Colors.green.withAlpha(((255 * 0.1)).toInt()),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.green.withOpacity(0.3)),
+                        border:
+                            Border.all(color: Colors.green.withAlpha(((255 * 0.3)).toInt())),
                       ),
-                      child: const Text('OFFLINE', style: TextStyle(color: Colors.green, fontSize: 10, fontWeight: FontWeight.bold)),
+                      child: const Text('OFFLINE',
+                          style: TextStyle(
+                              color: Colors.green,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold)),
                     ),
                     const SizedBox(width: 8),
                     PopupMenuButton<String>(
@@ -508,8 +566,12 @@ class _EntrancePastPapersScreenState extends State<EntrancePastPapersScreen> {
                         if (action == 'delete') _deleteDownload(contentId);
                       },
                       itemBuilder: (context) => [
-                        const PopupMenuItem(value: 'open', child: Text('Practice Now')),
-                        const PopupMenuItem(value: 'delete', child: Text('Delete', style: TextStyle(color: Colors.red))),
+                        const PopupMenuItem(
+                            value: 'open', child: Text('Practice Now')),
+                        const PopupMenuItem(
+                            value: 'delete',
+                            child: Text('Delete',
+                                style: TextStyle(color: Colors.red))),
                       ],
                       child: Icon(Icons.more_vert, color: Colors.grey[500]),
                     ),
@@ -532,7 +594,7 @@ class _EntrancePastPapersScreenState extends State<EntrancePastPapersScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withAlpha(((255 * 0.1)).toInt()),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Row(

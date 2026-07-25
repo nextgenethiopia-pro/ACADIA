@@ -1,0 +1,129 @@
+{
+    "grade": "pre_engineering",
+    "semester": "2",
+    "version": "1.0.0",
+    "subjects": [
+        {
+            "id": "anthropology",
+            "name": "Anthropology",
+            "status": "available",
+            "icon": "anthropology_icon.jpg",
+            "units": [
+                {"id": "unit_1", "title": "Unit 1: Introducing Anthropology and its Subject Matter", "has_content": false, "content": {}},
+                {"id": "unit_2", "title": "Unit 2: Human Culture and Ties that Connect", "has_content": false, "content": {}},
+                {"id": "unit_3", "title": "Unit 3: Human Diversity, Culture Areas and Contact in Ethiopia", "has_content": false, "content": {}},
+                {"id": "unit_4", "title": "Unit 4: Marginalized, Minorities, and Vulnerable Groups", "has_content": false, "content": {}},
+                {"id": "unit_5", "title": "Unit 5: Identity, Inter-Ethnic Relations and Multiculturalism in Ethiopia", "has_content": false, "content": {}},
+                {"id": "unit_6", "title": "Unit 6: Customary and Local Governance Systems and Peace Making", "has_content": false, "content": {}},
+                {"id": "unit_7", "title": "Unit 7: Indigenous Knowledge Systems (IKS) and Practices", "has_content": false, "content": {}}
+            ]
+        },
+        {
+            "id": "applied_mathematics",
+            "name": "Applied Mathematics",
+            "status": "available",
+            "icon": "applied_math_icon.jpg",
+            "units": [
+                {"id": "chapter_1", "title": "Chapter 1: Vectors and Vector Spaces", "has_content": false, "content": {}},
+                {"id": "chapter_2", "title": "Chapter 2: Matrices and Determinants", "has_content": false, "content": {}},
+                {"id": "chapter_3", "title": "Chapter 3: Limit and Continuity", "has_content": false, "content": {}},
+                {"id": "chapter_4", "title": "Chapter 4: Derivatives", "has_content": false, "content": {}},
+                {"id": "chapter_5", "title": "Chapter 5: Application of Derivative", "has_content": false, "content": {}},
+                {"id": "chapter_6", "title": "Chapter 6: Integration", "has_content": false, "content": {}},
+                {"id": "chapter_7", "title": "Chapter 7: Integration Techniques", "has_content": false, "content": {}},
+                {"id": "chapter_8", "title": "Chapter 8: Improper Integrals", "has_content": false, "content": {}},
+                {"id": "chapter_9", "title": "Chapter 9: Application of Integration (Area)", "has_content": false, "content": {}},
+                {"id": "chapter_10", "title": "Chapter 10: Volume of Solids of Revolution", "has_content": false, "content": {}},
+                {"id": "chapter_11", "title": "Chapter 11: Arc Length", "has_content": false, "content": {}},
+                {"id": "chapter_12", "title": "Chapter 12: Surface Area", "has_content": false, "content": {}}
+            ]
+        },
+        {
+            "id": "cpp_programming",
+            "name": "C++ Programming",
+            "status": "available",
+            "icon": "cpp_icon.jpg",
+            "units": [
+                {"id": "chapter_1", "title": "Chapter 1: Introduction to C++ Programming", "has_content": false, "content": {}},
+                {"id": "chapter_2", "title": "Chapter 2: Basics of C++ (Comments, Case Sensitivity, Statements)", "has_content": false, "content": {}},
+                {"id": "chapter_3", "title": "Chapter 3: Primitive Data Types", "has_content": false, "content": {}},
+                {"id": "chapter_4", "title": "Chapter 4: Flow of Controls", "has_content": false, "content": {}},
+                {"id": "chapter_5", "title": "Chapter 5: Arrays and Strings", "has_content": false, "content": {}},
+                {"id": "chapter_6", "title": "Chapter 6: Functions", "has_content": false, "content": {}},
+                {"id": "chapter_7", "title": "Chapter 7: Structures and Unions", "has_content": false, "content": {}},
+                {"id": "chapter_8", "title": "Chapter 8: Pointers", "has_content": false, "content": {}}
+            ]
+        },
+        {
+            "id": "emerging_technologies",
+            "name": "Emerging Technologies",
+            "status": "available",
+            "icon": "emerging_icon.jpg",
+            "units": [
+                {"id": "chapter_1", "title": "Chapter 1: Introduction to Emerging Technologies", "has_content": false, "content": {}},
+                {"id": "chapter_2", "title": "Chapter 2: Overview for Data Science", "has_content": false, "content": {}},
+                {"id": "chapter_3", "title": "Chapter 3: Introduction to Artificial Intelligence (AI)", "has_content": false, "content": {}},
+                {"id": "chapter_4", "title": "Chapter 4: Internet of Things (IoT)", "has_content": false, "content": {}},
+                {"id": "chapter_5", "title": "Chapter 5: Augmented Reality", "has_content": false, "content": {}},
+                {"id": "chapter_6", "title": "Chapter 6: Ethics and Professionalism of Emerging Technologies", "has_content": false, "content": {}},
+                {"id": "chapter_7", "title": "Chapter 7: Other Emerging Technologies", "has_content": false, "content": {}}
+            ]
+        },
+        {
+            "id": "english_skill_2",
+            "name": "English Skill II",
+            "status": "available",
+            "icon": "english_icon.jpg",
+            "units": [
+                {"id": "unit_1", "title": "Unit 1: Life Skills", "has_content": false, "content": {}},
+                {"id": "unit_2", "title": "Unit 2: Speculations about the Future of Science", "has_content": false, "content": {}},
+                {"id": "unit_3", "title": "Unit 3: Environmental Protection", "has_content": false, "content": {}},
+                {"id": "unit_4", "title": "Unit 4: Indigenous Knowledge", "has_content": false, "content": {}},
+                {"id": "unit_5", "title": "Unit 5: Cultural Heritage", "has_content": false, "content": {}}
+            ]
+        },
+        {
+            "id": "entrepreneurship",
+            "name": "Entrepreneurship",
+            "status": "available",
+            "icon": "economics_icon.jpg",
+            "units": [
+                {"id": "chapter_1", "title": "Chapter 1: The Nature of Entrepreneurship", "has_content": false, "content": {}},
+                {"id": "chapter_2", "title": "Chapter 2: Business Planning", "has_content": false, "content": {}},
+                {"id": "chapter_3", "title": "Chapter 3: Business Formation", "has_content": false, "content": {}},
+                {"id": "chapter_4", "title": "Chapter 4: Product-Service Development", "has_content": false, "content": {}},
+                {"id": "chapter_5", "title": "Chapter 5: Marketing", "has_content": false, "content": {}},
+                {"id": "chapter_6", "title": "Chapter 6: Business Financing", "has_content": false, "content": {}},
+                {"id": "chapter_7", "title": "Chapter 7: Managing Growth and Transition", "has_content": false, "content": {}}
+            ]
+        },
+        {
+            "id": "history",
+            "name": "History",
+            "status": "available",
+            "icon": "history_icon.jpg",
+            "units": [
+                {"id": "chapter_1", "title": "Chapter 1: Introduction", "has_content": false, "content": {}},
+                {"id": "chapter_2", "title": "Chapter 2: Peoples and Cultures in Ethiopia and the Horn", "has_content": false, "content": {}},
+                {"id": "chapter_3", "title": "Chapter 3: Politics, Economy and Socio Cultural Processes in Ethiopia to End of the 13th Century", "has_content": false, "content": {}},
+                {"id": "chapter_4", "title": "Chapter 4: Politics, Economy and Socio Cultural Processes in Ethiopia from Late 13th to 16th Century", "has_content": false, "content": {}},
+                {"id": "chapter_5", "title": "Chapter 5: Politics, Economy and Socio Cultural Processes in Ethiopia from Early 16th to 18th Century", "has_content": false, "content": {}},
+                {"id": "chapter_6", "title": "Chapter 6: Internal Interactions and External Relations in Ethiopia 1800-1941", "has_content": false, "content": {}},
+                {"id": "chapter_7", "title": "Chapter 7: Internal Developments and External Relations, 1941-1994", "has_content": false, "content": {}}
+            ]
+        },
+        {
+            "id": "moral_citizenship",
+            "name": "Moral and Citizenship Education",
+            "status": "available",
+            "icon": "citizenship_icon.jpg",
+            "units": [
+                {"id": "chapter_1", "title": "Chapter 1: Understanding Civics and Ethics", "has_content": false, "content": {}},
+                {"id": "chapter_2", "title": "Chapter 2: Approaches to Ethics", "has_content": false, "content": {}},
+                {"id": "chapter_3", "title": "Chapter 3: Ethical Decision Making and Moral Judgments", "has_content": false, "content": {}},
+                {"id": "chapter_4", "title": "Chapter 4: State, Government and Citizenship", "has_content": false, "content": {}},
+                {"id": "chapter_5", "title": "Chapter 5: Constitution, Democracy and Human Rights", "has_content": false, "content": {}}
+            ]
+        }
+    ]
+}

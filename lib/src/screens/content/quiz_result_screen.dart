@@ -102,7 +102,7 @@ class QuizResultScreen extends StatelessWidget {
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: (passed ? Colors.green : Colors.red).withOpacity(0.3),
+                          color: (passed ? Colors.green : Colors.red).withAlpha(((255 * 0.3)).toInt()),
                           blurRadius: 20,
                           spreadRadius: 5,
                         ),
@@ -169,9 +169,9 @@ class QuizResultScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: performanceColor.withOpacity(0.1),
+                  color: performanceColor.withAlpha(((255 * 0.1)).toInt()),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: performanceColor.withOpacity(0.3)),
+                  border: Border.all(color: performanceColor.withAlpha(((255 * 0.3)).toInt())),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -308,19 +308,19 @@ class QuizResultScreen extends StatelessWidget {
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [Colors.amber.withOpacity(0.2), Colors.orange.withOpacity(0.1)],
+                        colors: [Colors.amber.withAlpha(((255 * 0.2)).toInt()), Colors.orange.withAlpha(((255 * 0.1)).toInt())],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.amber.withOpacity(0.3)),
+                      border: Border.all(color: Colors.amber.withAlpha(((255 * 0.3)).toInt())),
                     ),
                     child: Row(
                       children: [
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.amber.withOpacity(0.2),
+                            color: Colors.amber.withAlpha(((255 * 0.2)).toInt()),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(Icons.emoji_events, color: Colors.amber[700], size: 32),
@@ -385,12 +385,12 @@ class QuizResultScreen extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [color.withOpacity(0.1), color.withOpacity(0.05)],
+            colors: [color.withAlpha(((255 * 0.1)).toInt()), color.withAlpha(((255 * 0.05)).toInt())],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.3)),
+          border: Border.all(color: color.withAlpha(((255 * 0.3)).toInt())),
         ),
         child: Column(
           children: [
@@ -408,7 +408,7 @@ class QuizResultScreen extends StatelessWidget {
               subValue,
               style: TextStyle(
                 fontSize: 10,
-                color: color.withOpacity(0.8),
+                color: color.withAlpha(((255 * 0.8)).toInt()),
                 fontWeight: FontWeight.w500,
               ),
             ),

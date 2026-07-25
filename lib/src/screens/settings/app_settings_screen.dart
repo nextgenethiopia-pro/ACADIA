@@ -248,7 +248,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
               gradient: LinearGradient(
                 colors: [
                   theme.cardColor,
-                  isStorageWarning ? Colors.orange.withOpacity(0.05) : theme.cardColor,
+                  isStorageWarning ? Colors.orange.withAlpha(((255 * 0.05)).toInt()) : theme.cardColor,
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -256,7 +256,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
+                  color: Colors.black.withAlpha(((255 * 0.02)).toInt()),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -284,7 +284,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: isStorageCritical ? Colors.red.withOpacity(0.1) : Colors.orange.withOpacity(0.1),
+                          color: isStorageCritical ? Colors.red.withAlpha(((255 * 0.1)).toInt()) : Colors.orange.withAlpha(((255 * 0.1)).toInt()),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
@@ -342,7 +342,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
                         icon: const Icon(Icons.cleaning_services, size: 18),
                         label: const Text('Clear Cache'),
                         style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: Colors.red.withOpacity(0.5)),
+                          side: BorderSide(color: Colors.red.withAlpha(((255 * 0.5)).toInt())),
                           foregroundColor: Colors.red,
                         ),
                       ),
@@ -371,7 +371,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
           Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.red.withOpacity(0.3)),
+              border: Border.all(color: Colors.red.withAlpha(((255 * 0.3)).toInt())),
             ),
             child: ListTile(
               leading: const Icon(Icons.restore, color: Colors.red),
@@ -447,7 +447,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.1),
+            color: AppColors.primary.withAlpha(((255 * 0.1)).toInt()),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(icon, color: AppColors.primary, size: 20),

@@ -336,9 +336,9 @@ class _HomeTabState extends State<HomeTab> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.1),
+                    color: Colors.orange.withAlpha(((255 * 0.1)).toInt()),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                    border: Border.all(color: Colors.orange.withAlpha(((255 * 0.3)).toInt())),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -419,7 +419,7 @@ class _HomeTabState extends State<HomeTab> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
                         gradient: LinearGradient(
-                          colors: [color.withOpacity(0.15), color.withOpacity(0.03)],
+                          colors: [color.withAlpha(((255 * 0.15)).toInt()), color.withAlpha(((255 * 0.03)).toInt())],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -455,12 +455,12 @@ class _HomeTabState extends State<HomeTab> {
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [AppColors.primary.withOpacity(0.08), AppColors.secondary.withOpacity(0.05)],
+                    colors: [AppColors.primary.withAlpha(((255 * 0.08)).toInt()), AppColors.secondary.withAlpha(((255 * 0.05)).toInt())],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.primary.withOpacity(0.15)),
+                  border: Border.all(color: AppColors.primary.withAlpha(((255 * 0.15)).toInt())),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -482,9 +482,9 @@ class _HomeTabState extends State<HomeTab> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.amber.withOpacity(0.1),
+                  color: Colors.amber.withAlpha(((255 * 0.1)).toInt()),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.amber.withOpacity(0.3)),
+                  border: Border.all(color: Colors.amber.withAlpha(((255 * 0.3)).toInt())),
                 ),
                 child: Row(
                   children: [
@@ -515,7 +515,7 @@ class _HomeTabState extends State<HomeTab> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withAlpha(((255 * 0.1)).toInt()),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -617,7 +617,7 @@ class _HomeTabState extends State<HomeTab> {
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(12),
                               gradient: LinearGradient(
-                                colors: [color.withOpacity(0.15), color.withOpacity(0.03)],
+                                colors: [color.withAlpha(((255 * 0.15)).toInt()), color.withAlpha(((255 * 0.03)).toInt())],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                               ),

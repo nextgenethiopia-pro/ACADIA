@@ -193,7 +193,7 @@ class _FlashcardScreenState extends State<FlashcardScreen>
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.green.withOpacity(0.1),
+                color: Colors.green.withAlpha(((255 * 0.1)).toInt()),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -209,7 +209,7 @@ class _FlashcardScreenState extends State<FlashcardScreen>
                 margin: const EdgeInsets.only(top: 8),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.1),
+                  color: Colors.orange.withAlpha(((255 * 0.1)).toInt()),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -321,7 +321,7 @@ class _FlashcardScreenState extends State<FlashcardScreen>
             margin: const EdgeInsets.only(right: 12),
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
-              color: Colors.green.withOpacity(0.1),
+              color: Colors.green.withAlpha(((255 * 0.1)).toInt()),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
@@ -353,9 +353,9 @@ class _FlashcardScreenState extends State<FlashcardScreen>
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.green.withOpacity(0.15),
+                      color: Colors.green.withAlpha(((255 * 0.15)).toInt()),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.green.withOpacity(0.3)),
+                      border: Border.all(color: Colors.green.withAlpha(((255 * 0.3)).toInt())),
                     ),
                     child: const Row(
                       children: [
@@ -435,7 +435,7 @@ class _FlashcardScreenState extends State<FlashcardScreen>
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withAlpha(((255 * 0.05)).toInt()),
                   blurRadius: 8,
                   offset: const Offset(0, -4),
                 )
@@ -503,23 +503,23 @@ class _FlashcardScreenState extends State<FlashcardScreen>
           end: Alignment.bottomRight,
           colors: isFront 
               ? [Colors.white, Colors.grey[50]!]
-              : [AppColors.primary.withOpacity(0.05), AppColors.primary.withOpacity(0.02)],
+              : [AppColors.primary.withAlpha(((255 * 0.05)).toInt()), AppColors.primary.withAlpha(((255 * 0.02)).toInt())],
         ),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withAlpha(((255 * 0.1)).toInt()),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
           BoxShadow(
-            color: (isFront ? AppColors.primary : Colors.green).withOpacity(0.1),
+            color: (isFront ? AppColors.primary : Colors.green).withAlpha(((255 * 0.1)).toInt()),
             blurRadius: 30,
             offset: const Offset(0, 5),
           ),
         ],
         border: Border.all(
-          color: isFront ? AppColors.primary.withOpacity(0.3) : Colors.green.withOpacity(0.3),
+          color: isFront ? AppColors.primary.withAlpha(((255 * 0.3)).toInt()) : Colors.green.withAlpha(((255 * 0.3)).toInt()),
           width: 2,
         ),
       ),
@@ -530,7 +530,7 @@ class _FlashcardScreenState extends State<FlashcardScreen>
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: (isFront ? AppColors.primary : Colors.green).withOpacity(0.1),
+              color: (isFront ? AppColors.primary : Colors.green).withAlpha(((255 * 0.1)).toInt()),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -561,7 +561,7 @@ class _FlashcardScreenState extends State<FlashcardScreen>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: (isFront ? AppColors.primary : Colors.green).withOpacity(0.1),
+              color: (isFront ? AppColors.primary : Colors.green).withAlpha(((255 * 0.1)).toInt()),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(

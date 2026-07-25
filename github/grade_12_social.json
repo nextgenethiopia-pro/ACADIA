@@ -1,0 +1,127 @@
+{
+    "grade": "12",
+    "stream": "social",
+    "version": "1.0.0",
+    "subjects": [
+        {
+            "id": "aptitude",
+            "name": "Aptitude",
+            "status": "available",
+            "icon": "aptitude_icon.jpg",
+            "units": [
+                {"id": "part_1", "title": "Part 1: Mathematical Part", "has_content": false, "content": {}},
+                {"id": "part_2", "title": "Part 2: English Part", "has_content": false, "content": {}}
+            ]
+        },
+        {
+            "id": "citizenship",
+            "name": "Citizenship",
+            "status": "available",
+            "icon": "citizenship_icon.jpg",
+            "units": [
+                {"id": "unit_1", "title": "Unit 1: Democracy and Democratization", "has_content": false, "content": {}},
+                {"id": "unit_2", "title": "Unit 2: Citizens in the Digital Technology Age", "has_content": false, "content": {}},
+                {"id": "unit_3", "title": "Unit 3: Understanding Good Governance", "has_content": false, "content": {}},
+                {"id": "unit_4", "title": "Unit 4: Peace and Indigenous Conflict Resolution Mechanisms", "has_content": false, "content": {}},
+                {"id": "unit_5", "title": "Unit 5: Federalism in Ethiopia", "has_content": false, "content": {}},
+                {"id": "unit_6", "title": "Unit 6: Human Rights", "has_content": false, "content": {}},
+                {"id": "unit_7", "title": "Unit 7: Patriotism", "has_content": false, "content": {}},
+                {"id": "unit_8", "title": "Unit 8: Globalization and Global Issues", "has_content": false, "content": {}}
+            ]
+        },
+        {
+            "id": "economics",
+            "name": "Economics",
+            "status": "available",
+            "icon": "economics_icon.jpg",
+            "units": [
+                {"id": "unit_1", "title": "Unit 1: The Fundamental Concepts of Macroeconomics", "has_content": false, "content": {}},
+                {"id": "unit_2", "title": "Unit 2: Aggregate Demand and Aggregate Supply Analysis", "has_content": false, "content": {}},
+                {"id": "unit_3", "title": "Unit 3: Market Failure and Consumer Protection", "has_content": false, "content": {}},
+                {"id": "unit_4", "title": "Unit 4: Macroeconomic Policy Instruments", "has_content": false, "content": {}},
+                {"id": "unit_5", "title": "Unit 5: Tax Theory and Practice", "has_content": false, "content": {}},
+                {"id": "unit_6", "title": "Unit 6: Poverty and Inequality", "has_content": false, "content": {}},
+                {"id": "unit_7", "title": "Unit 7: Macroeconomic Reforms in Ethiopia", "has_content": false, "content": {}},
+                {"id": "unit_8", "title": "Unit 8: Economy, Environment and Climate Change", "has_content": false, "content": {}}
+            ]
+        },
+        {
+            "id": "english",
+            "name": "English",
+            "status": "available",
+            "icon": "english_icon.jpg",
+            "units": [
+                {"id": "unit_1", "title": "Unit 1: Sustainable Development", "has_content": false, "content": {}},
+                {"id": "unit_2", "title": "Unit 2: Time Management", "has_content": false, "content": {}},
+                {"id": "unit_3", "title": "Unit 3: Evidence on Traffic Accident", "has_content": false, "content": {}},
+                {"id": "unit_4", "title": "Unit 4: Natural Resource Management", "has_content": false, "content": {}},
+                {"id": "unit_5", "title": "Unit 5: Mechanized Agriculture", "has_content": false, "content": {}},
+                {"id": "unit_6", "title": "Unit 6: Green Economies", "has_content": false, "content": {}},
+                {"id": "unit_7", "title": "Unit 7: National Pride", "has_content": false, "content": {}},
+                {"id": "unit_8", "title": "Unit 8: Telemedicine", "has_content": false, "content": {}},
+                {"id": "unit_9", "title": "Unit 9: Conflict Management", "has_content": false, "content": {}},
+                {"id": "unit_10", "title": "Unit 10: Robotics", "has_content": false, "content": {}}
+            ]
+        },
+        {
+            "id": "geography",
+            "name": "Geography",
+            "status": "available",
+            "icon": "geography_icon.jpg",
+            "units": [
+                {"id": "unit_1", "title": "Unit 1: Major Geological Processes Associated with Plate Tectonics", "has_content": false, "content": {}},
+                {"id": "unit_2", "title": "Unit 2: Climate Change", "has_content": false, "content": {}},
+                {"id": "unit_3", "title": "Unit 3: Issues in Sustainable Development I - Management of Conflict over Resources", "has_content": false, "content": {}},
+                {"id": "unit_4", "title": "Unit 4: Issues in Sustainable Development II - Population Policies, Programs and the Environment", "has_content": false, "content": {}},
+                {"id": "unit_5", "title": "Unit 5: Issues in Sustainable Development III - Challenges of Economic Development", "has_content": false, "content": {}},
+                {"id": "unit_6", "title": "Unit 6: Issues in Sustainable Development IV - Solutions to Environmental and Sustainability Problems", "has_content": false, "content": {}},
+                {"id": "unit_7", "title": "Unit 7: Contemporary Global Geographic Issues and Public Concerns", "has_content": false, "content": {}},
+                {"id": "unit_8", "title": "Unit 8: Geographical Enquiry and Map Making", "has_content": false, "content": {}}
+            ]
+        },
+        {
+            "id": "history",
+            "name": "History",
+            "status": "available",
+            "icon": "history_icon.jpg",
+            "units": [
+                {"id": "unit_1", "title": "Unit 1: Development of Capitalism and Nationalism from 1815 to 1914", "has_content": false, "content": {}},
+                {"id": "unit_2", "title": "Unit 2: Africa and the Colonial Experience (1880s to 1960s)", "has_content": false, "content": {}},
+                {"id": "unit_3", "title": "Unit 3: Social, Economic and Political Developments in Ethiopia, Mid 19th C to 1941", "has_content": false, "content": {}},
+                {"id": "unit_4", "title": "Unit 4: Society and Politics in the Age of World Wars, 1914 to 1945", "has_content": false, "content": {}},
+                {"id": "unit_5", "title": "Unit 5: Global and Regional Developments Since 1945", "has_content": false, "content": {}},
+                {"id": "unit_6", "title": "Unit 6: Ethiopia Internal Developments and External Influences from 1941 to 1991", "has_content": false, "content": {}},
+                {"id": "unit_7", "title": "Unit 7: Africa Since the 1960s", "has_content": false, "content": {}},
+                {"id": "unit_8", "title": "Unit 8: Post 1991 Developments in Ethiopia", "has_content": false, "content": {}},
+                {"id": "unit_9", "title": "Unit 9: Indigenous Knowledge Systems and Heritages of Ethiopia", "has_content": false, "content": {}}
+            ]
+        },
+        {
+            "id": "it",
+            "name": "IT",
+            "status": "available",
+            "icon": "it_icon.jpg",
+            "units": [
+                {"id": "unit_1", "title": "Unit 1: Information Systems and Their Applications", "has_content": false, "content": {}},
+                {"id": "unit_2", "title": "Unit 2: Emerging Technologies", "has_content": false, "content": {}},
+                {"id": "unit_3", "title": "Unit 3: Database Management System", "has_content": false, "content": {}},
+                {"id": "unit_4", "title": "Unit 4: Web Authoring", "has_content": false, "content": {}},
+                {"id": "unit_5", "title": "Unit 5: Maintenance and Troubleshooting", "has_content": false, "content": {}},
+                {"id": "unit_6", "title": "Unit 6: Fundamentals of Programming", "has_content": false, "content": {}}
+            ]
+        },
+        {
+            "id": "mathematics",
+            "name": "Mathematics",
+            "status": "available",
+            "icon": "mathematics_icon.jpg",
+            "units": [
+                {"id": "unit_1", "title": "Unit 1: Sequences and Series", "has_content": false, "content": {}},
+                {"id": "unit_2", "title": "Unit 2: Introductions to Calculus", "has_content": false, "content": {}},
+                {"id": "unit_3", "title": "Unit 3: Statistics", "has_content": false, "content": {}},
+                {"id": "unit_4", "title": "Unit 4: Introduction to Linear Programming", "has_content": false, "content": {}},
+                {"id": "unit_5", "title": "Unit 5: Mathematical Applications in Business", "has_content": false, "content": {}}
+            ]
+        }
+    ]
+}

@@ -95,8 +95,24 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         }
       }
     } catch (e) {
-      if (mounted) setState(() => _isLoading = false);
       debugPrint('Error loading welcome content: $e');
+      // Continue with default content if Firestore fails
+      if (mounted) {
+        setState(() {
+          _welcomeContent = {
+            'slides': [
+              {'image': 'assets/images/class_learning.jpg', 'title': 'Learn Anywhere'},
+              {'image': 'assets/images/students_pc.jpg', 'title': 'Digital Learning'},
+              {'image': 'assets/images/female_students.jpg', 'title': 'Made for Ethiopia'},
+            ],
+            'main_title': 'Empowering Ethiopian Students Through Digital Education',
+            'subtitle': 'የኢትዮጵያ ተማሪዎችን በዲጂታል ትምህርት ማብቃት',
+            'button_text': 'GET STARTED',
+          };
+          _isLoading = false;
+        });
+        WidgetsBinding.instance.addPostFrameCallback((_) => _startAutoSlide());
+      }
     }
   }
 
@@ -229,7 +245,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       body: Stack(
         children: [
           SafeArea(
-            child: Padding(
+            child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
@@ -242,8 +258,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       tooltip: 'How to use ACADIA',
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  Expanded(
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    height: 280,
                     child: PageView.builder(
                       controller: _pageController,
                       onPageChanged: (index) => setState(() => _currentPage = index),
@@ -259,7 +276,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Container(
-                              height: 280,
+                              height: 220,
                               decoration: BoxDecoration(
                                 color: Colors.grey[300],
                                 borderRadius: BorderRadius.circular(16),
@@ -275,15 +292,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                     : _buildPlaceholder(),
                               ),
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 12),
                             if (title.isNotEmpty)
                               Text(title, textAlign: TextAlign.center,
-                                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                           ],
                         );
                       },
                     ),
                   ),
+                  const SizedBox(height: 8),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(
@@ -298,24 +316,24 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
                   Text(
                     _welcomeContent['main_title'] ?? 'Welcome to ACADIA',
                     textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   Text(
                     _welcomeContent['subtitle'] ?? '',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
                   GradientButton(
                     text: _welcomeContent['button_text'] ?? 'GET STARTED',
                     onPressed: () => context.push('/academic-path'),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -340,7 +358,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   Widget _buildPlaceholder() {
     return Container(
-      color: AppColors.primary.withOpacity(0.2),
+      color: AppColors.primary.withAlpha(((255 * 0.2)).toInt()),
       child: const Center(child: Icon(Icons.school, size: 80, color: AppColors.primary)),
     );
   }
@@ -354,7 +372,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     final isLastStep = _tutorialStep == _tutorialSteps.length - 1;
 
     return Container(
-      color: Colors.black.withOpacity(0.9),
+      color: Colors.black.withAlpha(((255 * 0.9)).toInt()),
       child: SafeArea(
         child: Column(
           children: [
@@ -396,7 +414,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     Container(
                       width: 100, height: 100,
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.1),
+                        color: Colors.white.withAlpha(((255 * 0.1)).toInt()),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(currentStep['icon'] as IconData, size: 48, color: Colors.white),
@@ -437,7 +455,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         margin: const EdgeInsets.symmetric(horizontal: 4),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: _tutorialStep == index ? Colors.white : Colors.white.withOpacity(0.4),
+                          color: _tutorialStep == index ? Colors.white : Colors.white.withAlpha(((255 * 0.4)).toInt()),
                         ),
                       ),
                     ),
@@ -490,7 +508,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   Widget _buildVideoTutorialOverlay() {
     return Container(
-      color: Colors.black.withOpacity(0.95),
+      color: Colors.black.withAlpha(((255 * 0.95)).toInt()),
       child: SafeArea(
         child: Column(
           children: [
@@ -538,7 +556,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       selected: isSelected,
                       onSelected: (v) => _loadVideo(lang),
                       selectedColor: Colors.white,
-                      backgroundColor: Colors.white.withOpacity(0.2),
+                      backgroundColor: Colors.white.withAlpha(((255 * 0.2)).toInt()),
                       side: BorderSide.none,
                     ),
                   );
@@ -591,8 +609,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       allowScrubbing: true,
                       colors: VideoProgressColors(
                         playedColor: Colors.white,
-                        bufferedColor: Colors.white.withOpacity(0.3),
-                        backgroundColor: Colors.white.withOpacity(0.1),
+                        bufferedColor: Colors.white.withAlpha(((255 * 0.3)).toInt()),
+                        backgroundColor: Colors.white.withAlpha(((255 * 0.1)).toInt()),
                       ),
                     ),
                     const SizedBox(height: 12),

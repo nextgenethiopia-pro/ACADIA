@@ -184,7 +184,7 @@ class _EntranceTipsScreenState extends State<EntranceTipsScreen> {
                               Text(
                                 _headerSubtitle ?? 'Strategies to help you excel in your entrance exam',
                                 style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: Colors.white.withOpacity(0.9),
+                                  color: Colors.white.withAlpha(((255 * 0.9)).toInt()),
                                 ),
                               ),
                               const SizedBox(height: 8),
@@ -225,7 +225,7 @@ class _EntranceTipsScreenState extends State<EntranceTipsScreen> {
                             padding: const EdgeInsets.all(24),
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
-                                colors: [AppColors.primary.withOpacity(0.1), AppColors.secondary.withOpacity(0.05)],
+                                colors: [AppColors.primary.withAlpha(((255 * 0.1)).toInt()), AppColors.secondary.withAlpha(((255 * 0.05)).toInt())],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                               ),
@@ -279,7 +279,7 @@ class _EntranceTipsScreenState extends State<EntranceTipsScreen> {
                 width: 32,
                 height: 32,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
+                  color: AppColors.primary.withAlpha(((255 * 0.1)).toInt()),
                   shape: BoxShape.circle,
                 ),
                 child: Center(

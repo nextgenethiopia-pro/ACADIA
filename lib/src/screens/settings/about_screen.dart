@@ -210,7 +210,7 @@ class _AboutScreenState extends State<AboutScreen> {
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primary.withOpacity(0.3),
+                  color: AppColors.primary.withAlpha(((255 * 0.3)).toInt()),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -243,7 +243,7 @@ class _AboutScreenState extends State<AboutScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
+              color: AppColors.primary.withAlpha(((255 * 0.1)).toInt()),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
@@ -273,12 +273,12 @@ class _AboutScreenState extends State<AboutScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [AppColors.primary.withOpacity(0.05), AppColors.secondary.withOpacity(0.02)],
+          colors: [AppColors.primary.withAlpha(((255 * 0.05)).toInt()), AppColors.secondary.withAlpha(((255 * 0.02)).toInt())],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.primary.withOpacity(0.1)),
+        border: Border.all(color: AppColors.primary.withAlpha(((255 * 0.1)).toInt())),
       ),
       child: Column(
         children: [
@@ -392,7 +392,7 @@ class _AboutScreenState extends State<AboutScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.primary.withOpacity(0.1),
+        color: AppColors.primary.withAlpha(((255 * 0.1)).toInt()),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
@@ -422,7 +422,7 @@ class _AboutScreenState extends State<AboutScreen> {
         border: Border.all(color: Colors.grey[200]!),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withAlpha(((255 * 0.02)).toInt()),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -436,7 +436,7 @@ class _AboutScreenState extends State<AboutScreen> {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withAlpha(((255 * 0.1)).toInt()),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(icon, color: color, size: 18),
@@ -474,7 +474,7 @@ class _AboutScreenState extends State<AboutScreen> {
             Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
+                color: AppColors.primary.withAlpha(((255 * 0.1)).toInt()),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(icon, color: AppColors.primary, size: 16),
@@ -534,7 +534,7 @@ class _AboutScreenState extends State<AboutScreen> {
                 width: 28,
                 height: 28,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
+                  color: AppColors.primary.withAlpha(((255 * 0.1)).toInt()),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(Icons.link, color: AppColors.primary, size: 16),

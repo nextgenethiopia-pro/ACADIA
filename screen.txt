@@ -1,0 +1,813 @@
+# ACADIA V1.0.0 — COMPLETE SCREEN DESCRIPTIONS IN PLAIN ENGLISH
+
+---
+
+# PART 1: ONBOARDING FLOW (12 Screens)
+
+---
+
+## Screen 1: Splash Screen
+
+**What the user sees:**
+
+When a student opens the ACADIA app for the first time, they see a full-screen picture that fills their entire phone screen. On top of this picture, there is a dark see-through layer that makes the text easier to read. In the very center of the screen, there is a round container showing the ACADIA logo, which is a fire icon inside the outline of Ethiopia's map. Below the logo, the word "ACADIA" appears in big bold white letters. Under that, a smaller line of white text says "Empowering Ethiopian Students." At the very bottom of the screen, there is a thin navy blue loading bar that moves from left to right like a progress indicator, taking about three seconds to complete. If the admin has uploaded multiple splash images, small dot indicators at the bottom show which image is currently showing.
+
+**What happens:**
+
+The app starts up and connects to Firebase in the background. It checks if the user has saved login information from before. It also loads any splash images that the admin has set up from the app's internal storage (not from the internet, because many Ethiopian students use the app offline). If there are multiple images, they change every second with a smooth fade effect. After three seconds, the app looks at two things: first, whether the user is already logged in, and second, whether they have completed the initial setup (choosing their grade and stream). Based on this, three things can happen: if the user is logged in and has completed setup, they go straight to the Dashboard. If they have completed setup but are not logged in, they go to the Login screen. If they haven't completed setup yet, they go to the Welcome screen.
+
+---
+
+## Screen 2: Welcome Screen
+
+**What the user sees:**
+
+The top half of the phone screen has a picture slideshow that automatically changes between three images every few seconds. Small dots below the slideshow show which image you're currently looking at. Below the slideshow, big bold text says "Empowering Ethiopian Students Through Digital Education." Under that, the same message appears in Amharic: "የኢትዮጵያ ተማሪዎችን በዲጂታል ትምህርት ማብቃት." There is a large rounded button with a navy blue background that says "GET STARTED." Below this button, a blue underlined link says "Already a member? LOG IN." In the top-right corner, there is a question mark icon that opens a help tutorial. In the top-left corner, there is a globe icon that lets you switch between English, Amharic, and Afaan Oromoo languages.
+
+**What the user can do:**
+
+If the user taps the question mark icon, a popup appears with a dark overlay and a white card in the center. The card has the title "How to Use ACADIA" and four slides you can swipe through. The first slide shows "Browse Your Subjects" with a blue icon and a screenshot. The second slide shows "Purchase Your Grade" with a shopping cart icon. The third slide shows "Submit Payment" with a payment icon. The fourth slide shows "Start Learning" with a school icon. Four dots at the bottom show which slide you're on. There is a checkbox that says "Don't show again" which is already checked by default. A navy blue "GOT IT" button closes the popup. There is also a "Watch Video" option that opens a video tutorial with three language options.
+
+The "GET STARTED" button takes the user to the Academic Path Selection screen. The "LOG IN" link takes the user to the Login screen.
+
+---
+
+## Screen 3: Academic Path Selection
+
+**What the user sees:**
+
+There is a back arrow in the top-left corner that returns to the Welcome screen. The top bar says "Choose Your Academic Path." At the top of the screen, a yellow warning pill with an exclamation mark says "This choice is PERMANENT" in bold amber text. Below this warning, there are two large cards. The first card has a school icon and says "HIGH SCHOOL" with subtitles "Grades 9 - 12" and "Natural and Social streams." The second card has a money/account icon and says "UNIVERSITY" with subtitles "Freshman - Senior" and "All generations and institutes."
+
+When the user taps a card, it becomes highlighted with a navy blue border, a subtle shadow appears, and a navy blue checkmark circle appears in the top-right corner. Only one card can be selected at a time. At the bottom, there is a "CONTINUE" button that is grey and disabled until the user makes a selection. When a selection is made, the button becomes enabled with a navy blue gradient background.
+
+**What happens:**
+
+If the user selects HIGH SCHOOL and taps CONTINUE, they go to Grade Selection. If they select UNIVERSITY, they go to Generation Selection. The user's choice is stored permanently and cannot be changed later. After completing the entire academic path selection, the user will go to Registration, not directly to the Dashboard.
+
+---
+
+## Screen 4: Grade Selection (High School Path)
+
+**What the user sees:**
+
+This screen only appears for users who chose HIGH SCHOOL on the previous screen. There is a back arrow that returns to Academic Path Selection. The top bar says "Select Your Grade." Below that, a grey subtitle says "Choose your current grade level." Four large square cards are arranged in a 2x2 grid. Each card shows a large grade number (9, 10, 11, or 12) in big bold text, with the word "Grade" below it. Each grade has a slightly different shade of navy blue. When the user taps a grade card, it gets a navy blue border, a shadow, and a navy blue checkmark circle appears.
+
+Below the grid, an information box changes based on what the user selects. For grades 11 and 12, it says "You will need to select a stream." For grades 9 and 10, it says "Grade includes all core subjects with no stream selection." The "CONTINUE" button at the bottom is disabled until a grade is selected.
+
+**What happens:**
+
+If the user selects grade 11 or 12 and taps CONTINUE, they go to Stream Selection. If they select grade 9 or 10, the grade is saved and they go to Registration (not the Dashboard). The registration screen will ask for all required information including Google Sign-In and email/password options.
+
+---
+
+## Screen 5: Stream Selection (Grades 11-12 Only)
+
+**What the user sees:**
+
+This screen only appears for users who selected grade 11 or 12. There is a back arrow that returns to Grade Selection. The top bar says "Select Your Stream." At the top, a small navy blue pill shows which grade the user selected (e.g., "Grade 11" or "Grade 12"). Below this, there are two large cards. The Natural Science card has a navy blue top border, a science icon, and shows small rounded chips with subject names: Mathematics, Physics, Chemistry, Biology, IT, English, Agriculture, Aptitude. The Social Science card has a navy blue top border, a book icon, and shows subject chips: Economics, Geography, History, Citizenship, IT, English, Mathematics, Aptitude.
+
+When the user taps a card, it gets a navy blue border, shadow, and checkmark. At the bottom, a yellow warning box says "This choice is permanent and cannot be changed later." The "CONTINUE" button becomes enabled after a stream is selected.
+
+**What happens:**
+
+When the user taps CONTINUE, their stream choice is saved and they go to Registration (not the Dashboard). All the information they've selected so far (path, grade, stream) is stored and collected. The registration screen supports both Google Sign-In and email + password.
+
+---
+
+## Screen 6: Generation Selection (University Path)
+
+**What the user sees:**
+
+This screen only appears for users who chose UNIVERSITY on the Academic Path Selection screen. There is a back arrow that returns to Academic Path Selection. The top bar says "Select University Generation." Five scrollable cards appear on the screen: 1st Generation (8 universities), 2nd Generation (8 universities), 3rd Generation (8 universities), 4th Generation (8 universities), and Technology Institutes (4 institutes). Each card shows the generation name, how many universities are in that generation, and some preview abbreviations of the universities. The Technology Institutes card has a different icon (a gear symbol for manufacturing). When the user taps a card, it gets a navy blue border and checkmark. A "CONTINUE" button at the bottom takes the user to the next screen.
+
+**What happens:**
+
+After selecting a generation, the user taps CONTINUE and goes to University Selection where they pick their specific university.
+
+---
+
+## Screen 7: University Selection
+
+**What the user sees:**
+
+The top bar shows the selected generation name with a back arrow. At the top, there is a search bar with a magnifying glass icon and a clear button (X). Below the search bar, the generation name and the number of institutions in that generation are displayed. Each university appears as a card with a radio button on the left, the full university name in bold text, the abbreviation below it, and a subtitle saying "4-year program" or "Technology Institute." When the user taps a card, the radio button fills with a navy blue checkmark. Only one university can be selected at a time. The list shows exactly 8 universities for generations 1-4, and 4 institutes for Technology Institutes. A "CONTINUE" button at the bottom takes the user to the next screen.
+
+**What happens:**
+
+After selecting a university, the user taps CONTINUE and goes to Year Selection.
+
+---
+
+## Screen 8: Year Selection (University Path)
+
+**What the user sees:**
+
+Two large cards are displayed on the screen. The first card says "FRESHMAN" with "Year 1 Student, two semesters" and a navy blue theme. The second card says "SENIOR" with "Years 2, 3, and 4, content being prepared" and a navy blue theme. Each card has an icon: a number 1 for Freshman and a school icon for Senior. When the user taps a card, it gets a navy blue border, shadow, and checkmark. An information box at the bottom changes based on what the user selects. A "CONTINUE" button takes the user to the next screen.
+
+**What happens:**
+
+If the user selects FRESHMAN, they go to Semester Selection. If they select SENIOR, they go to the Senior Year Screen which explains that content is being prepared.
+
+---
+
+## Screen 9: Senior Year Screen
+
+**What the user sees:**
+
+A large navy blue circle in the center contains a school icon. The title reads "Content Being Prepared" in big bold text. The body text explains: "Content for Senior years (Year 2, 3, 4) is being prepared by the NextGen Ethiopia team. Your selection has been saved and you will be notified when content becomes available." A notification info box at the bottom says "You will be notified when Senior content becomes available." A navy blue button at the bottom says "GO BACK TO WELCOME SCREEN."
+
+**What happens:**
+
+The user taps the "GO BACK TO WELCOME SCREEN" button and returns to the Welcome screen. This is a fully functional screen with a working button, not a placeholder.
+
+---
+
+## Screen 10: Semester Selection (University Path)
+
+**What the user sees:**
+
+This screen only appears for users who selected FRESHMAN. The top bar says "Select Semester" with a subtitle "Freshman Year." Two large cards are displayed. The first card says "FIRST SEMESTER" with "6 subjects each, Natural/Social Science stream" and has a number 1 icon. The second card says "SECOND SEMESTER" with "8 subjects, Pre-Engineering/Other Natural Science track" and has a number 2 icon. An information box explains the choice. A "CONTINUE" button takes the user to the next screen.
+
+**What happens:**
+
+If the user selects FIRST SEMESTER, they go to University Stream Selection. If they select SECOND SEMESTER, they go to University Track Selection.
+
+---
+
+## Screen 11: University Stream Selection (Semester 1)
+
+**What the user sees:**
+
+This screen only appears for users who selected FIRST SEMESTER. Two cards are displayed. The first card says "NATURAL SCIENCE" with subjects: English, Geography, Logic, Mathematics, Physics, Psychology. It has a navy blue theme and a science icon. The second card says "SOCIAL SCIENCE" with subjects: Economics, English, Geography, Logic, Mathematics, Psychology. It has a navy blue theme and a book icon. Subject chips are shown below each title. A "CONTINUE" button takes the user to Registration.
+
+**What happens:**
+
+The user's selection is saved and they go to Registration (not the Dashboard). All information is stored and collected. Registration supports both Google Sign-In and email + password.
+
+---
+
+## Screen 12: University Track Selection (Semester 2)
+
+**What the user sees:**
+
+This screen only appears for users who selected SECOND SEMESTER. Two cards are displayed. The first card says "PRE-ENGINEERING COURSES" with 8 subjects including Anthropology, Applied Mathematics, C++ Programming, Emerging Technologies, English Skill 2, Entrepreneurship, History, Moral and Citizenship Education. It has a navy blue theme and an engineering icon. The second card says "OTHER NATURAL SCIENCE" with 8 subjects including Anthropology, Biology, Chemistry, Economics, Emerging Technologies, English Skill II, History, Moral and Citizenship Education. It has a navy blue theme and a biotech icon. A "CONTINUE" button takes the user to Registration.
+
+**What happens:**
+
+The user's selection is saved and they go to Registration (not the Dashboard). All information is stored and collected. Registration supports both Google Sign-In and email + password.
+
+---
+
+# PART 2: AUTHENTICATION (5 Screens)
+
+---
+
+## Screen 13: Register Screen
+
+**What the user sees:**
+
+There is a back arrow that returns to the previous screen. The header reads "Create Account." There is a button to sign in with Google. Below that, there are six form fields. The first field asks for "Full Name" with a person icon. The second field asks for "Phone Number" with a non-editable +251 prefix and a field for the remaining nine digits. The app automatically removes any zero if the user enters it before the 9 digits. The third field asks for "Email" with format validation. The fourth field asks for "Password" with a visibility toggle icon (eye) and text saying "Password must be at least 6 characters." The fifth field asks to "Confirm Password" with a visibility toggle icon. The sixth field asks for "High School Name" but only appears if the user selected the High School path during onboarding. Validation errors appear in red text below each field if something is wrong. A "REGISTER" button with a navy blue gradient and full width shows a loading spinner while the app processes the registration. It is disabled until all fields are valid. At the bottom, a link says "Already have an account? LOG IN" which takes the user to the Login screen.
+
+**What happens:**
+
+When the user fills in all fields and taps REGISTER, the app validates all information. It then sends the information to Firebase Auth to create the account. The academic path selected during onboarding is submitted with the registration data and permanently stored. The app sends an email verification email to the user. The user then goes to Email Verification screen.
+
+**Important:** One account can only be used on one device at a time. If the user tries to log in on a new device, they will be asked to log out from the old device first.
+
+---
+
+## Screen 14: Login Screen
+
+**What the user sees:**
+
+There is a back arrow that returns to the previous screen. The header reads "Welcome Back." Users can also login with email option. An Email input field and a Password input field with visibility toggle icon appear. A "Forgot Password?" link in blue text takes the user to the Forgot Password screen. A "LOGIN" button with a navy blue gradient and full width shows a loading spinner during authentication. If the credentials are invalid, an error snackbar appears at the bottom. A link at the bottom says "Don't have an account? REGISTER" which takes the user to the Register screen. A support agent icon is shown in a support info box at the bottom.
+
+**What happens:**
+
+When the user enters their email and password and taps LOGIN, the app authenticates with Firebase. On success, the user goes to the Dashboard Home Tab. If the user is already logged in on another device, they will be prompted to log out from that device first.
+
+---
+
+## Screen 15: Forgot Password Screen
+
+**What the user sees:**
+
+There is a back arrow that returns to Login. The header reads "Reset Password." Instructional text says "Enter your email to receive a password reset link." There is an Email input field and a "SEND RESET LINK" button. When the reset link is sent, a success confirmation message appears. A link says "Remember password? BACK TO LOGIN" which returns to the Login screen.
+
+**What happens:**
+
+The user enters their email and taps SEND RESET LINK. Firebase sends a password reset email. The user checks their email, clicks the link, and sets a new password.
+
+---
+
+## Screen 16: Email Verification Screen
+
+**What the user sees:**
+
+There is a back arrow. A large 64-pixel email icon is centered on the screen. The header reads "Verify Your Email." Text displays the user's email and instructions to check their inbox and spam folder. Three screenshot images (email1.jpg, email2.jpg, email3.jpg) show how to easily verify email. An "I HAVE VERIFIED" button checks with Firebase every five seconds to see if the user has verified their email. A "RESEND EMAIL" button has a 60-second countdown timer and is disabled until the timer expires. A "LOGOUT" button signs the user out.
+
+**What happens:**
+
+The user checks their email, clicks the verification link, then returns to the app and taps "I HAVE VERIFIED." The app checks with Firebase and when verification is confirmed, the user goes to Profile Setup Completion.
+
+---
+
+## Screen 17: Profile Setup Completion
+
+**What the user sees:**
+
+A large 80-pixel navy blue checkmark is centered on the screen. The header reads "Account Created Successfully." An info card displays the permanently selected academic path (e.g., "Grade 11 Natural Science") with a note saying "(This choice is permanent)." Informational text says "Your grade package is now locked. Purchase to unlock all subjects." A "GO TO DASHBOARD" button takes the user to the Home Tab. This screen appears only once after initial registration and automatically goes to the dashboard after 10 seconds.
+
+**What happens:**
+
+The user taps "GO TO DASHBOARD" or waits 10 seconds, and the app navigates to the Dashboard Home Tab.
+
+---
+
+# PART 3: MAIN DASHBOARD (5 Screens)
+
+---
+
+## Screen 18: Dashboard Screen — Bottom Navigation
+
+**What the user sees:**
+
+This is the main container screen that holds all the dashboard tabs. At the bottom of the screen, there is a navigation bar with icons and labels. For Grade 9 and 10 users, there are five tabs: Home, Subjects, Progress, Notifications, Profile. For Grade 11 and 12 users, there are six tabs: Home, Subjects, Progress, Entrance, Notifications, Profile. The selected tab icon is navy blue, and unselected tabs are grey. Tapping a tab switches the content area. The app remembers which tab you were on, so when you switch tabs and come back, it stays on the same tab.
+
+**Navigation Icons:**
+- Home: House icon
+- Subjects: Book icon
+- Progress: Trending up icon
+- Entrance: School icon (only for Grades 11-12)
+- Notifications: Bell icon
+- Profile: Person icon
+
+---
+
+## Screen 19: Home Tab
+
+**What the user sees:**
+
+This is the main landing page of the dashboard. At the top, there is a time-appropriate greeting using the user's first name (e.g., "Good Morning, Abebe!") in big bold text. Below that, the current date is displayed (e.g., "Monday, May 15, 2026"). To the right, there is a streak counter with a fire icon showing the current study streak in days inside an orange pill. This works offline and tracks real study sessions.
+
+Next, there is a row of four small icon buttons called Quick Actions. The first one is a play icon labeled "Continue" - tapping this resumes the last viewed content. The second is a timer icon labeled "Study Time" - tapping this opens a timer with focus sessions. The third is an assignment icon labeled "Entrance" - tapping this goes to the Entrance tab (for Grades 11-12 only, or shows a coming soon message for others). The fourth is a download icon labeled "Downloads" - tapping this shows all downloaded content.
+
+Below the Quick Actions, there is a section called "Your Subjects." There is a header row with "Your Subjects" in bold and a "See All" link. Below this, there is a 2x3 grid of subject cards. Each card has a navy blue top area, a custom JPG icon for the subject, the subject name in bold navy blue text, and small grey text saying "Tap to explore." When the user taps a subject, they go to the Subject Portal. When they tap "See All," a bottom sheet opens with all subjects in a 2-column grid.
+
+At the bottom of the screen, there is a Daily Quote section. It has a gradient background and a quote icon. It displays one of 20 hardcoded educational quotes, with a new quote appearing each day.
+
+**Subject Icons (19 total):**
+Agriculture, Anthropology, Applied Math, Aptitude, Biology, C++, Chemistry, Citizenship, Economics, Emerging, English, Geography, History, IT, Logic, Math, Physics, Psychology
+
+---
+
+## Screen 20: Subjects Tab
+
+**What the user sees:**
+
+This screen shows all subjects for the user's grade and stream. When the package is locked, there is an orange banner at the top that says "Grade X Stream Package - Locked" with the package name and an "UNLOCK - XXX ETB" button. Below this, there is a 2-column grid of subject cards. Each card has the subject's custom JPG icon, the subject name in navy blue text, the number of chapters, and a lock icon overlay showing that the subject is locked. All units and chapters are visible with their names but they remain locked.
+
+When the package is unlocked, a navy blue banner at the top says "Package Unlocked" with validity information (e.g., "Valid until Jan 15, 2027"). Subject cards now show a thin colored progress bar instead of the lock icon, showing how much of the subject has been completed. Tapping an unlocked subject takes the user to the Subject Portal.
+
+**Important:** Purchasing one subject means purchasing the whole package for that academic path. This unlocks all subjects under that path. The package is valid for one year from the approval date.
+
+---
+
+## Screen 21: Subject Portal
+
+**What the user sees:**
+
+The top bar shows the subject name with a back arrow. Below, there is a header card that displays the subject name with its custom JPG icon, the grade and stream path, and purchase validity text if purchased. The "CHAPTERS" section lists all chapter cards for that subject. Each card shows the unit number and title (e.g., "Unit 1: Introduction to Biology"), the content item count (e.g., "6 items"), and a colored horizontal progress bar showing completion. All chapters are accessible when the package is unlocked — there is no prerequisite locking. Tapping a chapter takes the user to the Chapter Content Screen.
+
+---
+
+## Screen 22: Chapter Content Screen
+
+**What the user sees:**
+
+A gradient header card at the top shows the subject name and chapter title. Below, six content type sections are listed vertically. Each section has a colored icon and header.
+
+1. **Video** - Red play icon, "Video" header. Videos can be from YouTube but must not look like they're from YouTube, or they can be uploaded to GitHub releases.
+2. **Short Note** - Blue description icon, "Short Note" header. These are PDF files from GitHub.
+3. **Quiz** - Orange quiz icon, "Quiz" header. These are interactive MCQ JSON files from GitHub.
+4. **Exam** - Purple assignment icon, "Exam" header. These are timed exam JSON files from GitHub.
+5. **Flashcard** - Teal style icon, "Flashcard" header. These are flashcard JSON files from GitHub.
+6. **Past Paper** - Brown folder icon, "Past Paper" header. These are interactive MCQ JSON files from GitHub.
+
+**If content is uploaded:** Each section shows a card with the content title, metadata (like duration for videos, page count for PDFs, question count for quizzes/exams, card count for flashcards), and a DOWNLOAD button with a download icon. When the user taps DOWNLOAD, a circular progress indicator replaces the download button, showing download progress. After download completes, a green "OFFLINE" badge appears with a checkmark, and tapping opens the content in the appropriate viewer.
+
+**If content is not uploaded:** The section shows a card with an hourglass icon and the text "Content will be uploaded soon by NextGen team" in grey italic text. This is the only placeholder text in the app — everything else is functional.
+
+---
+
+# PART 4: CONTENT VIEWERS (7 Screens)
+
+---
+
+## Screen 23: Video Player
+
+**What the user sees:**
+
+A full black immersive screen. The top bar shows the video title and a "Done" completion badge if the video has already been watched. The video plays full-width using the native video player. Standard media controls appear at the bottom: a draggable progress bar, current position and total duration timestamps, a rewind 10 seconds button, a large play/pause button in the center (in a navy blue circle), a forward 10 seconds button, and a volume toggle button. To the right of the controls, a speed selector allows choosing playback speed: 0.5x, 0.75x, 1.0x (normal), 1.25x, 1.5x, 2.0x. When paused, a large play icon overlay appears on the video. At the very bottom, a "Mark as Completed" button is available. When the video finishes playing, it auto-marks as completed. There is no YouTube branding, no external browser, no streaming — all playback is from the local downloaded file.
+
+**What happens:**
+
+The user watches the video, can control playback speed, rewind/forward, and mark it as completed. When completed, it's tracked in the user's progress.
+
+---
+
+## Screen 24: PDF Viewer
+
+**What the user sees:**
+
+The top bar shows the document title with a back arrow. Below the top bar, a document info bar displays "Page X of Y" on the left and the file size on the right. If the document is completed, a green "Completed" badge appears. The PDF is displayed full-screen with pinch-to-zoom enabled. The user can zoom in and out freely, and pan around the document. Zoom level percentage is shown in the top bar between zoom in and zoom out buttons. At the bottom, a navigation bar has left/right arrow buttons for page navigation, showing the current page and total pages. A "Mark as Completed" button with a navy blue checkmark is on the right.
+
+**What happens:**
+
+The user reads the PDF, can zoom in/out, navigate pages, and mark it as completed when finished.
+
+---
+
+## Screen 25: Quiz Screen
+
+**What the user sees:**
+
+The top bar shows "Quiz: [Title]" with a close button. Tapping the close button prompts a confirmation dialog warning that progress will not be saved. Below the top bar, a top status bar shows "Question X of Y" with a horizontal progress bar. The question area displays the question text in bold 18-pixel text inside a white card with a small primary-colored "Question X" pill at the top. Below the question, four multiple-choice options labeled A, B, C, and D are displayed as rounded rectangular containers. Each has a circular letter indicator on the left and the option text. Tapping an option selects it — the selected option gets a colored border, the letter circle fills with the primary color, and a checkmark icon appears on the right.
+
+**In Immediate Feedback Mode:** When the user taps an answer, correct choices turn green with a green checkmark. Wrong choices turn red, and the correct answer highlights green. A "Show Explanation" button appears below the options. Tapping it reveals the explanation text in a light grey box.
+
+**In Review at End Mode:** The user answers all questions without feedback. At the end, they see all their answers marked correct (green) or wrong (red) with explanations.
+
+At the bottom, navigation buttons "PREV" and "NEXT" allow moving between questions. On the last question, the NEXT button changes to a "FINISH" button. There is no separate submit step — results are calculated automatically.
+
+**What happens:**
+
+The user answers questions, gets feedback (depending on mode), and when finished, goes to Quiz Result Screen.
+
+---
+
+## Screen 26: Quiz Result Screen
+
+**What the user sees:**
+
+A large circular score indicator (200-pixel diameter) in the center shows the score as a fraction (e.g., "7/10") in 48-pixel bold text and the percentage (e.g., "70%") in 22-pixel text. The circle border is green if passed (≥60%) or red if failed. Below, a pass/fail message appears in large bold text. Three stat cards in a horizontal row display: Correct count with green check icon and percentage, Wrong count with red cancel icon and percentage, and Time taken with navy blue timer icon and minutes:seconds. A details card shows the quiz name, subject, chapter, total questions, passing score, and the user's score highlighted in the primary color. A "View Answers & Explanations" outlined button appears showing full answers with descriptions. If the user failed, a "Retry Quiz" orange button appears. A navy blue gradient "Back to Dashboard" button is at the bottom. If passed, an achievement banner with a trophy icon says "Achievement Unlocked! Quiz Master: Passed your quiz."
+
+**What happens:**
+
+The user sees their results, can review answers with explanations, retry if failed, or return to dashboard.
+
+---
+
+## Screen 27: Exam Screen
+
+**What the user sees:**
+
+Similar to the Quiz screen but with a countdown timer bar at the very top. The timer shows remaining time in large bold digits with a timer icon. The bar background changes color: normal is grey, under 5 minutes turns orange, under 1 minute turns red. A "Pause" button sits next to the timer. When paused, the entire question area is hidden and replaced with an orange banner saying "Exam is paused. Questions are hidden. Tap Resume to continue." A progress bar shows "Question X of Y" with percentage. Below the question and options, a question navigator grid appears — small numbered squares for every question. Answered questions have a green border, the current question is filled with the primary color, unanswered questions are grey. Tapping a number jumps to that question. At the bottom, "PREV", "SUBMIT EXAM", and "NEXT" buttons. Submitting with unanswered questions triggers a confirmation dialog warning that unanswered questions will be marked as wrong. When the timer reaches zero, the exam auto-submits.
+
+**What happens:**
+
+The user takes a timed exam, can pause, navigate between questions, and when finished or time runs out, goes to Exam Result Screen.
+
+---
+
+## Screen 28: Exam Result Screen
+
+**What the user sees:**
+
+Similar to Quiz Result but with the addition of an unanswered count stat card (orange) if any questions were left unanswered. The score circle, stats cards, details card, action buttons, and achievement banner follow the same layout. Full answers with descriptions are shown in the final results for both quiz and exam.
+
+**What happens:**
+
+The user sees their exam results, can review answers with explanations, retry if failed, or return to dashboard.
+
+---
+
+## Screen 29: Flashcard Screen
+
+**What the user sees:**
+
+The top bar shows "Flashcards: [Title]" with the mastered count displayed on the right (e.g., "5/20"). A progress bar shows "Card X of Y". The center of the screen is dominated by a large flashcard with rounded corners, a white background, and a subtle shadow. On the front, a question mark icon appears at the top, and the question text is displayed in large bold 22-pixel text centered. Below the text, a label says "QUESTION" in small grey uppercase letters. At the very bottom of the card, small text reads "TAP TO FLIP". When the user taps the card, a smooth 3D flip animation rotates the card to reveal the back. The back has a lightbulb icon, the answer text in 18-pixel text, and an "ANSWER" label. Tapping again flips back to the question. Below the card, two action buttons sit side by side: "DIDN'T KNOW" in red outlined style, and "GOT IT!" in navy blue filled style. Tapping "GOT IT!" marks the card as mastered and advances to the next card. Tapping "DIDN'T KNOW" keeps the card in the active deck and advances. When all cards are reviewed, a completion dialog appears showing the total reviewed, mastered count, and cards needing more practice. Options to restart or finish are provided.
+
+**What happens:**
+
+The user reviews flashcards, flips them, marks them as mastered or not, and tracks progress. When all cards are done, they see a completion summary.
+
+---
+
+# PART 5: ENTRANCE TAB (Grade 11-12 Only) (5 Screens)
+
+---
+
+## Screen 30: Entrance Tab — Main View
+
+**What the user sees:**
+
+A gradient header card at the top shows a school icon, "University Entrance Exam," and the user's grade and stream. Below, four section cards are displayed vertically. The first card is "Past Papers" with a navy blue theme, description icon, and subtitle "Complete national exams from 2014 onwards." The second card is "Entrance Exam" with a navy blue theme, quiz icon, and subtitle "Practice questions by grade and chapter." The third card is "Study Schedule" with a navy blue theme, calendar icon, and subtitle "Plan your exam preparation." The fourth card is "Exam Tips" with a navy blue theme, lightbulb icon, and subtitle "Strategies for success." Each card has an arrow-forward icon and is fully tappable.
+
+**What happens:**
+
+The user taps any card to go to that specific section.
+
+---
+
+## Screen 31: Entrance Past Papers Screen
+
+**What the user sees:**
+
+A navy blue gradient header with a description icon and "Past Papers" title. Below, subjects are listed by stream. For Natural Science students: Mathematics, English, Biology, Chemistry, Physics, Aptitude. For Social Science students: Mathematics, English, Aptitude, Economics, Geography, History. Each subject has a colored header row with the custom JPG icon, the subject name in bold, and the paper count. Below each subject, past paper cards are listed by year, sorted newest first. Each card shows the paper title, "Year: 2024", question count, and time limit. A download button with progress indicator is on the right. When downloaded, a green "OFFLINE" badge and a play button appear. Empty subjects show "Content will be uploaded soon by admin."
+
+**Important:** Past papers are not PDFs; they are interactive exams with MCQ questions that have answers and explanations at the end or during clicking choices. This includes models, mock exams, and exams prepared for unofficial EUEE.
+
+**What happens:**
+
+The user downloads past papers, takes them as interactive exams, and gets results with explanations.
+
+---
+
+## Screen 32: Entrance Exam Screen
+
+**What the user sees:**
+
+A three-step navigation flow. Step 1: A navy blue gradient header with "Entrance Exam" and a 2x3 grid of subject cards with custom icons and colors. Tapping a subject advances. Step 2: A colored header showing the selected subject with its icon, and a 2x2 grid of grade cards (9, 10, 11, 12) each showing "Grade X" and the chapter count. Tapping a grade advances. Step 3: A breadcrumb navigation row shows "Subject > Grade X". Below, chapter cards are listed, each showing the chapter name, question count, and last updated date. Download and practice buttons function identically to the past papers flow.
+
+**What happens:**
+
+The user selects a subject, then a grade, then a chapter to practice questions.
+
+---
+
+## Screen 33: Study Schedule Screen
+
+**What the user sees:**
+
+A navy blue gradient header. Three session cards for Morning (9 AM-12 PM, focus on difficult subjects), Afternoon (2 PM-5 PM, practice with past papers), and Evening (7 PM-9 PM, light review and flashcards). A weekly focus section shows each day of the week with a colored dot and assigned subject based on the user's progress. Study tips are listed with checkmark icons.
+
+**What happens:**
+
+The user sees a personalized study schedule based on their progress and weak areas.
+
+---
+
+## Screen 34: Exam Tips Screen
+
+**What the user sees:**
+
+A navy blue gradient header with a lightbulb icon. Hardcoded exam tips in detail, presented as numbered tip cards, each with a unique colored circle number and the tip text. A motivation card at the bottom says "You've got this!" with a star icon.
+
+**What happens:**
+
+The user reads exam preparation strategies and tips.
+
+---
+
+# PART 6: PAYMENT (2 Screens)
+
+---
+
+## Screen 35: Payment Screen
+
+**What the user sees:**
+
+The top bar is titled "Payment Details" with a back arrow. At the top, an "ORDER SUMMARY" card displays the package name (auto-detected from the user's academic path, e.g., "Grade 11 Natural Science Package"), "1 Year from approval" validity, a separator line, and the total amount in large bold text (e.g., "300 ETB"). A "SELECT PAYMENT METHOD" section lists five payment options as radio button cards. The options are Telebirr, M-PESA, CBE Birr, CBO Bank, and Awash Bank. Each card shows the method name in bold, the account number, and the account holder. The selected card has a navy blue border and radio fill. Below the selection, a grey info box shows "Pay to:" with the recipient's phone or account number and holder name. A "TRANSACTION DETAILS" section has two text inputs: "Your Account Number" (the user's phone or account number used for payment) and "Transaction Reference" (optional transaction ID). An "UPLOAD PAYMENT RECEIPT" section has a large dashed-border square upload area with "TAP TO SELECT SCREENSHOT" text and a cloud upload icon. When an image is selected, a thumbnail preview appears with a red X button to remove it. A navy blue gradient "CONFIRM PAYMENT" button submits the payment record to Firebase with status "pending." The receipt image is sent to the Telegram bot for admin notification. After submission, a success dialog appears with a navy blue checkmark, "Payment Submitted" title, explanatory text, and a "GO TO DASHBOARD" button.
+
+**Payment Method Icons:**
+1. Telebirr - `telebirr_icon.png`
+2. M-PESA - `m-pesa_icon.png`
+3. CBE Birr - `cbe_birr_icon.png`
+4. CBO Bank - `cbo_bank_icon.png`
+5. Awash Bank - `awash_bank_icon.png`
+
+**What happens:**
+
+The user selects a payment method, enters transaction details, uploads a receipt screenshot, and confirms payment. The payment is submitted with status "pending" and the admin is notified via Telegram.
+
+---
+
+## Screen 36: Payment History Screen
+
+**What the user sees:**
+
+The top bar is titled "Payment History" with a back arrow and refresh button. Filter chips at the top: All, Pending, Approved, Rejected — each showing the count in parentheses. A search bar allows searching by package or date. Below, a list of payment cards, each showing a status icon (navy blue checkmark for approved, orange clock for pending, red cross for rejected), the package name, date, amount in the primary color, payment method, and a colored status badge. Rejected payments show the admin's rejection reason in a red info box. Tapping a payment opens a detail dialog with full transaction information.
+
+**What happens:**
+
+The user views all their past payments, filters them by status, and can see details of each payment.
+
+---
+
+# PART 7: NOTIFICATIONS & PROFILE (2 Screens)
+
+---
+
+## Screen 37: Notifications Tab
+
+**What the user sees:**
+
+A header row with "Notifications" and a "Mark All Read" link showing the unread count (e.g., "Mark All Read (3)"). Filter chips scroll horizontally: All, Unread (with red count badge), Payment, Content, Quiz, Exam, Achievement. Below, a list of notification cards, each with a colored type indicator dot on the left (navy blue for Payment, blue for Content, orange for Quiz, purple for Exam, gold for Achievement, brown for System), an unread red dot indicator for new notifications, the title in bold (e.g., "Payment Approved"), the message body in grey, and a relative timestamp (e.g., "5 minutes ago"). Unread notifications have a slightly elevated card with a colored left border. Tapping a notification marks it as read and removes the unread dot.
+
+**What happens:**
+
+The user views all notifications, filters them by type, and marks them as read. This helps them stay informed about payment status, content updates, quiz/exam results, and achievements.
+
+---
+
+## Screen 38: Profile Tab
+
+**What the user sees:**
+
+A premium geometric background with a gradient header in the primary color. A white rounded card overlays the bottom portion of the header. Inside the card: a circular profile photo (or initial letter avatar if no photo) with a camera icon button at the bottom-right for uploading a photo (using ImgBB API). The user's full name appears in 26-pixel bold text, email in grey below, and the academic path in a navy blue pill container. If the user is PRO, an amber "PRO" pill appears next to the path pill. Three stat cards in a horizontal row show Study Hours (navy blue), Lessons (navy blue), and Average Score (navy blue), each with an icon and value.
+
+Below the profile card, menu sections are organized into groups:
+
+**ADMIN PANEL** (visible only to admin users):
+- Admin Dashboard
+- Content Management
+- User Management
+- Payment Approval
+- Create Notification
+- Analytics
+- Entrance Management
+
+**ACCOUNT:**
+- Edit Profile
+- Payment History
+- Downloads
+
+**SETTINGS:**
+- App Settings
+- Change Password
+
+**SUPPORT:**
+- Help Center
+- About ACADIA
+
+Each menu item is a white rounded container with an icon in a colored circle, the item title, a subtitle, and a forward arrow. At the bottom, a red "Sign Out" button logs the user out and returns to the Welcome screen.
+
+**Social Media Icons (6 icons in About screen):**
+Telegram, Facebook, Instagram, Twitter/X, YouTube, TikTok
+
+**What happens:**
+
+The user views and edits their profile, accesses various settings, and navigates to different sections. Admins see additional admin panel options. The user can also sign out from here.
+
+---
+
+# PART 8: ADMIN PANEL (10 Screens)
+
+---
+
+## Screen 39: Admin Dashboard
+
+**What the user sees:**
+
+A welcome header "Welcome, Admin" with last login time. Five stat cards in a horizontal scrollable row: Total Users (people icon), Total Content (description icon), Total Revenue (money icon), Universities (account balance icon), High Schools (school icon) — each with count and the primary color. Below, a "Users by Academic Path" section shows a horizontal bar chart with colored progress bars for each academic path (Grade 9 through University tracks). A "Quick Actions" 3x3 grid provides navigation buttons: Content Management, User Management, Payments (with red pending count badge), Notifications, Analytics, Entrance, App Settings, About. A "Recent Activity" feed shows the latest user registrations and payment submissions with relative timestamps.
+
+**What happens:**
+
+The admin sees an overview of the platform's metrics and can quickly navigate to any admin function.
+
+---
+
+## Screen 40: Content Management
+
+**What the user sees:**
+
+A stats row showing Total, Videos, PDFs, JSONs counts. Filter chips: All, Video, PDF, Quiz, Exam, Flashcard, Past Paper. Subject and Status dropdown filters. A search bar. Admin can see all content uploaded through GitHub, view details, download, and preview content if needed. A "Select All" checkbox with bulk action buttons (Approve Selected, Delete Selected) that appear when items are checked. Each content card shows a checkbox, the content type icon with its designated color (red for video, blue for PDF, orange for quiz, purple for exam, teal for flashcard, brown for past paper), the title, subject/chapter info, a status badge (green for Approved, orange for Pending), a "FREE" badge if applicable, upload date, and download count. A three-dot menu on each card provides Edit, Approve (if pending), and Delete options. An "Edit Structure" option in the top bar allows adding or editing subjects and chapters.
+
+**Important:** Content is uploaded through GitHub, not through the admin panel.
+
+**What happens:**
+
+The admin views all content, filters it, approves pending content, edits or deletes content, and manages the subject structure.
+
+---
+
+## Screen 41: User Management
+
+**What the user sees:**
+
+A stats row: Total, Active, Pro, Free, Banned. Three dropdown filters: Academic Path (all 10 options), Status (Active/Banned), Subscription (Pro/Free). A search bar that searches by name, email, or phone number simultaneously. An "Export PDF" button for exporting user info in bulk or single. User cards show a circular avatar with initial letter, the user's full name, email, phone, academic path, and a PRO/FREE badge with a BANNED badge if applicable. Tapping a user opens a full detail bottom sheet with:
+
+- **Personal Information:** Full name, email, phone, join date, last active, profile picture (if uploaded via ImgBB)
+- **Academic Path:** Complete path, permanently locked status
+- **Subscription:** Pro/Free, package name, amount paid, payment method, valid from/to, days remaining
+- **Study Statistics:** Total study hours, lessons completed, quizzes passed, average score, streaks, downloads
+- **Payment History:** All payment records
+- **Recent Activity:** Timestamped list
+- **Notifications Sent:** With edit and delete options
+
+**Action buttons:** Make Pro / Revoke Pro (with package selection dialog when making pro), Ban / Unban (with optional reason when banning), Send Notification (type, title, message fields), Delete User (with permanent deletion warning). A "Manage Admins" option allows viewing, adding, and removing admin email addresses.
+
+**Revenue Info:** Admin can view app revenue from approved payments and see which paths are approved most through bar graphs and pie charts.
+
+**What happens:**
+
+The admin manages all users, views detailed user information, changes user status, sends notifications, and manages admin access.
+
+---
+
+## Screen 42: Payment Approval
+
+**What the user sees:**
+
+Stats bar: Pending, Approved, Rejected, Total counts. Search bar (name, email, or phone). Status and Package dropdown filters. Payment cards in a vertical list, each showing the user's name, email, phone, package name, amount in the primary color, payment method, date, and a colored status badge. Tapping a payment opens a full detail panel showing:
+
+- **User Information:** Full name, email, phone, join date, account status, profile photo (ImgBB handles this)
+- **Academic Path:** Complete path, permanently locked
+- **Package Being Purchased:** Package name, subjects list, amount, validity
+- **Payment Information:** Payment method, recipient details, sender account, transaction reference, submission date
+- **Receipt Image:** Full screenshot viewable in full screen
+- **User Payment History:** Previous payment attempts
+
+**Action buttons:** APPROVE (green) — confirms payment, unlocks package for 1 year from approval date, sends notification. REJECT (red) — opens a dialog with mandatory reason field and quick-select common reasons (receipt unclear, wrong amount, missing reference, account mismatch, duplicate, suspicious). Sends notification with the reason.
+
+**What happens:**
+
+The admin reviews pending payments, views receipt images, approves or rejects payments, and sends notifications to users about the decision.
+
+---
+
+## Screen 43: Notification Creation
+
+**What the user sees:**
+
+Six notification type cards in a 2x3 grid: Payment (green), Content (blue), Quiz (orange), Exam (purple), Achievement (gold), System (brown). The selected card gets a colored border. Three target audience radio options: All Users, Specific Academic Path (multi-select chips for all 10 paths with Select All/Clear All), Specific Users (search by name/email/phone with checkbox selection). Title and Message text fields. A navy blue "BROADCAST NOTIFICATION" button with confirmation dialog.
+
+**What happens:**
+
+The admin creates notifications, selects the type and target audience, writes the title and message, and broadcasts it to the selected users.
+
+---
+
+## Screen 44: Analytics Dashboard
+
+**What the user sees:**
+
+Date range choice chips: Today, This Week, This Month, This Year. Five stat cards in 2 rows. Revenue Trend section with a navy blue bar chart showing the last 6 months and total revenue below. Users by Academic Path with horizontal progress bars. Revenue by Package with horizontal progress bars. Payment Method Distribution with horizontal progress bars (navy blue). User Growth percentage indicator (green for positive, red for negative). Most Viewed Content ranked list with type icons and download counts. Content by Type distribution with colored progress bars. Export CSV and Export PDF buttons at the bottom.
+
+**What happens:**
+
+The admin views platform analytics, sees revenue trends, user distribution, content performance, and exports reports.
+
+---
+
+## Screen 45: Entrance Management
+
+**What the user sees:**
+
+A search bar and filter chips for Type (All, Past Papers, Entrance Exam), Stream (All, Natural, Social), Subject, Year, and Grade. Content cards show the title, type, subject, stream, year/grade info. Admin can see all uploaded content through GitHub but cannot add or edit from here — all content management is done through GitHub repository and releases.
+
+**What happens:**
+
+The admin views all entrance exam content that has been uploaded through GitHub.
+
+---
+
+## Screen 46: App Settings
+
+**What the user sees:**
+
+Sidebar navigation with categories:
+- **Package Prices:** Text fields per grade (only functional setting)
+- **Daily Quote:** (not functional - quotes are hardcoded)
+- **Exam Tips:** (not functional - tips are hardcoded)
+- **About & Contact:** Website URL field (functional)
+
+Only Package Prices and About & Contact (Website URL) settings are functional and make changes to the app.
+
+**What happens:**
+
+The admin updates package prices and the website URL that appears in the About screen.
+
+---
+
+## Screen 47: About Management
+
+**What the user sees:**
+
+All About screen content is hardcoded. The only editable field is the website URL, which is managed through App Settings.
+
+**What happens:**
+
+The admin views the About screen configuration, but only the website URL can be changed through App Settings.
+
+---
+
+# PART 9: SETTINGS (2 Screens)
+
+---
+
+## Screen 48: Help Center
+
+**What the user sees:**
+
+A gradient header with "How can we help you?" and a search bar below. Five FAQ category chips: All, Account Issues, Content Access, App Performance, Payment Issues, Technical Support. FAQ items appear as ExpansionTile cards, each with a help icon, the question in bold, the category as a subtitle, and the answer revealed on tap. Quick Action cards for Email Support (red) and Telegram (blue). A tutorial video card with a play icon links to the tutorial video screen. A contact section shows email, Telegram handle, phone number, and response time.
+
+**ACADIA AI:** An AI assistant is integrated to analyze everything depending on the sources and information here, so users get full information and help. The AI works offline using existing academic content to answer questions, help with exams, and provide tutoring.
+
+**What happens:**
+
+The user searches for help topics, reads FAQs, contacts support, and uses the ACADIA AI assistant for personalized help.
+
+---
+
+## Screen 49: Tutorial Video
+
+**What the user sees:**
+
+Language selector dropdown (English, Amharic, Afaan Oromoo) with a description text below. The video player fills the center with standard controls. Below, a progress bar with scrubbing, time display, and control buttons (rewind 10s, large play/pause in a colored circle, forward 10s). Videos play from local MP4 assets.
+
+**What happens:**
+
+The user watches tutorial videos in their preferred language to learn how to use the app.
+
+---
+
+## Screen 50: About Screen
+
+**What the user sees:**
+
+The ACADIA logo (fire icon in gradient circle) centered at the top. App name "ACADIA" in 28-pixel bold, version "V1.0.0" in grey, tagline in italic. Developer Information card with business icon, company name, email link, Telegram link, website link (from App Settings). Copyright Notice card with copyright text and "View Full Terms" link. Social Media card with color-coded links:
+
+- Telegram (blue icon)
+- Facebook (indigo icon)
+- Instagram (pink icon)
+- Twitter/X (light blue icon)
+- YouTube (red icon)
+- TikTok (black icon)
+
+Each link displays the platform's custom icon, name, and a forward arrow.
+
+**What happens:**
+
+The user views information about the app, contacts the developer, and follows ACADIA on social media.
+
+---
+
+# SUMMARY: ALL 50 SCREENS
+
+| Screen # | Screen Name | Purpose |
+|----------|-------------|---------|
+| **PART 1: ONBOARDING FLOW (12 Screens)** |
+| 1 | Splash Screen | Loading and app initialization |
+| 2 | Welcome Screen | Landing page with app introduction |
+| 3 | Academic Path Selection | Choose High School or University |
+| 4 | Grade Selection | Choose grade (9-12) |
+| 5 | Stream Selection | Choose Natural or Social Science |
+| 6 | Generation Selection | Choose university generation |
+| 7 | University Selection | Choose specific university |
+| 8 | Year Selection | Choose Freshman or Senior |
+| 9 | Senior Year Screen | Content being prepared |
+| 10 | Semester Selection | Choose First or Second Semester |
+| 11 | University Stream Selection | Choose Natural or Social Science |
+| 12 | University Track Selection | Choose Pre-Engineering or Other |
+| **PART 2: AUTHENTICATION (5 Screens)** |
+| 13 | Register Screen | Create account |
+| 14 | Login Screen | Log in to account |
+| 15 | Forgot Password Screen | Reset password |
+| 16 | Email Verification Screen | Verify email |
+| 17 | Profile Setup Completion | Account created confirmation |
+| **PART 3: MAIN DASHBOARD (5 Screens)** |
+| 18 | Dashboard Screen - Bottom Navigation | Main navigation container |
+| 19 | Home Tab | Dashboard overview |
+| 20 | Subjects Tab | View all subjects |
+| 21 | Subject Portal | View chapters for a subject |
+| 22 | Chapter Content Screen | View content types |
+| **PART 4: CONTENT VIEWERS (7 Screens)** |
+| 23 | Video Player | Watch videos |
+| 24 | PDF Viewer | Read PDFs |
+| 25 | Quiz Screen | Take quizzes |
+| 26 | Quiz Result Screen | View quiz results |
+| 27 | Exam Screen | Take timed exams |
+| 28 | Exam Result Screen | View exam results |
+| 29 | Flashcard Screen | Review flashcards |
+| **PART 5: ENTRANCE TAB (5 Screens)** |
+| 30 | Entrance Tab - Main View | Entrance exam hub |
+| 31 | Entrance Past Papers Screen | View past papers |
+| 32 | Entrance Exam Screen | Practice questions |
+| 33 | Study Schedule Screen | Personalized study plan |
+| 34 | Exam Tips Screen | Exam strategies |
+| **PART 6: PAYMENT (2 Screens)** |
+| 35 | Payment Screen | Purchase package |
+| 36 | Payment History Screen | View payment history |
+| **PART 7: NOTIFICATIONS & PROFILE (2 Screens)** |
+| 37 | Notifications Tab | View notifications |
+| 38 | Profile Tab | User profile and settings |
+| **PART 8: ADMIN PANEL (10 Screens)** |
+| 39 | Admin Dashboard | Platform overview |
+| 40 | Content Management | Manage content |
+| 41 | User Management | Manage users |
+| 42 | Payment Approval | Approve/reject payments |
+| 43 | Notification Creation | Create notifications |
+| 44 | Analytics Dashboard | View analytics |
+| 45 | Entrance Management | View entrance content |
+| 46 | App Settings | Configure app settings |
+| 47 | About Management | Manage About screen |
+| **PART 9: SETTINGS (2 Screens)** |
+| 48 | Help Center | Help and support |
+| 49 | Tutorial Video | Watch tutorials |
+| 50 | About Screen | App information |
+
+---
+
+**END OF ACADIA V1.0.0 COMPLETE SCREEN DESCRIPTIONS**

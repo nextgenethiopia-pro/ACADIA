@@ -458,7 +458,7 @@ class _ProfileTabState extends State<ProfileTab> {
         borderRadius: BorderRadius.circular(32),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.1),
+            color: AppColors.primary.withAlpha(((255 * 0.1)).toInt()),
             blurRadius: 30,
             offset: const Offset(0, 15),
           ),
@@ -541,9 +541,9 @@ class _ProfileTabState extends State<ProfileTab> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.05),
+                  color: AppColors.primary.withAlpha(((255 * 0.05)).toInt()),
                   borderRadius: BorderRadius.circular(100),
-                  border: Border.all(color: AppColors.primary.withOpacity(0.1)),
+                  border: Border.all(color: AppColors.primary.withAlpha(((255 * 0.1)).toInt())),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -567,9 +567,9 @@ class _ProfileTabState extends State<ProfileTab> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.amber.withOpacity(0.1),
+                    color: Colors.amber.withAlpha(((255 * 0.1)).toInt()),
                     borderRadius: BorderRadius.circular(100),
-                    border: Border.all(color: Colors.amber.withOpacity(0.3)),
+                    border: Border.all(color: Colors.amber.withAlpha(((255 * 0.3)).toInt())),
                   ),
                   child: const Text(
                     'PRO',
@@ -610,7 +610,7 @@ class _ProfileTabState extends State<ProfileTab> {
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withAlpha(((255 * 0.03)).toInt()),
               blurRadius: 15,
               offset: const Offset(0, 8),
             ),
@@ -621,7 +621,7 @@ class _ProfileTabState extends State<ProfileTab> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withAlpha(((255 * 0.1)).toInt()),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: color, size: 20),
@@ -660,9 +660,6 @@ class _ProfileTabState extends State<ProfileTab> {
             _buildMenuTile(Icons.dashboard_customize, 'Admin Dashboard',
                 () => context.push('/admin/dashboard'),
                 color: Colors.indigo),
-            _buildMenuTile(Icons.cloud_upload, 'Upload Content',
-                () => context.push('/admin/content-upload'),
-                color: Colors.blue),
             _buildMenuTile(Icons.folder_open, 'Content Management',
                 () => context.push('/admin/content-management'),
                 color: Colors.teal),
@@ -684,9 +681,6 @@ class _ProfileTabState extends State<ProfileTab> {
             _buildMenuTile(Icons.settings, 'App Settings',
                 () => context.push('/admin/app-settings'),
                 color: Colors.grey),
-            _buildMenuTile(Icons.image, 'Image Management',
-                () => context.push('/admin/image-management'),
-                color: Colors.pink),
             _buildMenuTile(Icons.info, 'About Management',
                 () => context.push('/admin/about-management'),
                 color: Colors.cyan),
@@ -752,7 +746,7 @@ class _ProfileTabState extends State<ProfileTab> {
             borderRadius: BorderRadius.circular(28),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.02),
+                color: Colors.black.withAlpha(((255 * 0.02)).toInt()),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
@@ -773,7 +767,7 @@ class _ProfileTabState extends State<ProfileTab> {
       leading: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: themeColor.withOpacity(0.1),
+          color: themeColor.withAlpha(((255 * 0.1)).toInt()),
           borderRadius: BorderRadius.circular(14),
         ),
         child: Icon(icon, color: themeColor, size: 20),
@@ -798,7 +792,7 @@ class _ProfileTabState extends State<ProfileTab> {
         decoration: BoxDecoration(
           color: Colors.red[50],
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Colors.red.withOpacity(0.1)),
+          border: Border.all(color: Colors.red.withAlpha(((255 * 0.1)).toInt())),
         ),
         child: const Center(
           child: Text(

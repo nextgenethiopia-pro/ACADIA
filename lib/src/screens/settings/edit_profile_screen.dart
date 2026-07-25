@@ -438,7 +438,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               border: Border.all(color: AppColors.primary, width: 3),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.primary.withOpacity(0.3),
+                                  color: AppColors.primary.withAlpha((255 * 0.3).toInt()),
                                   blurRadius: 10,
                                   offset: const Offset(0, 4),
                                 ),
@@ -504,7 +504,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   border: Border.all(color: Colors.white, width: 2),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.2),
+                                      color: Colors.black.withAlpha((255 * 0.2).toInt()),
                                       blurRadius: 4,
                                     ),
                                   ],

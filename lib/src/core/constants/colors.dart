@@ -1,65 +1,65 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Primary
-  static const Color primary = Color(0xFF111844); // Deep navy blue
-  static const Color primaryLight = Color(0xFF1A2656);
-  static const Color primaryDark = Color(0xFF0A102E);
-  static const Color secondary = Color(0xFF1A2656);
+  // Primary - Navy Blue
+  static const Color primary = Color(0xFF093C5D);
+  static const Color primaryLight = Color(0xFF1E5B7A);
+  static const Color primaryDark = Color(0xFF05253A);
+  static const Color secondary = Color(0xFF1E5B7A);
 
   // Accent
-  static const Color accent = Color(0xFF1A2656);
-  static const Color accent1 = Color(0xFF111844);
-  static const Color accent2 = Color(0xFF1A2656);
+  static const Color accent = Color(0xFF1E5B7A);
+  static const Color accent1 = Color(0xFF093C5D);
+  static const Color accent2 = Color(0xFF1E5B7A);
 
-  // Subject Color Constants (for direct reference)
-  static const Color subjectMath = Color(0xFF9C27B0);
-  static const Color subjectPhysics = Color(0xFFFF9800);
-  static const Color subjectEnglish = Color(0xFF2196F3);
-  static const Color subjectHistory = Color(0xFF795548);
-  static const Color subjectBiology = Color(0xFFE91E63);
-  static const Color subjectChemistry = Color(0xFF4CAF50);
-  static const Color subjectGeography = Color(0xFF009688);
-  static const Color subjectEconomics = Color(0xFFFF5722);
-  static const Color subjectIT = Color(0xFF3F51B5);
-  static const Color subjectAgriculture = Color(0xFF8BC34A);
-  static const Color subjectAptitude = Color(0xFF708090);
-  static const Color subjectCitizenship = Color(0xFF00BCD4);
-  static const Color subjectLogic = Color(0xFF1A237E);
-  static const Color subjectPsychology = Color(0xFFCE93D8);
-  static const Color subjectAnthropology = Color(0xFFFFD54F);
-  static const Color subjectAppliedMath = Color(0xFF7E57C2);
-  static const Color subjectCppProgramming = Color(0xFF424242);
-  static const Color subjectEmergingTech = Color(0xFFB0BEC5);
-  static const Color subjectEntrepreneurship = Color(0xFFFFD700);
-  static const Color subjectMoralCitizenship = Color(0xFF808000);
-  static const Color subjectEnglishI = Color(0xFF2196F3);
-  static const Color subjectEnglishII = Color(0xFF2196F3);
+  // Subject Color Constants - Uniform Navy Blue
+  static const Color subjectMath = Color(0xFF093C5D);
+  static const Color subjectPhysics = Color(0xFF093C5D);
+  static const Color subjectEnglish = Color(0xFF093C5D);
+  static const Color subjectHistory = Color(0xFF093C5D);
+  static const Color subjectBiology = Color(0xFF093C5D);
+  static const Color subjectChemistry = Color(0xFF093C5D);
+  static const Color subjectGeography = Color(0xFF093C5D);
+  static const Color subjectEconomics = Color(0xFF093C5D);
+  static const Color subjectIT = Color(0xFF093C5D);
+  static const Color subjectAgriculture = Color(0xFF093C5D);
+  static const Color subjectAptitude = Color(0xFF093C5D);
+  static const Color subjectCitizenship = Color(0xFF093C5D);
+  static const Color subjectLogic = Color(0xFF093C5D);
+  static const Color subjectPsychology = Color(0xFF093C5D);
+  static const Color subjectAnthropology = Color(0xFF093C5D);
+  static const Color subjectAppliedMath = Color(0xFF093C5D);
+  static const Color subjectCppProgramming = Color(0xFF093C5D);
+  static const Color subjectEmergingTech = Color(0xFF093C5D);
+  static const Color subjectEntrepreneurship = Color(0xFF093C5D);
+  static const Color subjectMoralCitizenship = Color(0xFF093C5D);
+  static const Color subjectEnglishI = Color(0xFF093C5D);
+  static const Color subjectEnglishII = Color(0xFF093C5D);
 
-  // Subject Colors Map (complete — matching blueprint)
+  // Subject Colors Map - Uniform Navy Blue
   static const Map<String, Color> subjectColors = {
-    'Mathematics': Color(0xFF9C27B0),
-    'English': Color(0xFF2196F3),
-    'English I': Color(0xFF2196F3),
-    'English II': Color(0xFF2196F3),
-    'Physics': Color(0xFFFF9800),
-    'Chemistry': Color(0xFF4CAF50),
-    'Biology': Color(0xFFE91E63),
-    'Aptitude': Color(0xFF708090),
-    'Geography': Color(0xFF009688),
-    'History': Color(0xFF795548),
-    'Economics': Color(0xFFFF5722),
-    'IT': Color(0xFF3F51B5),
-    'Agriculture': Color(0xFF8BC34A),
-    'Citizenship': Color(0xFF00BCD4),
-    'Logic': Color(0xFF1A237E),
-    'Psychology': Color(0xFFCE93D8),
-    'Anthropology': Color(0xFFFFD54F),
-    'Applied Mathematics': Color(0xFF7E57C2),
-    'C++ Programming': Color(0xFF424242),
-    'Emerging Technologies': Color(0xFFB0BEC5),
-    'Entrepreneurship': Color(0xFFFFD700),
-    'Moral and Citizenship Education': Color(0xFF808000),
+    'Mathematics': Color(0xFF093C5D),
+    'English': Color(0xFF093C5D),
+    'English I': Color(0xFF093C5D),
+    'English II': Color(0xFF093C5D),
+    'Physics': Color(0xFF093C5D),
+    'Chemistry': Color(0xFF093C5D),
+    'Biology': Color(0xFF093C5D),
+    'Aptitude': Color(0xFF093C5D),
+    'Geography': Color(0xFF093C5D),
+    'History': Color(0xFF093C5D),
+    'Economics': Color(0xFF093C5D),
+    'IT': Color(0xFF093C5D),
+    'Agriculture': Color(0xFF093C5D),
+    'Citizenship': Color(0xFF093C5D),
+    'Logic': Color(0xFF093C5D),
+    'Psychology': Color(0xFF093C5D),
+    'Anthropology': Color(0xFF093C5D),
+    'Applied Mathematics': Color(0xFF093C5D),
+    'C++ Programming': Color(0xFF093C5D),
+    'Emerging Technologies': Color(0xFF093C5D),
+    'Entrepreneurship': Color(0xFF093C5D),
+    'Moral and Citizenship Education': Color(0xFF093C5D),
   };
 
   // Semantic

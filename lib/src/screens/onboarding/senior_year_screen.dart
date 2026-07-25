@@ -64,12 +64,12 @@ class _SeniorYearScreenState extends State<SeniorYearScreen> {
                   height: 120,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [Colors.blue.withOpacity(0.1), Colors.blue.withOpacity(0.05)],
+                      colors: [Colors.blue.withAlpha(((255 * 0.1)).toInt()), Colors.blue.withAlpha(((255 * 0.05)).toInt())],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.blue.withOpacity(0.3), width: 2),
+                    border: Border.all(color: Colors.blue.withAlpha(((255 * 0.3)).toInt()), width: 2),
                   ),
                   child: const Icon(Icons.construction, size: 56, color: Colors.blue),
                 ),
@@ -104,9 +104,9 @@ class _SeniorYearScreenState extends State<SeniorYearScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.05),
+                  color: Colors.blue.withAlpha(((255 * 0.05)).toInt()),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.blue.withOpacity(0.1)),
+                  border: Border.all(color: Colors.blue.withAlpha(((255 * 0.1)).toInt())),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -164,16 +164,16 @@ class _SeniorYearScreenState extends State<SeniorYearScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.amber.withOpacity(0.1),
+                  color: Colors.amber.withAlpha(((255 * 0.1)).toInt()),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.amber.withOpacity(0.2)),
+                  border: Border.all(color: Colors.amber.withAlpha(((255 * 0.2)).toInt())),
                 ),
                 child: Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: Colors.amber.withOpacity(0.2),
+                        color: Colors.amber.withAlpha(((255 * 0.2)).toInt()),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(Icons.notifications_active, color: Colors.amber[700], size: 18),

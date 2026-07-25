@@ -250,7 +250,7 @@ class _AdminAppSettingsScreenState extends State<AdminAppSettingsScreen> {
               final isSelected = _selectedCategory == category['id'];
               return ListTile(
                 selected: isSelected,
-                selectedTileColor: AppColors.primary.withOpacity(0.1),
+                selectedTileColor: AppColors.primary.withAlpha((255 * 0.1).toInt()),
                 leading: Icon(_getIcon(category['icon']!), color: isSelected ? AppColors.primary : Colors.grey),
                 title: Text(category['name']!, style: TextStyle(color: isSelected ? AppColors.primary : null, fontWeight: isSelected ? FontWeight.bold : null)),
                 onTap: () => setState(() => _selectedCategory = category['id']!),
@@ -334,7 +334,7 @@ class _AdminAppSettingsScreenState extends State<AdminAppSettingsScreen> {
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
-        leading: CircleAvatar(backgroundColor: AppColors.primary.withOpacity(0.1), child: Text('${index + 1}')),
+        leading: CircleAvatar(backgroundColor: AppColors.primary.withAlpha((255 * 0.1).toInt()), child: Text('${index + 1}')),
         title: TextFormField(initialValue: tip, onChanged: (value) => _updateTip(index, value, tips), decoration: const InputDecoration(border: InputBorder.none, hintText: 'Enter tip')),
         trailing: IconButton(onPressed: () => _removeTip(index, tips), icon: const Icon(Icons.delete, color: Colors.red)),
       ),

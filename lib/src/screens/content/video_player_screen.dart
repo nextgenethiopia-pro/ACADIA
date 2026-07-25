@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:video_player/video_player.dart';
 import 'package:acadia/src/core/services/offline_database.dart';
+import 'package:acadia/src/core/services/firebase_service.dart';
 import 'package:acadia/src/core/constants/colors.dart';
 
 class VideoPlayerScreen extends StatefulWidget {
@@ -103,11 +105,46 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         }
       }
 
+      // Fallback: try fetching online content from Firebase
+      final firebase = FirebaseService();
+      final contentDoc = await firebase.getDocument('content', widget.contentId);
+      final downloadUrl = contentDoc?['download_url']?.toString() ??
+          contentDoc?['url']?.toString() ??
+          contentDoc?['video_url']?.toString();
+
+      if (downloadUrl != null && downloadUrl.isNotEmpty) {
+        _controller = VideoPlayerController.networkUrl(Uri.parse(downloadUrl))
+          ..initialize().then((_) {
+            if (mounted) {
+              setState(() {
+                _isInitialized = true;
+                _isLoading = false;
+                _videoTitle = contentDoc?['title']?.toString() ?? widget.title;
+                _videoDescription = contentDoc?['description']?.toString() ?? '';
+              });
+              _controller!.play();
+              _startControlsTimer();
+            }
+          }).catchError((error) {
+            debugPrint('Error initializing network video: $error');
+            if (mounted) {
+              setState(() => _isLoading = false);
+            }
+          });
+        _controller!.addListener(() {
+          if (_controller!.value.position >= _controller!.value.duration &&
+              _controller!.value.duration > Duration.zero) {
+            _onVideoComplete();
+          }
+        });
+        return;
+      }
+
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Video file not found. Please download it first.'),
+            content: Text('Video unavailable offline. Please download or connect to network.'),
             backgroundColor: Colors.red,
           ),
         );
@@ -282,7 +319,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                 opacity: _showControls ? 1.0 : 0.0,
                 duration: const Duration(milliseconds: 300),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   child: Row(
                     children: [
                       IconButton(
@@ -321,7 +359,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                         children: [
                           TextButton.icon(
                             onPressed: _toggleSpeedMenu,
-                            icon: const Icon(Icons.speed, color: Colors.white, size: 20),
+                            icon: const Icon(Icons.speed,
+                                color: Colors.white, size: 20),
                             label: Text(
                               '${_playbackSpeed}x',
                               style: const TextStyle(
@@ -339,7 +378,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                                 elevation: 8,
                                 borderRadius: BorderRadius.circular(12),
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 8),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8),
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(12),
@@ -347,7 +387,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     children: _speedOptions.map((speed) {
-                                      final isSelected = (_playbackSpeed == speed);
+                                      final isSelected =
+                                          (_playbackSpeed == speed);
                                       return InkWell(
                                         onTap: () => _setPlaybackSpeed(speed),
                                         child: Container(
@@ -392,15 +433,17 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                       ),
                       if (_isCompleted)
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: Colors.green.withOpacity(0.2),
+                            color: Colors.green.withAlpha(((255 * 0.2)).toInt()),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: const Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.check_circle, color: Colors.green, size: 14),
+                              Icon(Icons.check_circle,
+                                  color: Colors.green, size: 14),
                               SizedBox(width: 4),
                               Text(
                                 'Completed',
@@ -427,7 +470,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                       alignment: Alignment.center,
                       children: [
                         VideoPlayer(_controller!),
-                        
+
                         // Play/Pause overlay (visible when paused or controls shown)
                         if (!_controller!.value.isPlaying || _showControls)
                           GestureDetector(
@@ -445,7 +488,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                               decoration: BoxDecoration(
                                 color: Colors.black54,
                                 shape: BoxShape.circle,
-                                border: Border.all(color: Colors.white24, width: 2),
+                                border:
+                                    Border.all(color: Colors.white24, width: 2),
                               ),
                               child: Icon(
                                 _controller!.value.isPlaying
@@ -467,8 +511,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                 opacity: _showControls ? 1.0 : 0.0,
                 duration: const Duration(milliseconds: 300),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  color: Colors.black.withOpacity(0.9),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  color: Colors.black.withAlpha(((255 * 0.9)).toInt()),
                   child: Column(
                     children: [
                       // Progress bar
@@ -477,7 +522,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                         allowScrubbing: true,
                         colors: VideoProgressColors(
                           playedColor: AppColors.primary,
-                          bufferedColor: AppColors.primary.withOpacity(0.3),
+                          bufferedColor: AppColors.primary.withAlpha(((255 * 0.3)).toInt()),
                           backgroundColor: Colors.white24,
                         ),
                       ),
@@ -489,11 +534,13 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                         children: [
                           Text(
                             _formatDuration(_controller!.value.position),
-                            style: const TextStyle(color: Colors.white70, fontSize: 12),
+                            style: const TextStyle(
+                                color: Colors.white70, fontSize: 12),
                           ),
                           Text(
                             _formatDuration(_controller!.value.duration),
-                            style: const TextStyle(color: Colors.white70, fontSize: 12),
+                            style: const TextStyle(
+                                color: Colors.white70, fontSize: 12),
                           ),
                         ],
                       ),
@@ -505,11 +552,13 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                         children: [
                           // Rewind 10s
                           IconButton(
-                            icon: const Icon(Icons.replay_10, color: Colors.white, size: 28),
+                            icon: const Icon(Icons.replay_10,
+                                color: Colors.white, size: 28),
                             onPressed: () {
                               final position = _controller!.value.position;
                               _controller!.seekTo(
-                                position - const Duration(seconds: 10) < Duration.zero
+                                position - const Duration(seconds: 10) <
+                                        Duration.zero
                                     ? Duration.zero
                                     : position - const Duration(seconds: 10),
                               );
@@ -525,14 +574,16 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.primary.withOpacity(0.3),
+                                  color: AppColors.primary.withAlpha(((255 * 0.3)).toInt()),
                                   blurRadius: 8,
                                 ),
                               ],
                             ),
                             child: IconButton(
                               icon: Icon(
-                                _controller!.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                                _controller!.value.isPlaying
+                                    ? Icons.pause
+                                    : Icons.play_arrow,
                                 color: Colors.white,
                                 size: 32,
                               ),
@@ -550,12 +601,14 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
                           // Forward 10s
                           IconButton(
-                            icon: const Icon(Icons.forward_10, color: Colors.white, size: 28),
+                            icon: const Icon(Icons.forward_10,
+                                color: Colors.white, size: 28),
                             onPressed: () {
                               final position = _controller!.value.position;
                               final duration = _controller!.value.duration;
                               _controller!.seekTo(
-                                position + const Duration(seconds: 10) > duration
+                                position + const Duration(seconds: 10) >
+                                        duration
                                     ? duration
                                     : position + const Duration(seconds: 10),
                               );
@@ -594,19 +647,24 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                 opacity: _showControls ? 1.0 : 0.0,
                 duration: const Duration(milliseconds: 300),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: SafeArea(
                     child: SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
                         onPressed: _isCompleted ? null : _markAsCompleted,
                         icon: Icon(
-                          _isCompleted ? Icons.check_circle : Icons.check_circle_outline,
+                          _isCompleted
+                              ? Icons.check_circle
+                              : Icons.check_circle_outline,
                           size: 18,
                         ),
-                        label: Text(_isCompleted ? 'Completed' : 'Mark as Completed'),
+                        label: Text(
+                            _isCompleted ? 'Completed' : 'Mark as Completed'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: _isCompleted ? Colors.green : Colors.grey[800],
+                          backgroundColor:
+                              _isCompleted ? Colors.green : Colors.grey[800],
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           shape: RoundedRectangleBorder(

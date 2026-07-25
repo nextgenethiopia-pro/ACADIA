@@ -39,8 +39,11 @@ class _LoginScreenState extends State<LoginScreen> {
       final savedEmail = prefs.getString('saved_email');
       final savedPassword = prefs.getString('saved_password');
       final rememberMe = prefs.getBool('remember_me') ?? false;
-      
-      if (mounted && rememberMe && savedEmail != null && savedPassword != null) {
+
+      if (mounted &&
+          rememberMe &&
+          savedEmail != null &&
+          savedPassword != null) {
         setState(() {
           _emailController.text = savedEmail;
           _passwordController.text = savedPassword;
@@ -143,15 +146,22 @@ class _LoginScreenState extends State<LoginScreen> {
                         );
                       },
                       child: Container(
-                        padding: const EdgeInsets.all(16),
+                        width: 64,
+                        height: 64,
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.1),
                           shape: BoxShape.circle,
+                          color: AppColors.primary.withAlpha(((255 * 0.1)).toInt()),
                         ),
-                        child: const Icon(
-                          Icons.school,
-                          size: 48,
-                          color: AppColors.primary,
+                        child: ClipOval(
+                          child: Image.asset(
+                            'assets/logos/logo.png',
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => const Icon(
+                              Icons.school,
+                              size: 48,
+                              color: AppColors.primary,
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -188,14 +198,16 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: AppColors.primary, width: 2),
+                          borderSide:
+                              BorderSide(color: AppColors.primary, width: 2),
                         ),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your email';
                         }
-                        final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+                        final emailRegex =
+                            RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
                         if (!emailRegex.hasMatch(value)) {
                           return 'Please enter a valid email address';
                         }
@@ -231,7 +243,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: AppColors.primary, width: 2),
+                          borderSide:
+                              BorderSide(color: AppColors.primary, width: 2),
                         ),
                       ),
                       validator: (value) {
@@ -325,9 +338,11 @@ class _LoginScreenState extends State<LoginScreen> {
                               : () => context.push('/academic-path'),
                           style: TextButton.styleFrom(
                             foregroundColor: AppColors.primary,
-                            fontWeight: FontWeight.bold,
                           ),
-                          child: const Text('Sign Up'),
+                          child: const Text(
+                            'Sign Up',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
                         ),
                       ],
                     ),
@@ -338,10 +353,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.08),
+                        color: AppColors.primary.withAlpha(((255 * 0.08)).toInt()),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: AppColors.primary.withOpacity(0.2),
+                          color: AppColors.primary.withAlpha(((255 * 0.2)).toInt()),
                         ),
                       ),
                       child: Row(
@@ -349,7 +364,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: AppColors.primary.withOpacity(0.1),
+                              color: AppColors.primary.withAlpha(((255 * 0.1)).toInt()),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
@@ -381,7 +396,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ],
                       ),
                     ),
-                    
+
                     const SizedBox(height: 20),
                   ],
                 ),

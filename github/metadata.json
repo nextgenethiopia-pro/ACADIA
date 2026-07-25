@@ -1,0 +1,153 @@
+{
+    "version": "1.0.0",
+    "lastUpdated": "2026-07-18",
+    
+    "academic_paths": {
+        "high_school": {
+            "label": "High School",
+            "grades": ["9", "10", "11", "12"],
+            "streams": {
+                "9": [],
+                "10": [],
+                "11": ["natural", "social"],
+                "12": ["natural", "social"]
+            }
+        },
+        "university": {
+            "label": "University",
+            "generations": [
+                "1st Generation",
+                "2nd Generation",
+                "3rd Generation",
+                "4th Generation",
+                "Technology Institutes"
+            ],
+            "semesters": ["1", "2"]
+        }
+    },
+    
+    "subjects": {
+        "grade_9": {
+            "subjects": ["biology", "chemistry", "citizenship", "economics", "english", "geography", "history", "it", "mathematics", "physics"]
+        },
+        "grade_10": {
+            "subjects": ["biology", "chemistry", "citizenship", "economics", "english", "geography", "history", "it", "mathematics", "physics"]
+        },
+        "grade_11_natural": {
+            "subjects": ["agriculture", "aptitude", "biology", "chemistry", "english", "it", "mathematics", "physics"]
+        },
+        "grade_11_social": {
+            "subjects": ["aptitude", "citizenship", "economics", "english", "geography", "history", "it", "mathematics"]
+        },
+        "grade_12_natural": {
+            "subjects": ["agriculture", "aptitude", "biology", "chemistry", "english", "it", "mathematics", "physics"]
+        },
+        "grade_12_social": {
+            "subjects": ["aptitude", "citizenship", "economics", "english", "geography", "history", "it", "mathematics"]
+        },
+        "freshman_natural": {
+            "subjects": ["english", "geography", "logic", "mathematics", "physics", "psychology"]
+        },
+        "freshman_social": {
+            "subjects": ["economics", "english", "geography", "logic", "mathematics", "psychology"]
+        },
+        "pre_engineering": {
+            "subjects": ["anthropology", "applied_mathematics", "cpp_programming", "emerging_technologies", "english_skill_2", "entrepreneurship", "history", "moral_citizenship"]
+        },
+        "other_natural_science": {
+            "subjects": ["anthropology", "biology", "chemistry", "economics", "emerging_technologies", "english_skill_2", "history", "moral_citizenship"]
+        }
+    },
+    
+    "content_types": {
+        "video": {
+            "icon": "play_circle",
+            "color": "#FF0000",
+            "label": "Video"
+        },
+        "short_note": {
+            "icon": "description",
+            "color": "#2196F3",
+            "label": "Short Note"
+        },
+        "quiz": {
+            "icon": "quiz",
+            "color": "#FF9800",
+            "label": "Quiz"
+        },
+        "exam": {
+            "icon": "assignment",
+            "color": "#9C27B0",
+            "label": "Exam"
+        },
+        "flashcard": {
+            "icon": "style",
+            "color": "#009688",
+            "label": "Flashcard"
+        },
+        "past_paper": {
+            "icon": "folder_open",
+            "color": "#795548",
+            "label": "Past Paper"
+        }
+    },
+    
+    "entrance": {
+        "subjects": {
+            "natural": ["mathematics", "english", "biology", "chemistry", "physics", "aptitude"],
+            "social": ["mathematics", "english", "aptitude", "economics", "geography", "history"]
+        },
+        "grades": ["9", "10", "11", "12"],
+        "years": ["2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024"]
+    },
+    
+    "package_prices": {
+        "grade_9": "200",
+        "grade_10": "250",
+        "grade_11": "300",
+        "grade_12": "350",
+        "freshman": "400",
+        "senior": "450"
+    },
+    
+    "daily_quotes": [
+        "Education is the most powerful weapon which you can use to change the world. - Nelson Mandela",
+        "The only thing that interferes with my learning is my education. - Albert Einstein",
+        "Education is not preparation for life; education is life itself. - John Dewey",
+        "The beautiful thing about learning is that nobody can take it away from you. - B.B. King",
+        "Education is the passport to the future, for tomorrow belongs to those who prepare for it today. - Malcolm X",
+        "The function of education is to teach one to think intensively and to think critically. - Martin Luther King Jr.",
+        "Education is the key to unlock the golden door of freedom. - George Washington Carver",
+        "The roots of education are bitter, but the fruit is sweet. - Aristotle",
+        "Education is the movement from darkness to light. - Allan Bloom",
+        "The purpose of education is to replace an empty mind with an open one. - Malcolm Forbes",
+        "Education is not the filling of a pail, but the lighting of a fire. - W.B. Yeats",
+        "The mind is not a vessel to be filled, but a fire to be kindled. - Plutarch",
+        "Education is the best friend. An educated person is respected everywhere. - Chanakya",
+        "The whole purpose of education is to turn mirrors into windows. - Sydney J. Harris",
+        "Education is the ability to listen to almost anything without losing your temper. - Robert Frost",
+        "The aim of education is the knowledge, not of facts, but of values. - William S. Burroughs",
+        "Education is not a preparation for life; education is life itself. - John Dewey",
+        "The goal of education is not to increase the amount of knowledge but to create the possibilities for a child to invent and discover. - Jean Piaget",
+        "Education is the foundation upon which we build our future. - Christine Gregoire",
+        "Learning is a treasure that will follow its owner everywhere. - Chinese Proverb"
+    ],
+    
+    "exam_tips": [
+        "Start your day with the hardest subject when your mind is freshest.",
+        "Use the Pomodoro technique: study for 25 minutes, then take a 5-minute break.",
+        "Review past papers to understand exam patterns and common questions.",
+        "Create a study schedule and stick to it consistently.",
+        "Teach what you've learned to someone else to reinforce understanding.",
+        "Take regular breaks to avoid burnout and maintain focus.",
+        "Use active recall instead of passive reading for better retention.",
+        "Practice with mock exams under timed conditions.",
+        "Stay hydrated and get enough sleep before exams.",
+        "Review your mistakes and understand why you got them wrong.",
+        "Use mnemonic devices to remember complex information.",
+        "Form study groups to discuss and clarify difficult concepts.",
+        "Break large topics into smaller, manageable chunks.",
+        "Use visual aids like diagrams and mind maps for better understanding.",
+        "Stay positive and confident in your abilities."
+    ]
+}

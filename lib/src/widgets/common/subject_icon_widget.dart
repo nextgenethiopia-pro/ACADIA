@@ -22,19 +22,20 @@ class SubjectIconWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final iconColor = color ?? AppColors.getSubjectColor(subject);
-    
+
     if (useAssetImage) {
       final iconPath = SubjectIcons.getIconPath(subject);
-      
+
       if (iconPath != null) {
         // Use asset image if available
         return Container(
           width: size,
           height: size,
-          decoration: decoration ?? BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            color: iconColor.withOpacity(0.1),
-          ),
+          decoration: decoration ??
+              BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: iconColor.withAlpha((255 * 0.1).toInt()),
+              ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: Image.asset(
@@ -51,7 +52,7 @@ class SubjectIconWidget extends StatelessWidget {
         );
       }
     }
-    
+
     // Fallback to material icon
     return _buildFallbackIcon(iconColor);
   }
@@ -60,12 +61,13 @@ class SubjectIconWidget extends StatelessWidget {
     return Container(
       width: size,
       height: size,
-      decoration: decoration ?? BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        color: iconColor.withOpacity(0.1),
-      ),
+      decoration: decoration ??
+          BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            color: iconColor.withAlpha((255 * 0.1).toInt()),
+          ),
       child: Icon(
-        AppIcons.getSubjectIcon(subject),
+        AppIcons.getSubjectFallbackIcon(subject),
         color: iconColor,
         size: size * 0.7,
       ),
@@ -89,14 +91,14 @@ class CircularSubjectIconWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final iconColor = color ?? AppColors.getSubjectColor(subject);
-    
+
     return SubjectIconWidget(
       subject: subject,
       size: size,
       color: iconColor,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: iconColor.withOpacity(0.1),
+        color: iconColor.withAlpha((255 * 0.1).toInt()),
       ),
     );
   }
@@ -122,7 +124,7 @@ class SubjectIconWithLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final iconColor = color ?? AppColors.getSubjectColor(subject);
-    
+
     return Column(
       crossAxisAlignment: alignment,
       mainAxisSize: MainAxisSize.min,

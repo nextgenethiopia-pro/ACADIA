@@ -372,9 +372,9 @@ class _ExamScreenState extends State<ExamScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   color: isDanger
-                      ? Colors.red.withOpacity(0.1)
+                      ? Colors.red.withAlpha(((255 * 0.1)).toInt())
                       : isWarning
-                          ? Colors.orange.withOpacity(0.1)
+                          ? Colors.orange.withAlpha(((255 * 0.1)).toInt())
                           : Colors.grey[50],
                   child: Row(
                     children: [
@@ -484,7 +484,7 @@ class _ExamScreenState extends State<ExamScreen> {
                       color: Colors.white,
                       boxShadow: [
                         BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withAlpha(((255 * 0.05)).toInt()),
                             blurRadius: 4,
                             offset: const Offset(0, -2))
                       ],
@@ -508,7 +508,7 @@ class _ExamScreenState extends State<ExamScreen> {
                         } else if (isWrong) {
                           bgColor = Colors.red;
                         } else if (isAnswered) {
-                          bgColor = Colors.green.withOpacity(0.2);
+                          bgColor = Colors.green.withAlpha(((255 * 0.2)).toInt());
                         } else {
                           bgColor = Colors.grey[100];
                         }
@@ -534,7 +534,7 @@ class _ExamScreenState extends State<ExamScreen> {
                                   width: isCurrent || _hoveredQuestion == qNum ? 2 : 1,
                                 ),
                                 boxShadow: _hoveredQuestion == qNum
-                                    ? [BoxShadow(color: AppColors.primary.withOpacity(0.3), blurRadius: 4)]
+                                    ? [BoxShadow(color: AppColors.primary.withAlpha(((255 * 0.3)).toInt()), blurRadius: 4)]
                                     : null,
                               ),
                               child: Center(
@@ -566,7 +566,7 @@ class _ExamScreenState extends State<ExamScreen> {
                       color: Colors.white,
                       boxShadow: [
                         BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withAlpha(((255 * 0.05)).toInt()),
                             blurRadius: 4,
                             offset: const Offset(0, -2))
                       ],
@@ -619,7 +619,7 @@ class _ExamScreenState extends State<ExamScreen> {
                         Icon(
                           Icons.pause_circle_outline,
                           size: 100,
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withAlpha(((255 * 0.9)).toInt()),
                         ),
                         const SizedBox(height: 24),
                         const Text(
@@ -634,7 +634,7 @@ class _ExamScreenState extends State<ExamScreen> {
                         Text(
                           'Time remaining: ${_formatTime(_remainingSeconds)}',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
+                            color: Colors.white.withAlpha(((255 * 0.8)).toInt()),
                             fontSize: 16,
                           ),
                         ),
@@ -642,7 +642,7 @@ class _ExamScreenState extends State<ExamScreen> {
                         Text(
                           'Your questions are hidden. Timer continues in background.',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.6),
+                            color: Colors.white.withAlpha(((255 * 0.6)).toInt()),
                             fontSize: 14,
                           ),
                           textAlign: TextAlign.center,
@@ -698,7 +698,7 @@ class _ExamScreenState extends State<ExamScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.1),
+                    color: AppColors.primary.withAlpha(((255 * 0.1)).toInt()),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text('Question $_currentQuestion',
@@ -714,7 +714,7 @@ class _ExamScreenState extends State<ExamScreen> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: isCorrectAnswer ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1),
+                        color: isCorrectAnswer ? Colors.green.withAlpha(((255 * 0.1)).toInt()) : Colors.red.withAlpha(((255 * 0.1)).toInt()),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
@@ -765,15 +765,15 @@ class _ExamScreenState extends State<ExamScreen> {
             final isCorrect = (optionText == correctAnswer);
 
             if (isSelected && isCorrect) {
-              optionColor = Colors.green.withOpacity(0.15);
+              optionColor = Colors.green.withAlpha(((255 * 0.15)).toInt());
               feedbackIcon = Icons.check_circle;
               feedbackColor = Colors.green;
             } else if (isSelected && !isCorrect) {
-              optionColor = Colors.red.withOpacity(0.15);
+              optionColor = Colors.red.withAlpha(((255 * 0.15)).toInt());
               feedbackIcon = Icons.cancel;
               feedbackColor = Colors.red;
             } else if (!isSelected && isCorrect) {
-              optionColor = Colors.green.withOpacity(0.1);
+              optionColor = Colors.green.withAlpha(((255 * 0.1)).toInt());
               feedbackIcon = Icons.check_circle_outline;
               feedbackColor = Colors.green;
             }
@@ -787,7 +787,7 @@ class _ExamScreenState extends State<ExamScreen> {
               child: Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: optionColor ?? (isSelected ? AppColors.primary.withOpacity(0.08) : Colors.grey[50]),
+                  color: optionColor ?? (isSelected ? AppColors.primary.withAlpha(((255 * 0.08)).toInt()) : Colors.grey[50]),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: isSelected ? AppColors.primary : Colors.grey[200]!,
@@ -853,9 +853,9 @@ class _ExamScreenState extends State<ExamScreen> {
                     style: const TextStyle(fontSize: 13),
                   ),
                   style: OutlinedButton.styleFrom(
-                    backgroundColor: AppColors.primary.withOpacity(0.05),
+                    backgroundColor: AppColors.primary.withAlpha(((255 * 0.05)).toInt()),
                     foregroundColor: AppColors.primary,
-                    side: BorderSide(color: AppColors.primary.withOpacity(0.3)),
+                    side: BorderSide(color: AppColors.primary.withAlpha(((255 * 0.3)).toInt())),
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   ),
                 ),
@@ -864,9 +864,9 @@ class _ExamScreenState extends State<ExamScreen> {
                     margin: const EdgeInsets.only(top: 12),
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.blue.withOpacity(0.05),
+                      color: Colors.blue.withAlpha(((255 * 0.05)).toInt()),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.blue.withOpacity(0.2)),
+                      border: Border.all(color: Colors.blue.withAlpha(((255 * 0.2)).toInt())),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

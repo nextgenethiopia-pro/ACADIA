@@ -1,0 +1,290 @@
+{
+    "version": "1.0.0",
+    "lastUpdated": "2026-07-18",
+    "entrance": {
+        "subjects": {
+            "natural": [
+                {"id": "mathematics", "name": "Mathematics", "icon": "mathematics_icon.jpg"},
+                {"id": "english", "name": "English", "icon": "english_icon.jpg"},
+                {"id": "biology", "name": "Biology", "icon": "biology_icon.jpg"},
+                {"id": "chemistry", "name": "Chemistry", "icon": "chemistry_icon.jpg"},
+                {"id": "physics", "name": "Physics", "icon": "physics_icon.jpg"},
+                {"id": "aptitude", "name": "Aptitude", "icon": "aptitude_icon.jpg"}
+            ],
+            "social": [
+                {"id": "mathematics", "name": "Mathematics", "icon": "mathematics_icon.jpg"},
+                {"id": "english", "name": "English", "icon": "english_icon.jpg"},
+                {"id": "aptitude", "name": "Aptitude", "icon": "aptitude_icon.jpg"},
+                {"id": "economics", "name": "Economics", "icon": "economics_icon.jpg"},
+                {"id": "geography", "name": "Geography", "icon": "geography_icon.jpg"},
+                {"id": "history", "name": "History", "icon": "history_icon.jpg"}
+            ]
+        },
+        "grades": ["9", "10", "11", "12"],
+        "years": ["2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018"],
+        "past_papers": {
+            "natural": {
+                "mathematics": {
+                    "papers": [
+                        {"year": "2008", "title": "EUEE Mathematics 2008 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2009", "title": "EUEE Mathematics 2009 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2010", "title": "EUEE Mathematics 2010 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2011", "title": "EUEE Mathematics 2011 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2012", "title": "EUEE Mathematics 2012 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2013", "title": "EUEE Mathematics 2013 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2014", "title": "EUEE Mathematics 2014 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2015", "title": "EUEE Mathematics 2015 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2016", "title": "EUEE Mathematics 2016 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2017", "title": "EUEE Mathematics 2017 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2018", "title": "EUEE Mathematics 2018 E.C", "questions": 60, "time_limit": 180, "status": "available"}
+                    ]
+                },
+                "english": {
+                    "papers": [
+                        {"year": "2008", "title": "EUEE English 2008 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2009", "title": "EUEE English 2009 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2010", "title": "EUEE English 2010 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2011", "title": "EUEE English 2011 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2012", "title": "EUEE English 2012 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2013", "title": "EUEE English 2013 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2014", "title": "EUEE English 2014 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2015", "title": "EUEE English 2015 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2016", "title": "EUEE English 2016 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2017", "title": "EUEE English 2017 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2018", "title": "EUEE English 2018 E.C", "questions": 60, "time_limit": 180, "status": "available"}
+                    ]
+                },
+                "biology": {
+                    "papers": [
+                        {"year": "2008", "title": "EUEE Biology 2008 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2009", "title": "EUEE Biology 2009 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2010", "title": "EUEE Biology 2010 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2011", "title": "EUEE Biology 2011 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2012", "title": "EUEE Biology 2012 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2013", "title": "EUEE Biology 2013 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2014", "title": "EUEE Biology 2014 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2015", "title": "EUEE Biology 2015 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2016", "title": "EUEE Biology 2016 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2017", "title": "EUEE Biology 2017 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2018", "title": "EUEE Biology 2018 E.C", "questions": 60, "time_limit": 180, "status": "available"}
+                    ]
+                },
+                "chemistry": {
+                    "papers": [
+                        {"year": "2008", "title": "EUEE Chemistry 2008 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2009", "title": "EUEE Chemistry 2009 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2010", "title": "EUEE Chemistry 2010 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2011", "title": "EUEE Chemistry 2011 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2012", "title": "EUEE Chemistry 2012 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2013", "title": "EUEE Chemistry 2013 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2014", "title": "EUEE Chemistry 2014 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2015", "title": "EUEE Chemistry 2015 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2016", "title": "EUEE Chemistry 2016 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2017", "title": "EUEE Chemistry 2017 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2018", "title": "EUEE Chemistry 2018 E.C", "questions": 60, "time_limit": 180, "status": "available"}
+                    ]
+                },
+                "physics": {
+                    "papers": [
+                        {"year": "2008", "title": "EUEE Physics 2008 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2009", "title": "EUEE Physics 2009 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2010", "title": "EUEE Physics 2010 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2011", "title": "EUEE Physics 2011 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2012", "title": "EUEE Physics 2012 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2013", "title": "EUEE Physics 2013 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2014", "title": "EUEE Physics 2014 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2015", "title": "EUEE Physics 2015 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2016", "title": "EUEE Physics 2016 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2017", "title": "EUEE Physics 2017 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2018", "title": "EUEE Physics 2018 E.C", "questions": 60, "time_limit": 180, "status": "available"}
+                    ]
+                },
+                "aptitude": {
+                    "papers": [
+                        {"year": "2008", "title": "EUEE Aptitude 2008 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2009", "title": "EUEE Aptitude 2009 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2010", "title": "EUEE Aptitude 2010 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2011", "title": "EUEE Aptitude 2011 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2012", "title": "EUEE Aptitude 2012 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2013", "title": "EUEE Aptitude 2013 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2014", "title": "EUEE Aptitude 2014 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2015", "title": "EUEE Aptitude 2015 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2016", "title": "EUEE Aptitude 2016 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2017", "title": "EUEE Aptitude 2017 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2018", "title": "EUEE Aptitude 2018 E.C", "questions": 60, "time_limit": 180, "status": "available"}
+                    ]
+                }
+            },
+            "social": {
+                "mathematics": {
+                    "papers": [
+                        {"year": "2008", "title": "EUEE Mathematics 2008 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2009", "title": "EUEE Mathematics 2009 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2010", "title": "EUEE Mathematics 2010 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2011", "title": "EUEE Mathematics 2011 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2012", "title": "EUEE Mathematics 2012 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2013", "title": "EUEE Mathematics 2013 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2014", "title": "EUEE Mathematics 2014 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2015", "title": "EUEE Mathematics 2015 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2016", "title": "EUEE Mathematics 2016 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2017", "title": "EUEE Mathematics 2017 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2018", "title": "EUEE Mathematics 2018 E.C", "questions": 60, "time_limit": 180, "status": "available"}
+                    ]
+                },
+                "english": {
+                    "papers": [
+                        {"year": "2008", "title": "EUEE English 2008 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2009", "title": "EUEE English 2009 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2010", "title": "EUEE English 2010 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2011", "title": "EUEE English 2011 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2012", "title": "EUEE English 2012 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2013", "title": "EUEE English 2013 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2014", "title": "EUEE English 2014 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2015", "title": "EUEE English 2015 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2016", "title": "EUEE English 2016 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2017", "title": "EUEE English 2017 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2018", "title": "EUEE English 2018 E.C", "questions": 60, "time_limit": 180, "status": "available"}
+                    ]
+                },
+                "aptitude": {
+                    "papers": [
+                        {"year": "2008", "title": "EUEE Aptitude 2008 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2009", "title": "EUEE Aptitude 2009 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2010", "title": "EUEE Aptitude 2010 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2011", "title": "EUEE Aptitude 2011 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2012", "title": "EUEE Aptitude 2012 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2013", "title": "EUEE Aptitude 2013 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2014", "title": "EUEE Aptitude 2014 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2015", "title": "EUEE Aptitude 2015 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2016", "title": "EUEE Aptitude 2016 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2017", "title": "EUEE Aptitude 2017 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2018", "title": "EUEE Aptitude 2018 E.C", "questions": 60, "time_limit": 180, "status": "available"}
+                    ]
+                },
+                "economics": {
+                    "papers": [
+                        {"year": "2008", "title": "EUEE Economics 2008 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2009", "title": "EUEE Economics 2009 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2010", "title": "EUEE Economics 2010 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2011", "title": "EUEE Economics 2011 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2012", "title": "EUEE Economics 2012 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2013", "title": "EUEE Economics 2013 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2014", "title": "EUEE Economics 2014 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2015", "title": "EUEE Economics 2015 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2016", "title": "EUEE Economics 2016 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2017", "title": "EUEE Economics 2017 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2018", "title": "EUEE Economics 2018 E.C", "questions": 60, "time_limit": 180, "status": "available"}
+                    ]
+                },
+                "geography": {
+                    "papers": [
+                        {"year": "2008", "title": "EUEE Geography 2008 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2009", "title": "EUEE Geography 2009 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2010", "title": "EUEE Geography 2010 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2011", "title": "EUEE Geography 2011 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2012", "title": "EUEE Geography 2012 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2013", "title": "EUEE Geography 2013 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2014", "title": "EUEE Geography 2014 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2015", "title": "EUEE Geography 2015 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2016", "title": "EUEE Geography 2016 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2017", "title": "EUEE Geography 2017 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2018", "title": "EUEE Geography 2018 E.C", "questions": 60, "time_limit": 180, "status": "available"}
+                    ]
+                },
+                "history": {
+                    "papers": [
+                        {"year": "2008", "title": "EUEE History 2008 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2009", "title": "EUEE History 2009 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2010", "title": "EUEE History 2010 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2011", "title": "EUEE History 2011 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2012", "title": "EUEE History 2012 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2013", "title": "EUEE History 2013 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2014", "title": "EUEE History 2014 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2015", "title": "EUEE History 2015 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2016", "title": "EUEE History 2016 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2017", "title": "EUEE History 2017 E.C", "questions": 60, "time_limit": 180, "status": "available"},
+                        {"year": "2018", "title": "EUEE History 2018 E.C", "questions": 60, "time_limit": 180, "status": "available"}
+                    ]
+                }
+            }
+        },
+        "practice_questions": {
+            "natural": {
+                "mathematics": {
+                    "grade_9": {"chapters": 9, "questions": 90, "status": "available"},
+                    "grade_10": {"chapters": 7, "questions": 70, "status": "available"},
+                    "grade_11": {"chapters": 5, "questions": 50, "status": "available"},
+                    "grade_12": {"chapters": 5, "questions": 50, "status": "available"}
+                },
+                "english": {
+                    "grade_9": {"chapters": 8, "questions": 80, "status": "available"},
+                    "grade_10": {"chapters": 10, "questions": 100, "status": "available"},
+                    "grade_11": {"chapters": 10, "questions": 100, "status": "available"},
+                    "grade_12": {"chapters": 10, "questions": 100, "status": "available"}
+                },
+                "biology": {
+                    "grade_9": {"chapters": 6, "questions": 60, "status": "available"},
+                    "grade_10": {"chapters": 6, "questions": 60, "status": "available"},
+                    "grade_11": {"chapters": 6, "questions": 60, "status": "available"},
+                    "grade_12": {"chapters": 6, "questions": 60, "status": "available"}
+                },
+                "chemistry": {
+                    "grade_9": {"chapters": 5, "questions": 50, "status": "available"},
+                    "grade_10": {"chapters": 6, "questions": 60, "status": "available"},
+                    "grade_11": {"chapters": 6, "questions": 60, "status": "available"},
+                    "grade_12": {"chapters": 5, "questions": 50, "status": "available"}
+                },
+                "physics": {
+                    "grade_9": {"chapters": 7, "questions": 70, "status": "available"},
+                    "grade_10": {"chapters": 6, "questions": 60, "status": "available"},
+                    "grade_11": {"chapters": 7, "questions": 70, "status": "available"},
+                    "grade_12": {"chapters": 5, "questions": 50, "status": "available"}
+                },
+                "aptitude": {
+                    "grade_9": {"chapters": 2, "questions": 20, "status": "available"},
+                    "grade_10": {"chapters": 2, "questions": 20, "status": "available"},
+                    "grade_11": {"chapters": 2, "questions": 20, "status": "available"},
+                    "grade_12": {"chapters": 2, "questions": 20, "status": "available"}
+                }
+            },
+            "social": {
+                "mathematics": {
+                    "grade_9": {"chapters": 9, "questions": 90, "status": "available"},
+                    "grade_10": {"chapters": 7, "questions": 70, "status": "available"},
+                    "grade_11": {"chapters": 5, "questions": 50, "status": "available"},
+                    "grade_12": {"chapters": 5, "questions": 50, "status": "available"}
+                },
+                "english": {
+                    "grade_9": {"chapters": 8, "questions": 80, "status": "available"},
+                    "grade_10": {"chapters": 10, "questions": 100, "status": "available"},
+                    "grade_11": {"chapters": 10, "questions": 100, "status": "available"},
+                    "grade_12": {"chapters": 10, "questions": 100, "status": "available"}
+                },
+                "aptitude": {
+                    "grade_9": {"chapters": 2, "questions": 20, "status": "available"},
+                    "grade_10": {"chapters": 2, "questions": 20, "status": "available"},
+                    "grade_11": {"chapters": 2, "questions": 20, "status": "available"},
+                    "grade_12": {"chapters": 2, "questions": 20, "status": "available"}
+                },
+                "economics": {
+                    "grade_9": {"chapters": 8, "questions": 80, "status": "available"},
+                    "grade_10": {"chapters": 8, "questions": 80, "status": "available"},
+                    "grade_11": {"chapters": 7, "questions": 70, "status": "available"},
+                    "grade_12": {"chapters": 8, "questions": 80, "status": "available"}
+                },
+                "geography": {
+                    "grade_9": {"chapters": 6, "questions": 60, "status": "available"},
+                    "grade_10": {"chapters": 8, "questions": 80, "status": "available"},
+                    "grade_11": {"chapters": 8, "questions": 80, "status": "available"},
+                    "grade_12": {"chapters": 8, "questions": 80, "status": "available"}
+                },
+                "history": {
+                    "grade_9": {"chapters": 9, "questions": 90, "status": "available"},
+                    "grade_10": {"chapters": 9, "questions": 90, "status": "available"},
+                    "grade_11": {"chapters": 9, "questions": 90, "status": "available"},
+                    "grade_12": {"chapters": 9, "questions": 90, "status": "available"}
+                }
+            }
+        }
+    }
+}

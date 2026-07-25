@@ -1,0 +1,18 @@
+[INFO] Generating build script...
+[INFO] Generating build script completed, took 925ms
+
+[INFO] Initializing inputs
+[INFO] Reading cached asset graph...
+[INFO] Reading cached asset graph completed, took 367ms
+
+[INFO] Checking for updates since last build...
+[INFO] Checking for updates since last build completed, took 3.8s
+
+[INFO] Running build...
+[INFO] Running build completed, took 65ms
+
+[INFO] Caching finalized dependency graph...
+[INFO] Caching finalized dependency graph completed, took 382ms
+
+[INFO] Succeeded after 464ms with 0 outputs (0 actions)
+

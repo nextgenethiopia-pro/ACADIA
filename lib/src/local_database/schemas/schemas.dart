@@ -1,0 +1,15 @@
+export 'user_progress.dart';
+export 'downloaded_content.dart';
+export 'question_answer.dart';
+export 'quiz_result.dart';
+export 'exam_result.dart';
+export 'flashcard_progress.dart';
+export 'study_streak.dart';
+export 'content_cache.dart';
+export 'ai_context.dart';
+export 'weekly_activity.dart';
+export 'subject_progress.dart';
+export 'achievement.dart';
+export 'chapter.dart';
+export 'user_chapter_progress.dart';
+export 'content_entry.dart';

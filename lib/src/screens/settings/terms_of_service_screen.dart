@@ -270,9 +270,9 @@ class _TermsOfServiceScreenState extends State<TermsOfServiceScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.05),
+                  color: Colors.green.withAlpha(((255 * 0.05)).toInt()),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.green.withOpacity(0.2)),
+                  border: Border.all(color: Colors.green.withAlpha(((255 * 0.2)).toInt())),
                 ),
                 child: Column(
                   children: [

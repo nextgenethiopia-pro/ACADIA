@@ -32,6 +32,12 @@ class AuthSignUpRequested extends AuthEvent {
   final String? grade;
   final String? stream;
   final String? academicPath;
+  final String? generation;
+  final String? university;
+  final String? universityYear;
+  final String? semester;
+  final String? track;
+  final String? highSchoolName;
 
   const AuthSignUpRequested({
     required this.email,
@@ -41,10 +47,30 @@ class AuthSignUpRequested extends AuthEvent {
     this.grade,
     this.stream,
     this.academicPath,
+    this.generation,
+    this.university,
+    this.universityYear,
+    this.semester,
+    this.track,
+    this.highSchoolName,
   });
 
   @override
-  List<Object?> get props => [email, password, fullName, phoneNumber, grade, stream, academicPath];
+  List<Object?> get props => [
+        email,
+        password,
+        fullName,
+        phoneNumber,
+        grade,
+        stream,
+        academicPath,
+        generation,
+        university,
+        universityYear,
+        semester,
+        track,
+        highSchoolName,
+      ];
 }
 
 class AuthSignOutRequested extends AuthEvent {

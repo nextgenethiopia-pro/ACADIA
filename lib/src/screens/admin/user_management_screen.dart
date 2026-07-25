@@ -95,7 +95,9 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
       debugPrint('Error loading users: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error loading users'), backgroundColor: Colors.red),
+          const SnackBar(
+              content: Text('Error loading users'),
+              backgroundColor: Colors.red),
         );
       }
     }
@@ -105,12 +107,16 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     setState(() {
       _filteredUsers = _users.where((user) {
         // Status filter
-        if (_statusFilter == 'Active' && user['status'] == 'banned') return false;
-        if (_statusFilter == 'Banned' && user['status'] != 'banned') return false;
+        if (_statusFilter == 'Active' && user['status'] == 'banned')
+          return false;
+        if (_statusFilter == 'Banned' && user['status'] != 'banned')
+          return false;
 
         // Subscription filter
-        if (_subscriptionFilter == 'Pro' && user['is_pro'] != true) return false;
-        if (_subscriptionFilter == 'Free' && user['is_pro'] == true) return false;
+        if (_subscriptionFilter == 'Pro' && user['is_pro'] != true)
+          return false;
+        if (_subscriptionFilter == 'Free' && user['is_pro'] == true)
+          return false;
 
         // Path filter
         if (_pathFilter != 'All') {
@@ -125,7 +131,9 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
           final email = user['email']?.toString().toLowerCase() ?? '';
           final phone = user['phone']?.toString().toLowerCase() ?? '';
 
-          if (!name.contains(query) && !email.contains(query) && !phone.contains(query)) {
+          if (!name.contains(query) &&
+              !email.contains(query) &&
+              !phone.contains(query)) {
             return false;
           }
         }
@@ -162,9 +170,10 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
 
   void _showUserDetails(Map<String, dynamic> user) {
     final profilePhotoUrl = user['profile_photo_url']?.toString();
-    final universityName = user['university_name']?.toString() ?? user['university']?.toString();
+    final universityName =
+        user['university_name']?.toString() ?? user['university']?.toString();
     final generation = user['generation']?.toString();
-    
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -185,8 +194,11 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
               // Handle
               Center(
                 child: Container(
-                  width: 40, height: 4,
-                  decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2)),
                 ),
               ),
               const SizedBox(height: 20),
@@ -194,7 +206,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
               // User Profile Photo (from user's upload)
               Center(
                 child: GestureDetector(
-                  onTap: profilePhotoUrl != null 
+                  onTap: profilePhotoUrl != null
                       ? () => _viewFullPhoto(profilePhotoUrl)
                       : null,
                   child: Container(
@@ -203,13 +215,15 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                       border: Border.all(color: AppColors.primary, width: 3),
                     ),
                     child: ClipOval(
-                      child: profilePhotoUrl != null && profilePhotoUrl.isNotEmpty
+                      child: profilePhotoUrl != null &&
+                              profilePhotoUrl.isNotEmpty
                           ? Image.network(
                               profilePhotoUrl,
                               width: 100,
                               height: 100,
                               fit: BoxFit.cover,
-                              loadingBuilder: (context, child, loadingProgress) {
+                              loadingBuilder:
+                                  (context, child, loadingProgress) {
                                 if (loadingProgress == null) return child;
                                 return Container(
                                   width: 100,
@@ -219,7 +233,8 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                     child: SizedBox(
                                       width: 30,
                                       height: 30,
-                                      child: CircularProgressIndicator(strokeWidth: 2),
+                                      child: CircularProgressIndicator(
+                                          strokeWidth: 2),
                                     ),
                                   ),
                                 );
@@ -231,8 +246,12 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                   color: Colors.grey[200],
                                   child: Center(
                                     child: Text(
-                                      (user['full_name']?.toString() ?? 'U')[0].toUpperCase(),
-                                      style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.grey),
+                                      (user['full_name']?.toString() ?? 'U')[0]
+                                          .toUpperCase(),
+                                      style: const TextStyle(
+                                          fontSize: 36,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.grey),
                                     ),
                                   ),
                                 );
@@ -240,10 +259,15 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                             )
                           : CircleAvatar(
                               radius: 50,
-                              backgroundColor: AppColors.primary.withOpacity(0.1),
+                              backgroundColor:
+                                  AppColors.primary.withAlpha((255 * 0.1).toInt()),
                               child: Text(
-                                (user['full_name']?.toString() ?? 'U')[0].toUpperCase(),
-                                style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: AppColors.primary),
+                                (user['full_name']?.toString() ?? 'U')[0]
+                                    .toUpperCase(),
+                                style: TextStyle(
+                                    fontSize: 36,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.primary),
                               ),
                             ),
                     ),
@@ -254,7 +278,8 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
               Center(
                 child: Text(
                   user['full_name']?.toString() ?? 'Unknown',
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               ),
               const SizedBox(height: 4),
@@ -262,7 +287,11 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
               const SizedBox(height: 24),
 
               // Personal Information
-              const Text('PERSONAL INFORMATION', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),
+              const Text('PERSONAL INFORMATION',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                      color: Colors.grey)),
               const Divider(),
               _buildInfoRow('Full Name', user['full_name']?.toString()),
               _buildInfoRow('Email', user['email']?.toString()),
@@ -272,96 +301,164 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
               const SizedBox(height: 16),
 
               // Academic Path (Complete with University)
-              const Text('ACADEMIC PATH', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),
+              const Text('ACADEMIC PATH',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                      color: Colors.grey)),
               const Divider(),
-              _buildInfoRow('School Level', user['school_level'] == 'high-school' ? 'High School' : 'University'),
+              _buildInfoRow(
+                  'School Level',
+                  user['school_level'] == 'high-school'
+                      ? 'High School'
+                      : 'University'),
               if (user['school_level'] == 'high-school') ...[
                 _buildInfoRow('Grade', user['grade']?.toString()),
                 if (user['grade'] == '11' || user['grade'] == '12')
-                  _buildInfoRow('Stream', user['stream'] == 'natural_science' ? 'Natural Science' : 'Social Science'),
+                  _buildInfoRow(
+                      'Stream',
+                      user['stream'] == 'natural_science'
+                          ? 'Natural Science'
+                          : 'Social Science'),
               ] else if (user['school_level'] == 'university') ...[
                 _buildInfoRow('Generation', generation),
                 _buildInfoRow('University', universityName),
-                _buildInfoRow('Year', user['university_year'] == 'freshman' ? 'Freshman' : 'Senior'),
+                _buildInfoRow(
+                    'Year',
+                    user['university_year'] == 'freshman'
+                        ? 'Freshman'
+                        : 'Senior'),
                 if (user['university_year'] == 'freshman') ...[
                   _buildInfoRow('Semester', 'Semester ${user['semester']}'),
                   if (user['semester'] == '1')
-                    _buildInfoRow('Stream', user['stream'] == 'natural_science' ? 'Natural Science' : 'Social Science'),
+                    _buildInfoRow(
+                        'Stream',
+                        user['stream'] == 'natural_science'
+                            ? 'Natural Science'
+                            : 'Social Science'),
                   if (user['semester'] == '2')
-                    _buildInfoRow('Track', user['track'] == 'pre_engineering' ? 'Pre-Engineering' : 'Other Natural Science'),
+                    _buildInfoRow(
+                        'Track',
+                        user['track'] == 'pre_engineering'
+                            ? 'Pre-Engineering'
+                            : 'Other Natural Science'),
                 ],
               ],
               _buildInfoRow('Path Status', 'Permanently Locked'),
               const SizedBox(height: 16),
 
               // Subscription
-              const Text('SUBSCRIPTION', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),
+              const Text('SUBSCRIPTION',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                      color: Colors.grey)),
               const Divider(),
               _buildInfoRow('Status', user['is_pro'] == true ? 'PRO' : 'FREE'),
               if (user['is_pro'] == true) ...[
                 _buildInfoRow('Package', user['pro_package']?.toString()),
-                _buildInfoRow('Amount Paid', '${user['pro_amount'] ?? '300'} ETB'),
-                _buildInfoRow('Payment Method', user['pro_payment_method']?.toString()),
-                _buildInfoRow('Valid From', _formatDate(user['pro_valid_from'])),
-                _buildInfoRow('Valid Until', _formatDate(user['pro_valid_until'])),
-                _buildInfoRow('Days Remaining', _getDaysRemaining(user['pro_valid_until'])),
+                _buildInfoRow(
+                    'Amount Paid', '${user['pro_amount'] ?? '300'} ETB'),
+                _buildInfoRow(
+                    'Payment Method', user['pro_payment_method']?.toString()),
+                _buildInfoRow(
+                    'Valid From', _formatDate(user['pro_valid_from'])),
+                _buildInfoRow(
+                    'Valid Until', _formatDate(user['pro_valid_until'])),
+                _buildInfoRow('Days Remaining',
+                    _getDaysRemaining(user['pro_valid_until'])),
               ],
               const SizedBox(height: 16),
 
               // Study Statistics
-              const Text('STUDY STATISTICS', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),
+              const Text('STUDY STATISTICS',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                      color: Colors.grey)),
               const Divider(),
-              _buildInfoRow('Total Study Time', '${user['total_study_hours'] ?? 0} hours'),
-              _buildInfoRow('Lessons Completed', '${user['lessons_completed'] ?? 0} of ${user['total_lessons'] ?? 0}'),
-              _buildInfoRow('Quizzes Passed', '${user['quizzes_passed'] ?? 0} of ${user['total_quizzes'] ?? 0}'),
+              _buildInfoRow('Total Study Time',
+                  '${user['total_study_hours'] ?? 0} hours'),
+              _buildInfoRow('Lessons Completed',
+                  '${user['lessons_completed'] ?? 0} of ${user['total_lessons'] ?? 0}'),
+              _buildInfoRow('Quizzes Passed',
+                  '${user['quizzes_passed'] ?? 0} of ${user['total_quizzes'] ?? 0}'),
               _buildInfoRow('Average Score', '${user['average_score'] ?? 0}%'),
-              _buildInfoRow('Current Streak', '${user['current_streak'] ?? 0} days'),
-              _buildInfoRow('Downloads', '${user['download_count'] ?? 0} items (${user['download_size'] ?? '0 GB'})'),
+              _buildInfoRow(
+                  'Current Streak', '${user['current_streak'] ?? 0} days'),
+              _buildInfoRow('Downloads',
+                  '${user['download_count'] ?? 0} items (${user['download_size'] ?? '0 GB'})'),
               const SizedBox(height: 16),
 
               // Payment History
-              if (user['payment_history'] != null && (user['payment_history'] as List).isNotEmpty) ...[
-                const Text('PAYMENT HISTORY', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),
+              if (user['payment_history'] != null &&
+                  (user['payment_history'] as List).isNotEmpty) ...[
+                const Text('PAYMENT HISTORY',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                        color: Colors.grey)),
                 const Divider(),
                 ...(user['payment_history'] as List).map((p) => Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Text('${_formatDate(p['date'])} | ${p['amount']} ETB | ${p['method']} | ${p['status']?.toString().toUpperCase()}',
-                      style: const TextStyle(fontSize: 13)),
-                )),
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Text(
+                          '${_formatDate(p['date'])} | ${p['amount']} ETB | ${p['method']} | ${p['status']?.toString().toUpperCase()}',
+                          style: const TextStyle(fontSize: 13)),
+                    )),
                 const SizedBox(height: 16),
               ],
 
               // Recent Activity
-              if (user['recent_activity'] != null && (user['recent_activity'] as List).isNotEmpty) ...[
-                const Text('RECENT ACTIVITY', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),
+              if (user['recent_activity'] != null &&
+                  (user['recent_activity'] as List).isNotEmpty) ...[
+                const Text('RECENT ACTIVITY',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                        color: Colors.grey)),
                 const Divider(),
                 ...(user['recent_activity'] as List).take(5).map((a) => Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Text('${_formatDate(a['date'])} | ${a['action']}', style: const TextStyle(fontSize: 13)),
-                )),
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Text('${_formatDate(a['date'])} | ${a['action']}',
+                          style: const TextStyle(fontSize: 13)),
+                    )),
                 const SizedBox(height: 16),
               ],
 
               // Notifications sent to user
-              const Text('NOTIFICATIONS SENT', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),
+              const Text('NOTIFICATIONS SENT',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                      color: Colors.grey)),
               const Divider(),
-              if (user['notifications'] != null && (user['notifications'] as List).isNotEmpty)
+              if (user['notifications'] != null &&
+                  (user['notifications'] as List).isNotEmpty)
                 ...(user['notifications'] as List).take(5).map((n) => ListTile(
-                  dense: true,
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(n['title']?.toString() ?? '', style: const TextStyle(fontSize: 13)),
-                  subtitle: Text('${_formatDate(n['date'])} • ${n['read'] == true ? 'Read' : 'Unread'}',
-                      style: const TextStyle(fontSize: 11)),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(icon: const Icon(Icons.edit, size: 16), onPressed: () => _editUserNotification(user, n)),
-                      IconButton(icon: const Icon(Icons.delete, size: 16, color: Colors.red), onPressed: () => _deleteUserNotification(user, n)),
-                    ],
-                  ),
-                ))
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(n['title']?.toString() ?? '',
+                          style: const TextStyle(fontSize: 13)),
+                      subtitle: Text(
+                          '${_formatDate(n['date'])} • ${n['read'] == true ? 'Read' : 'Unread'}',
+                          style: const TextStyle(fontSize: 11)),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                              icon: const Icon(Icons.edit, size: 16),
+                              onPressed: () => _editUserNotification(user, n)),
+                          IconButton(
+                              icon: const Icon(Icons.delete,
+                                  size: 16, color: Colors.red),
+                              onPressed: () =>
+                                  _deleteUserNotification(user, n)),
+                        ],
+                      ),
+                    ))
               else
-                const Text('No notifications sent', style: TextStyle(color: Colors.grey)),
+                const Text('No notifications sent',
+                    style: TextStyle(color: Colors.grey)),
               const SizedBox(height: 24),
 
               // Action Buttons
@@ -373,10 +470,15 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                         Navigator.pop(context);
                         _toggleProStatus(user);
                       },
-                      icon: Icon(user['is_pro'] == true ? Icons.remove_circle : Icons.add_circle),
-                      label: Text(user['is_pro'] == true ? 'REVOKE PRO' : 'MAKE PRO'),
+                      icon: Icon(user['is_pro'] == true
+                          ? Icons.remove_circle
+                          : Icons.add_circle),
+                      label: Text(
+                          user['is_pro'] == true ? 'REVOKE PRO' : 'MAKE PRO'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: user['is_pro'] == true ? Colors.orange : Colors.green,
+                        backgroundColor: user['is_pro'] == true
+                            ? Colors.orange
+                            : Colors.green,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
@@ -389,10 +491,14 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                         Navigator.pop(context);
                         _toggleBanStatus(user);
                       },
-                      icon: Icon(user['status'] == 'banned' ? Icons.lock_open : Icons.block),
+                      icon: Icon(user['status'] == 'banned'
+                          ? Icons.lock_open
+                          : Icons.block),
                       label: Text(user['status'] == 'banned' ? 'UNBAN' : 'BAN'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: user['status'] == 'banned' ? Colors.green : Colors.red,
+                        backgroundColor: user['status'] == 'banned'
+                            ? Colors.green
+                            : Colors.red,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
@@ -464,7 +570,8 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                   },
                   errorBuilder: (context, error, stackTrace) {
                     return const Center(
-                      child: Icon(Icons.broken_image, size: 64, color: Colors.grey),
+                      child: Icon(Icons.broken_image,
+                          size: 64, color: Colors.grey),
                     );
                   },
                 ),
@@ -493,10 +600,14 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
 
   Future<void> _toggleProStatus(Map<String, dynamic> user) async {
     final isPro = user['is_pro'] == true;
-    final message = isPro ? 'Revoke PRO status from ${user['full_name']}?' : 'Make ${user['full_name']} a PRO user?';
+    final message = isPro
+        ? 'Revoke PRO status from ${user['full_name']}?'
+        : 'Make ${user['full_name']} a PRO user?';
+
+    Map<String, dynamic>? proSelectionResult;
 
     if (!isPro) {
-      final result = await showDialog<Map<String, dynamic>>(
+      proSelectionResult = await showDialog<Map<String, dynamic>>(
         context: context,
         builder: (context) {
           String selectedPackage = 'Grade 11 Natural Science';
@@ -509,29 +620,43 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
                   value: selectedPackage,
-                  decoration: const InputDecoration(labelText: 'Select Package', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                      labelText: 'Select Package',
+                      border: OutlineInputBorder()),
                   items: [
-                    'Grade 9', 'Grade 10', 'Grade 11 Natural Science', 'Grade 11 Social Science',
-                    'Grade 12 Natural Science', 'Grade 12 Social Science',
-                    'Freshman Sem 1 Natural', 'Freshman Sem 1 Social',
-                    'Freshman Sem 2 Pre-Eng', 'Freshman Sem 2 Other Natural',
-                  ].map((p) => DropdownMenuItem(value: p, child: Text(p))).toList(),
+                    'Grade 9',
+                    'Grade 10',
+                    'Grade 11 Natural Science',
+                    'Grade 11 Social Science',
+                    'Grade 12 Natural Science',
+                    'Grade 12 Social Science',
+                    'Freshman Sem 1 Natural',
+                    'Freshman Sem 1 Social',
+                    'Freshman Sem 2 Pre-Eng',
+                    'Freshman Sem 2 Other Natural',
+                  ]
+                      .map((p) => DropdownMenuItem(value: p, child: Text(p)))
+                      .toList(),
                   onChanged: (v) => selectedPackage = v!,
                 ),
               ],
             ),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+              TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel')),
               ElevatedButton(
-                onPressed: () => Navigator.pop(context, {'package': selectedPackage}),
+                onPressed: () =>
+                    Navigator.pop(context, {'package': selectedPackage}),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                child: const Text('CONFIRM', style: TextStyle(color: Colors.white)),
+                child: const Text('CONFIRM',
+                    style: TextStyle(color: Colors.white)),
               ),
             ],
           );
         },
       );
-      if (result == null) return;
+      if (proSelectionResult == null) return;
     } else {
       final confirmed = await _showConfirmDialog('Revoke PRO', message);
       if (confirmed != true) return;
@@ -550,9 +675,10 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
       } else {
         await firebase.updateDocument('users', user['id'], {
           'is_pro': true,
-          'pro_package': result?['package'],
+          'pro_package': proSelectionResult?['package'],
           'pro_valid_from': now.toIso8601String(),
-          'pro_valid_until': DateTime(now.year + 1, now.month, now.day).toIso8601String(),
+          'pro_valid_until':
+              DateTime(now.year + 1, now.month, now.day).toIso8601String(),
         });
       }
 
@@ -561,7 +687,8 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(isPro ? 'PRO status revoked' : 'User is now PRO'),
+          SnackBar(
+              content: Text(isPro ? 'PRO status revoked' : 'User is now PRO'),
               backgroundColor: isPro ? Colors.orange : Colors.green),
         );
       }
@@ -574,7 +701,8 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
 
   Future<void> _toggleBanStatus(Map<String, dynamic> user) async {
     final isBanned = user['status'] == 'banned';
-    final message = isBanned ? 'Unban ${user['full_name']}?' : 'Ban ${user['full_name']}?';
+    final message =
+        isBanned ? 'Unban ${user['full_name']}?' : 'Ban ${user['full_name']}?';
 
     String? reason;
     if (!isBanned) {
@@ -588,7 +716,8 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
             children: [
               Text(message),
               const SizedBox(height: 8),
-              const Text('This will log the user out and prevent future login.'),
+              const Text(
+                  'This will log the user out and prevent future login.'),
               const SizedBox(height: 16),
               TextField(
                 controller: reasonController,
@@ -600,11 +729,15 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
             ],
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+            TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel')),
             ElevatedButton(
-              onPressed: () => Navigator.pop(context, {'reason': reasonController.text.trim()}),
+              onPressed: () => Navigator.pop(
+                  context, {'reason': reasonController.text.trim()}),
               style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              child: const Text('BAN USER', style: TextStyle(color: Colors.white)),
+              child:
+                  const Text('BAN USER', style: TextStyle(color: Colors.white)),
             ),
           ],
         ),
@@ -632,7 +765,8 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(isBanned ? 'User unbanned' : 'User banned'),
+          SnackBar(
+              content: Text(isBanned ? 'User unbanned' : 'User banned'),
               backgroundColor: isBanned ? Colors.green : Colors.orange),
         );
       }
@@ -654,21 +788,27 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
           children: [
             Text('Permanently delete ${user['full_name']}?'),
             const SizedBox(height: 8),
-            const Text('This will remove:', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text('This will remove:',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             const Text('• Account and login credentials'),
             const Text('• All personal information'),
             const Text('• Payment history'),
             const Text('• Study progress and statistics'),
             const SizedBox(height: 8),
-            const Text('This action CANNOT be undone.', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+            const Text('This action CANNOT be undone.',
+                style:
+                    TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('DELETE USER', style: TextStyle(color: Colors.white)),
+            child: const Text('DELETE USER',
+                style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -685,7 +825,8 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('User deleted'), backgroundColor: Colors.red),
+          const SnackBar(
+              content: Text('User deleted'), backgroundColor: Colors.red),
         );
       }
     } catch (e) {
@@ -714,31 +855,45 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
             children: [
               DropdownButtonFormField<String>(
                 value: type,
-                decoration: const InputDecoration(labelText: 'Type', border: OutlineInputBorder()),
-                items: ['payment', 'content', 'quiz', 'exam', 'achievement', 'system']
-                    .map((t) => DropdownMenuItem(value: t, child: Text(t.capitalize())))
+                decoration: const InputDecoration(
+                    labelText: 'Type', border: OutlineInputBorder()),
+                items: [
+                  'payment',
+                  'content',
+                  'quiz',
+                  'exam',
+                  'achievement',
+                  'system'
+                ]
+                    .map((t) =>
+                        DropdownMenuItem(value: t, child: Text(t.capitalize())))
                     .toList(),
                 onChanged: (v) => type = v!,
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: titleController,
-                decoration: const InputDecoration(labelText: 'Title', border: OutlineInputBorder()),
+                decoration: const InputDecoration(
+                    labelText: 'Title', border: OutlineInputBorder()),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: messageController,
                 maxLines: 4,
-                decoration: const InputDecoration(labelText: 'Message', border: OutlineInputBorder()),
+                decoration: const InputDecoration(
+                    labelText: 'Message', border: OutlineInputBorder()),
               ),
             ],
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () {
-              if (titleController.text.isNotEmpty && messageController.text.isNotEmpty) {
+              if (titleController.text.isNotEmpty &&
+                  messageController.text.isNotEmpty) {
                 Navigator.pop(context, true);
               }
             },
@@ -761,7 +916,9 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
         });
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Notification sent!'), backgroundColor: Colors.green),
+            const SnackBar(
+                content: Text('Notification sent!'),
+                backgroundColor: Colors.green),
           );
         }
       } catch (e) {
@@ -770,9 +927,11 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     }
   }
 
-  Future<void> _editUserNotification(Map<String, dynamic> user, Map<String, dynamic> notification) async {
+  Future<void> _editUserNotification(
+      Map<String, dynamic> user, Map<String, dynamic> notification) async {
     final titleController = TextEditingController(text: notification['title']);
-    final messageController = TextEditingController(text: notification['message']);
+    final messageController =
+        TextEditingController(text: notification['message']);
 
     final result = await showDialog<bool>(
       context: context,
@@ -781,14 +940,25 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: titleController, decoration: const InputDecoration(labelText: 'Title', border: OutlineInputBorder())),
+            TextField(
+                controller: titleController,
+                decoration: const InputDecoration(
+                    labelText: 'Title', border: OutlineInputBorder())),
             const SizedBox(height: 12),
-            TextField(controller: messageController, maxLines: 4, decoration: const InputDecoration(labelText: 'Message', border: OutlineInputBorder())),
+            TextField(
+                controller: messageController,
+                maxLines: 4,
+                decoration: const InputDecoration(
+                    labelText: 'Message', border: OutlineInputBorder())),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('SAVE')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel')),
+          ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('SAVE')),
         ],
       ),
     );
@@ -802,7 +972,9 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
         });
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Notification updated!'), backgroundColor: Colors.green),
+            const SnackBar(
+                content: Text('Notification updated!'),
+                backgroundColor: Colors.green),
           );
         }
       } catch (e) {
@@ -811,8 +983,10 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     }
   }
 
-  Future<void> _deleteUserNotification(Map<String, dynamic> user, Map<String, dynamic> notification) async {
-    final confirmed = await _showConfirmDialog('Delete Notification', 'Delete this notification?');
+  Future<void> _deleteUserNotification(
+      Map<String, dynamic> user, Map<String, dynamic> notification) async {
+    final confirmed = await _showConfirmDialog(
+        'Delete Notification', 'Delete this notification?');
     if (confirmed != true) return;
 
     try {
@@ -820,7 +994,9 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
       await firebase.deleteDocument('notifications', notification['id']);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Notification deleted!'), backgroundColor: Colors.green),
+          const SnackBar(
+              content: Text('Notification deleted!'),
+              backgroundColor: Colors.green),
         );
       }
     } catch (e) {
@@ -840,29 +1016,55 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
         pw.MultiPage(
           pageFormat: PdfPageFormat.a4,
           build: (context) => [
-            pw.Header(level: 0, child: pw.Text('ACADIA - User Export', textAlign: pw.TextAlign.center)),
-            pw.Header(level: 1, child: pw.Text('Generated: ${DateTime.now().toString().substring(0, 16)}')),
-            pw.Header(level: 1, child: pw.Text('Filter: $_pathFilter | $_subscriptionFilter | $_statusFilter')),
-            pw.Header(level: 1, child: pw.Text('Total Users: ${_filteredUsers.length}')),
+            pw.Header(
+                level: 0,
+                child: pw.Text('ACADIA - User Export',
+                    textAlign: pw.TextAlign.center)),
+            pw.Header(
+                level: 1,
+                child: pw.Text(
+                    'Generated: ${DateTime.now().toString().substring(0, 16)}')),
+            pw.Header(
+                level: 1,
+                child: pw.Text(
+                    'Filter: $_pathFilter | $_subscriptionFilter | $_statusFilter')),
+            pw.Header(
+                level: 1,
+                child: pw.Text('Total Users: ${_filteredUsers.length}')),
             pw.SizedBox(height: 20),
             pw.Table(
               border: pw.TableBorder.all(),
               children: [
                 pw.TableRow(
-                  children: ['Name', 'Email', 'Phone', 'Path', 'Status', 'Joined']
-                      .map((h) => pw.Padding(padding: const pw.EdgeInsets.all(4), child: pw.Text(h, style: pw.TextStyle(fontWeight: pw.FontWeight.bold))))
+                  children: [
+                    'Name',
+                    'Email',
+                    'Phone',
+                    'Path',
+                    'Status',
+                    'Joined'
+                  ]
+                      .map((h) => pw.Padding(
+                          padding: const pw.EdgeInsets.all(4),
+                          child: pw.Text(h,
+                              style: pw.TextStyle(
+                                  fontWeight: pw.FontWeight.bold))))
                       .toList(),
                 ),
                 ..._filteredUsers.map((user) => pw.TableRow(
-                  children: [
-                    user['full_name']?.toString() ?? '',
-                    user['email']?.toString() ?? '',
-                    user['phone']?.toString() ?? '',
-                    _getUserPathDisplay(user),
-                    user['is_pro'] == true ? 'PRO' : 'FREE',
-                    _formatDate(user['created_at']),
-                  ].map((t) => pw.Padding(padding: const pw.EdgeInsets.all(4), child: pw.Text(t))).toList(),
-                )),
+                      children: [
+                        user['full_name']?.toString() ?? '',
+                        user['email']?.toString() ?? '',
+                        user['phone']?.toString() ?? '',
+                        _getUserPathDisplay(user),
+                        user['is_pro'] == true ? 'PRO' : 'FREE',
+                        _formatDate(user['created_at']),
+                      ]
+                          .map((t) => pw.Padding(
+                              padding: const pw.EdgeInsets.all(4),
+                              child: pw.Text(t)))
+                          .toList(),
+                    )),
               ],
             ),
           ],
@@ -870,13 +1072,16 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
       );
 
       final directory = await getApplicationDocumentsDirectory();
-      final path = '${directory.path}/users_export_${DateTime.now().millisecondsSinceEpoch}.pdf';
+      final path =
+          '${directory.path}/users_export_${DateTime.now().millisecondsSinceEpoch}.pdf';
       final file = File(path);
       await file.writeAsBytes(await pdf.save());
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Exported ${_filteredUsers.length} users to PDF'), backgroundColor: Colors.green),
+          SnackBar(
+              content: Text('Exported ${_filteredUsers.length} users to PDF'),
+              backgroundColor: Colors.green),
         );
       }
     } catch (e) {
@@ -901,17 +1106,17 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               ..._adminEmails.map((email) => ListTile(
-                dense: true,
-                leading: const Icon(Icons.email),
-                title: Text(email),
-                trailing: IconButton(
-                  icon: const Icon(Icons.remove_circle, color: Colors.red),
-                  onPressed: () async {
-                    await _removeAdmin(email);
-                    setDialogState(() => _adminEmails.remove(email));
-                  },
-                ),
-              )),
+                    dense: true,
+                    leading: const Icon(Icons.email),
+                    title: Text(email),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.remove_circle, color: Colors.red),
+                      onPressed: () async {
+                        await _removeAdmin(email);
+                        setDialogState(() => _adminEmails.remove(email));
+                      },
+                    ),
+                  )),
               const Divider(),
               const SizedBox(height: 8),
               TextField(
@@ -939,7 +1144,9 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
             ],
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
+            TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Close')),
           ],
         ),
       ),
@@ -986,23 +1193,32 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(
-            color: isPro ? Colors.green.withOpacity(0.1) : Colors.grey.withOpacity(0.1),
+            color: isPro
+                ? Colors.green.withAlpha((255 * 0.1).toInt())
+                : Colors.grey.withAlpha((255 * 0.1).toInt()),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: isPro ? Colors.green : Colors.grey),
           ),
           child: Text(isPro ? 'PRO ●' : 'FREE ○',
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: isPro ? Colors.green : Colors.grey)),
+              style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color: isPro ? Colors.green : Colors.grey)),
         ),
         if (isBanned) ...[
           const SizedBox(width: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.red.withOpacity(0.1),
+              color: Colors.red.withAlpha((255 * 0.1).toInt()),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: Colors.red),
             ),
-            child: const Text('BANNED 🔴', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.red)),
+            child: const Text('BANNED 🔴',
+                style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.red)),
           ),
         ],
       ],
@@ -1015,8 +1231,13 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(width: 130, child: Text('$label:', style: const TextStyle(fontWeight: FontWeight.w500))),
-          Expanded(child: Text(value ?? 'N/A', style: const TextStyle(color: Colors.black54))),
+          SizedBox(
+              width: 130,
+              child: Text('$label:',
+                  style: const TextStyle(fontWeight: FontWeight.w500))),
+          Expanded(
+              child: Text(value ?? 'N/A',
+                  style: const TextStyle(color: Colors.black54))),
         ],
       ),
     );
@@ -1036,9 +1257,11 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
       final semester = user['semester']?.toString() ?? '';
       final stream = user['stream']?.toString() ?? '';
       final track = user['track']?.toString() ?? '';
-      final university = user['university_name']?.toString() ?? user['university']?.toString() ?? '';
+      final university = user['university_name']?.toString() ??
+          user['university']?.toString() ??
+          '';
       final generation = user['generation']?.toString() ?? '';
-      
+
       if (year == 'freshman') {
         if (semester == '2') {
           return 'Freshman Sem 2 ${track == 'pre_engineering' ? 'Pre-Engineering' : 'Other Natural Science'}\n$university ($generation)';
@@ -1063,7 +1286,9 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
   String _getDaysRemaining(dynamic validUntil) {
     if (validUntil == null) return 'N/A';
     try {
-      DateTime d = validUntil is DateTime ? validUntil : DateTime.parse(validUntil.toString());
+      DateTime d = validUntil is DateTime
+          ? validUntil
+          : DateTime.parse(validUntil.toString());
       final remaining = d.difference(DateTime.now()).inDays;
       return remaining > 0 ? '$remaining days' : 'Expired';
     } catch (e) {
@@ -1084,8 +1309,12 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
         title: Text(title),
         content: Text(message),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('Confirm')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel')),
+          ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Confirm')),
         ],
       ),
     );
@@ -1100,14 +1329,21 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('User Management'),
-        leading: IconButton(onPressed: () => context.pop(), icon: const Icon(Icons.arrow_back)),
+        leading: IconButton(
+            onPressed: () => context.pop(), icon: const Icon(Icons.arrow_back)),
         actions: [
           if (_isProcessing)
             const Padding(
               padding: EdgeInsets.only(right: 16),
-              child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+              child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2)),
             ),
-          IconButton(onPressed: _showManageAdminsDialog, icon: const Icon(Icons.admin_panel_settings), tooltip: 'Manage Admins'),
+          IconButton(
+              onPressed: _showManageAdminsDialog,
+              icon: const Icon(Icons.admin_panel_settings),
+              tooltip: 'Manage Admins'),
         ],
       ),
       body: Column(
@@ -1138,11 +1374,20 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                 hintText: 'Search by name, email, or phone number...',
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _searchQuery.isNotEmpty
-                    ? IconButton(icon: const Icon(Icons.clear), onPressed: () { setState(() => _searchQuery = ''); _applyFilters(); })
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          setState(() => _searchQuery = '');
+                          _applyFilters();
+                        })
                     : null,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              onChanged: (v) { _searchQuery = v; _applyFilters(); },
+              onChanged: (v) {
+                _searchQuery = v;
+                _applyFilters();
+              },
             ),
           ),
 
@@ -1152,15 +1397,44 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
             child: Row(
               children: [
                 Expanded(
-                  child: _buildFilterDropdown('Path', _pathFilter, _pathOptions.map((p) => DropdownMenuItem(value: p.value, child: Text(p.label, overflow: TextOverflow.ellipsis))).toList(), (v) { _pathFilter = v!; _applyFilters(); }),
+                  child: _buildFilterDropdown(
+                      'Path',
+                      _pathFilter,
+                      _pathOptions
+                          .map((p) => DropdownMenuItem(
+                              value: p.value,
+                              child: Text(p.label,
+                                  overflow: TextOverflow.ellipsis)))
+                          .toList(), (v) {
+                    _pathFilter = v!;
+                    _applyFilters();
+                  }),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: _buildFilterDropdown('Status', _statusFilter, _statusOptions.map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(), (v) { _statusFilter = v!; _applyFilters(); }),
+                  child: _buildFilterDropdown(
+                      'Status',
+                      _statusFilter,
+                      _statusOptions
+                          .map(
+                              (s) => DropdownMenuItem(value: s, child: Text(s)))
+                          .toList(), (v) {
+                    _statusFilter = v!;
+                    _applyFilters();
+                  }),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: _buildFilterDropdown('Sub', _subscriptionFilter, _subscriptionOptions.map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(), (v) { _subscriptionFilter = v!; _applyFilters(); }),
+                  child: _buildFilterDropdown(
+                      'Sub',
+                      _subscriptionFilter,
+                      _subscriptionOptions
+                          .map(
+                              (s) => DropdownMenuItem(value: s, child: Text(s)))
+                          .toList(), (v) {
+                    _subscriptionFilter = v!;
+                    _applyFilters();
+                  }),
                 ),
               ],
             ),
@@ -1171,12 +1445,14 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
-                Text('${_filteredUsers.length} users', style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+                Text('${_filteredUsers.length} users',
+                    style: TextStyle(color: Colors.grey[600], fontSize: 13)),
                 const Spacer(),
                 TextButton.icon(
                   onPressed: _exportUsersAsPDF,
                   icon: const Icon(Icons.picture_as_pdf, size: 18),
-                  label: const Text('Export PDF', style: TextStyle(fontSize: 12)),
+                  label:
+                      const Text('Export PDF', style: TextStyle(fontSize: 12)),
                 ),
               ],
             ),
@@ -1187,7 +1463,10 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _filteredUsers.isEmpty
-                    ? Center(child: Text('No users found', style: TextStyle(color: Colors.grey[600], fontSize: 16)))
+                    ? Center(
+                        child: Text('No users found',
+                            style: TextStyle(
+                                color: Colors.grey[600], fontSize: 16)))
                     : ListView.builder(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         itemCount: _filteredUsers.length,
@@ -1195,11 +1474,13 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                           final user = _filteredUsers[index];
                           final isPro = user['is_pro'] == true;
                           final isBanned = user['status'] == 'banned';
-                          final profilePhotoUrl = user['profile_photo_url']?.toString();
+                          final profilePhotoUrl =
+                              user['profile_photo_url']?.toString();
 
                           return Card(
                             margin: const EdgeInsets.only(bottom: 8),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
                             child: InkWell(
                               onTap: () => _showUserDetails(user),
                               borderRadius: BorderRadius.circular(12),
@@ -1209,14 +1490,17 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                   children: [
                                     // User's profile photo (uploaded by user in their settings)
                                     ClipOval(
-                                      child: profilePhotoUrl != null && profilePhotoUrl.isNotEmpty
+                                      child: profilePhotoUrl != null &&
+                                              profilePhotoUrl.isNotEmpty
                                           ? Image.network(
                                               profilePhotoUrl,
                                               width: 50,
                                               height: 50,
                                               fit: BoxFit.cover,
-                                              loadingBuilder: (context, child, loadingProgress) {
-                                                if (loadingProgress == null) return child;
+                                              loadingBuilder: (context, child,
+                                                  loadingProgress) {
+                                                if (loadingProgress == null)
+                                                  return child;
                                                 return Container(
                                                   width: 50,
                                                   height: 50,
@@ -1225,20 +1509,32 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                                     child: SizedBox(
                                                       width: 20,
                                                       height: 20,
-                                                      child: CircularProgressIndicator(strokeWidth: 2),
+                                                      child:
+                                                          CircularProgressIndicator(
+                                                              strokeWidth: 2),
                                                     ),
                                                   ),
                                                 );
                                               },
-                                              errorBuilder: (context, error, stackTrace) {
+                                              errorBuilder:
+                                                  (context, error, stackTrace) {
                                                 return Container(
                                                   width: 50,
                                                   height: 50,
-                                                  color: AppColors.primary.withOpacity(0.1),
+                                                  color: AppColors.primary
+                                                      .withAlpha((255 * 0.1).toInt()),
                                                   child: Center(
                                                     child: Text(
-                                                      (user['full_name']?.toString() ?? 'U')[0].toUpperCase(),
-                                                      style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary, fontSize: 18),
+                                                      (user['full_name']
+                                                                  ?.toString() ??
+                                                              'U')[0]
+                                                          .toUpperCase(),
+                                                      style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color:
+                                                              AppColors.primary,
+                                                          fontSize: 18),
                                                     ),
                                                   ),
                                                 );
@@ -1248,13 +1544,21 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                               width: 50,
                                               height: 50,
                                               decoration: BoxDecoration(
-                                                color: AppColors.primary.withOpacity(0.1),
+                                                color: AppColors.primary
+                                                    .withAlpha((255 * 0.1).toInt()),
                                                 shape: BoxShape.circle,
                                               ),
                                               child: Center(
                                                 child: Text(
-                                                  (user['full_name']?.toString() ?? 'U')[0].toUpperCase(),
-                                                  style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary, fontSize: 18),
+                                                  (user['full_name']
+                                                              ?.toString() ??
+                                                          'U')[0]
+                                                      .toUpperCase(),
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: AppColors.primary,
+                                                      fontSize: 18),
                                                 ),
                                               ),
                                             ),
@@ -1262,37 +1566,68 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                     const SizedBox(width: 12),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
-                                          Text(user['full_name']?.toString() ?? 'Unknown',
-                                              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                                          Text(user['email']?.toString() ?? '', style: TextStyle(color: Colors.grey[600], fontSize: 13)),
-                                          Text(user['phone']?.toString() ?? '', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
-                                          Text(_getUserPathDisplay(user), style: TextStyle(fontSize: 11, color: AppColors.primary)),
+                                          Text(
+                                              user['full_name']?.toString() ??
+                                                  'Unknown',
+                                              style: const TextStyle(
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 15)),
+                                          Text(user['email']?.toString() ?? '',
+                                              style: TextStyle(
+                                                  color: Colors.grey[600],
+                                                  fontSize: 13)),
+                                          Text(user['phone']?.toString() ?? '',
+                                              style: TextStyle(
+                                                  color: Colors.grey[600],
+                                                  fontSize: 12)),
+                                          Text(_getUserPathDisplay(user),
+                                              style: TextStyle(
+                                                  fontSize: 11,
+                                                  color: AppColors.primary)),
                                         ],
                                       ),
                                     ),
                                     Column(
-                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
                                       children: [
                                         Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 8, vertical: 3),
                                           decoration: BoxDecoration(
-                                            color: isPro ? Colors.green.withOpacity(0.1) : Colors.grey.withOpacity(0.1),
-                                            borderRadius: BorderRadius.circular(10),
+                                            color: isPro
+                                                ? Colors.green.withAlpha((255 * 0.1).toInt())
+                                                : Colors.grey.withAlpha((255 * 0.1).toInt()),
+                                            borderRadius:
+                                                BorderRadius.circular(10),
                                           ),
                                           child: Text(isPro ? 'PRO' : 'FREE',
-                                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: isPro ? Colors.green : Colors.grey)),
+                                              style: TextStyle(
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: isPro
+                                                      ? Colors.green
+                                                      : Colors.grey)),
                                         ),
                                         if (isBanned) ...[
                                           const SizedBox(height: 4),
                                           Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 8, vertical: 3),
                                             decoration: BoxDecoration(
-                                              color: Colors.red.withOpacity(0.1),
-                                              borderRadius: BorderRadius.circular(10),
+                                              color:
+                                                  Colors.red.withAlpha((255 * 0.1).toInt()),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
                                             ),
-                                            child: const Text('BANNED', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.red)),
+                                            child: const Text('BANNED',
+                                                style: TextStyle(
+                                                    fontSize: 10,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.red)),
                                           ),
                                         ],
                                       ],
@@ -1315,12 +1650,14 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withAlpha((255 * 0.1).toInt()),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Column(
           children: [
-            Text(count.toString(), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: color)),
+            Text(count.toString(),
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, fontSize: 16, color: color)),
             Text(label, style: TextStyle(fontSize: 10, color: color)),
           ],
         ),
@@ -1328,7 +1665,8 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     );
   }
 
-  Widget _buildFilterDropdown(String label, String value, List<DropdownMenuItem<String>> items, Function(String?) onChanged) {
+  Widget _buildFilterDropdown(String label, String value,
+      List<DropdownMenuItem<String>> items, Function(String?) onChanged) {
     return DropdownButtonFormField<String>(
       value: value,
       decoration: InputDecoration(

@@ -8,10 +8,12 @@ class UniversityStreamSelectionScreen extends StatefulWidget {
   const UniversityStreamSelectionScreen({super.key});
 
   @override
-  State<UniversityStreamSelectionScreen> createState() => _UniversityStreamSelectionScreenState();
+  State<UniversityStreamSelectionScreen> createState() =>
+      _UniversityStreamSelectionScreenState();
 }
 
-class _UniversityStreamSelectionScreenState extends State<UniversityStreamSelectionScreen> {
+class _UniversityStreamSelectionScreenState
+    extends State<UniversityStreamSelectionScreen> {
   String? _selectedStream;
   bool _isNavigating = false;
 
@@ -28,8 +30,22 @@ class _UniversityStreamSelectionScreenState extends State<UniversityStreamSelect
 
   // Hardcoded subjects for Freshman First Semester (from ACADIA spec)
   static const Map<String, List<String>> _subjects = {
-    'natural_science': ['English', 'Geography', 'Logic', 'Mathematics', 'Physics', 'Psychology'],
-    'social_science': ['Economics', 'English', 'Geography', 'Logic', 'Mathematics', 'Psychology'],
+    'natural_science': [
+      'English',
+      'Geography',
+      'Logic',
+      'Mathematics',
+      'Physics',
+      'Psychology'
+    ],
+    'social_science': [
+      'Economics',
+      'English',
+      'Geography',
+      'Logic',
+      'Mathematics',
+      'Psychology'
+    ],
   };
 
   final List<StreamOption> _streams = [
@@ -57,8 +73,9 @@ class _UniversityStreamSelectionScreenState extends State<UniversityStreamSelect
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('stream', _selectedStream!);
     await prefs.setString('selected_stream', _selectedStream!);
-    await prefs.setBool('how_to_seen', false); // Show How-To popup on first dashboard load
-    
+    await prefs.setBool(
+        'how_to_seen', false); // Show How-To popup on first dashboard load
+
     // Mark onboarding as complete
     await prefs.setBool('onboarding_complete', true);
 
@@ -78,26 +95,31 @@ class _UniversityStreamSelectionScreenState extends State<UniversityStreamSelect
         elevation: 0,
       ),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Semester info
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
+                  color: AppColors.primary.withAlpha(((255 * 0.1)).toInt()),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.semester, size: 16, color: AppColors.primary),
+                    Icon(Icons.calendar_month,
+                        size: 16, color: AppColors.primary),
                     const SizedBox(width: 6),
                     Text(
                       'Freshman - First Semester',
-                      style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 13),
+                      style: TextStyle(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13),
                     ),
                     const SizedBox(width: 6),
                     Text(
@@ -111,29 +133,33 @@ class _UniversityStreamSelectionScreenState extends State<UniversityStreamSelect
 
               // Stream cards
               ..._streams.map((stream) => Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: _buildStreamCard(stream),
-              )),
-              
-              const Spacer(),
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: _buildStreamCard(stream),
+                  )),
+
+              const SizedBox(height: 24),
 
               // Permanent warning
               Container(
                 padding: const EdgeInsets.all(12),
                 margin: const EdgeInsets.only(bottom: 16),
                 decoration: BoxDecoration(
-                  color: Colors.amber.withOpacity(0.1),
+                  color: Colors.amber.withAlpha(((255 * 0.1)).toInt()),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.amber.withOpacity(0.3)),
+                  border: Border.all(color: Colors.amber.withAlpha(((255 * 0.3)).toInt())),
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.warning_amber, color: Colors.amber[700], size: 20),
+                    Icon(Icons.warning_amber,
+                        color: Colors.amber[700], size: 20),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         'This choice is permanent and cannot be changed after registration.',
-                        style: TextStyle(color: Colors.amber[800], fontSize: 13, fontWeight: FontWeight.w500),
+                        style: TextStyle(
+                            color: Colors.amber[800],
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500),
                       ),
                     ),
                   ],
@@ -143,7 +169,9 @@ class _UniversityStreamSelectionScreenState extends State<UniversityStreamSelect
               // Continue Button
               GradientButton(
                 text: 'CONTINUE TO DASHBOARD',
-                onPressed: _selectedStream != null && !_isNavigating ? _saveAndContinue : () {},
+                onPressed: _selectedStream != null && !_isNavigating
+                    ? _saveAndContinue
+                    : () {},
                 isDisabled: _selectedStream == null || _isNavigating,
               ),
               const SizedBox(height: 16),
@@ -165,14 +193,19 @@ class _UniversityStreamSelectionScreenState extends State<UniversityStreamSelect
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.05) : Colors.grey[50],
+          color: isSelected ? color.withAlpha(((255 * 0.05)).toInt()) : Colors.grey[50],
           border: Border.all(
             color: isSelected ? color : Colors.grey[200]!,
             width: isSelected ? 2.5 : 1.5,
           ),
           borderRadius: BorderRadius.circular(16),
           boxShadow: isSelected
-              ? [BoxShadow(color: color.withOpacity(0.2), blurRadius: 12, offset: const Offset(0, 4))]
+              ? [
+                  BoxShadow(
+                      color: color.withAlpha(((255 * 0.2)).toInt()),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4))
+                ]
               : [],
         ),
         child: Column(
@@ -185,7 +218,7 @@ class _UniversityStreamSelectionScreenState extends State<UniversityStreamSelect
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.15),
+                    color: color.withAlpha(((255 * 0.15)).toInt()),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(stream.icon, color: color, size: 28),
@@ -197,7 +230,8 @@ class _UniversityStreamSelectionScreenState extends State<UniversityStreamSelect
                       color: color,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.check, color: Colors.white, size: 20),
+                    child:
+                        const Icon(Icons.check, color: Colors.white, size: 20),
                   ),
               ],
             ),
@@ -233,11 +267,12 @@ class _UniversityStreamSelectionScreenState extends State<UniversityStreamSelect
               children: subjects.map((subject) {
                 final subjectColor = _subjectColors[subject] ?? color;
                 return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: subjectColor.withOpacity(0.1),
+                    color: subjectColor.withAlpha(((255 * 0.1)).toInt()),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: subjectColor.withOpacity(0.2)),
+                    border: Border.all(color: subjectColor.withAlpha(((255 * 0.2)).toInt())),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -253,7 +288,10 @@ class _UniversityStreamSelectionScreenState extends State<UniversityStreamSelect
                       const SizedBox(width: 6),
                       Text(
                         subject,
-                        style: TextStyle(fontSize: 11, color: subjectColor, fontWeight: FontWeight.w500),
+                        style: TextStyle(
+                            fontSize: 11,
+                            color: subjectColor,
+                            fontWeight: FontWeight.w500),
                       ),
                     ],
                   ),

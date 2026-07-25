@@ -1,0 +1,97 @@
+{
+    "grade": "freshman",
+    "stream": "natural_science",
+    "semester": "1",
+    "version": "1.0.0",
+    "subjects": [
+        {
+            "id": "english",
+            "name": "English",
+            "status": "available",
+            "icon": "english_icon.jpg",
+            "units": [
+                {"id": "chapter_1", "title": "Chapter 1: Study Skills", "has_content": false, "content": {}},
+                {"id": "chapter_2", "title": "Chapter 2: Health and Fitness", "has_content": false, "content": {}},
+                {"id": "chapter_3", "title": "Chapter 3: Cultural Values", "has_content": false, "content": {}},
+                {"id": "chapter_4", "title": "Chapter 4: Wildlife", "has_content": false, "content": {}},
+                {"id": "chapter_5", "title": "Chapter 5: Population", "has_content": false, "content": {}}
+            ]
+        },
+        {
+            "id": "geography",
+            "name": "Geography",
+            "status": "available",
+            "icon": "geography_icon.jpg",
+            "units": [
+                {"id": "chapter_1", "title": "Chapter 1: Introduction", "has_content": false, "content": {}},
+                {"id": "chapter_2", "title": "Chapter 2: The Geology of Ethiopia and the Horn", "has_content": false, "content": {}},
+                {"id": "chapter_3", "title": "Chapter 3: The Topography of Ethiopia and the Horn", "has_content": false, "content": {}},
+                {"id": "chapter_4", "title": "Chapter 4: Drainage System and Water Resource of Ethiopia and the Horn", "has_content": false, "content": {}},
+                {"id": "chapter_5", "title": "Chapter 5: The Climate of Ethiopia and the Horn", "has_content": false, "content": {}},
+                {"id": "chapter_6", "title": "Chapter 6: Soils, Natural Vegetation and Wildlife Resource", "has_content": false, "content": {}},
+                {"id": "chapter_7", "title": "Chapter 7: Population of Ethiopia and the Horn", "has_content": false, "content": {}},
+                {"id": "chapter_8", "title": "Chapter 8: Economic Activities in Ethiopia", "has_content": false, "content": {}}
+            ]
+        },
+        {
+            "id": "logic",
+            "name": "Logic",
+            "status": "available",
+            "icon": "logic_icon.jpg",
+            "units": [
+                {"id": "chapter_1", "title": "Chapter 1: Introduction to Philosophy", "has_content": false, "content": {}},
+                {"id": "chapter_2", "title": "Chapter 2: Basic Concept of Logic", "has_content": false, "content": {}},
+                {"id": "chapter_3", "title": "Chapter 3: Logic and Language", "has_content": false, "content": {}},
+                {"id": "chapter_4", "title": "Chapter 4: Basic Concepts of Critical Thinking", "has_content": false, "content": {}},
+                {"id": "chapter_5", "title": "Chapter 5: Informal Fallacies", "has_content": false, "content": {}},
+                {"id": "chapter_6", "title": "Chapter 6: Categorical Propositions", "has_content": false, "content": {}}
+            ]
+        },
+        {
+            "id": "mathematics",
+            "name": "Mathematics",
+            "status": "available",
+            "icon": "mathematics_icon.jpg",
+            "units": [
+                {"id": "chapter_1", "title": "Chapter 1: Propositional Logic and Set Theory", "has_content": false, "content": {}},
+                {"id": "chapter_2", "title": "Chapter 2: The Real and Complex Number System", "has_content": false, "content": {}},
+                {"id": "chapter_3", "title": "Chapter 3: Function", "has_content": false, "content": {}},
+                {"id": "chapter_4", "title": "Chapter 4: Analytic Geometry", "has_content": false, "content": {}}
+            ]
+        },
+        {
+            "id": "physics",
+            "name": "Physics",
+            "status": "available",
+            "icon": "physics_icon.jpg",
+            "units": [
+                {"id": "chapter_1", "title": "Chapter 1: Preliminaries", "has_content": false, "content": {}},
+                {"id": "chapter_2", "title": "Chapter 2: Kinematic and Dynamic of Particles", "has_content": false, "content": {}},
+                {"id": "chapter_3", "title": "Chapter 3: Fluid Dynamics", "has_content": false, "content": {}},
+                {"id": "chapter_4", "title": "Chapter 4: Heat and Thermodynamics", "has_content": false, "content": {}},
+                {"id": "chapter_5", "title": "Chapter 5: Oscillation, Waves and Optics", "has_content": false, "content": {}},
+                {"id": "chapter_6", "title": "Chapter 6: Electromagnetism and Electronics", "has_content": false, "content": {}},
+                {"id": "chapter_7", "title": "Chapter 7: Cross Cutting Application of Physics", "has_content": false, "content": {}}
+            ]
+        },
+        {
+            "id": "psychology",
+            "name": "Psychology",
+            "status": "available",
+            "icon": "psychology_icon.jpg",
+            "units": [
+                {"id": "chapter_1", "title": "Chapter 1: Essence of Psychology", "has_content": false, "content": {}},
+                {"id": "chapter_2", "title": "Chapter 2: Sensation and Perception", "has_content": false, "content": {}},
+                {"id": "chapter_3", "title": "Chapter 3: Learning and Theories of Learning", "has_content": false, "content": {}},
+                {"id": "chapter_4", "title": "Chapter 4: Memory and Forgetting", "has_content": false, "content": {}},
+                {"id": "chapter_5", "title": "Chapter 5: Motivation and Emotion", "has_content": false, "content": {}},
+                {"id": "chapter_6", "title": "Chapter 6: Personality", "has_content": false, "content": {}},
+                {"id": "chapter_7", "title": "Chapter 7: Psychological Disorder and Treatment Techniques", "has_content": false, "content": {}},
+                {"id": "chapter_8", "title": "Chapter 8: Intro to Life Skills", "has_content": false, "content": {}},
+                {"id": "chapter_9", "title": "Chapter 9: Intra-Personal and Interpersonal Skills", "has_content": false, "content": {}},
+                {"id": "chapter_10", "title": "Chapter 10: Academic Skills", "has_content": false, "content": {}},
+                {"id": "chapter_11", "title": "Chapter 11: Social Skills", "has_content": false, "content": {}}
+            ]
+        }
+    ]
+}

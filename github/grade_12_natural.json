@@ -1,0 +1,127 @@
+{
+    "grade": "12",
+    "stream": "natural",
+    "version": "1.0.0",
+    "subjects": [
+        {
+            "id": "agriculture",
+            "name": "Agriculture",
+            "status": "available",
+            "icon": "agriculture_icon.jpg",
+            "units": [
+                {"id": "unit_1", "title": "Unit 1: Vegetable Crops Production and Management", "has_content": false, "content": {}},
+                {"id": "unit_2", "title": "Unit 2: Fruit Crops Production and Management", "has_content": false, "content": {}},
+                {"id": "unit_3", "title": "Unit 3: Root and Tuber Crops Production and Management", "has_content": false, "content": {}},
+                {"id": "unit_4", "title": "Unit 4: Coffee, Tea and Spices Production and Management", "has_content": false, "content": {}},
+                {"id": "unit_5", "title": "Unit 5: Introduction to Plant Biotechnology", "has_content": false, "content": {}},
+                {"id": "unit_6", "title": "Unit 6: Beef Cattle Production and Management", "has_content": false, "content": {}},
+                {"id": "unit_7", "title": "Unit 7: Sheep and Goat Production and Management", "has_content": false, "content": {}},
+                {"id": "unit_8", "title": "Unit 8: Camel Production and Management", "has_content": false, "content": {}},
+                {"id": "unit_9", "title": "Unit 9: Poultry Production and Management", "has_content": false, "content": {}},
+                {"id": "unit_10", "title": "Unit 10: Fishery Production and Management", "has_content": false, "content": {}},
+                {"id": "unit_11", "title": "Unit 11: Apiculture", "has_content": false, "content": {}},
+                {"id": "unit_12", "title": "Unit 12: Nursery and Plantation Technology", "has_content": false, "content": {}},
+                {"id": "unit_13", "title": "Unit 13: Basics of Agro-Forestry Systems and Practices", "has_content": false, "content": {}},
+                {"id": "unit_14", "title": "Unit 14: Soil and Water Conservation", "has_content": false, "content": {}},
+                {"id": "unit_15", "title": "Unit 15: Gender and Human Nutrition", "has_content": false, "content": {}},
+                {"id": "unit_16", "title": "Unit 16: Safe Food Production and Postharvest Handling", "has_content": false, "content": {}},
+                {"id": "unit_17", "title": "Unit 17: Application of Information and Communication Technologies (ICT) in Agriculture", "has_content": false, "content": {}}
+            ]
+        },
+        {
+            "id": "aptitude",
+            "name": "Aptitude",
+            "status": "available",
+            "icon": "aptitude_icon.jpg",
+            "units": [
+                {"id": "part_1", "title": "Part 1: Mathematical Part", "has_content": false, "content": {}},
+                {"id": "part_2", "title": "Part 2: English Part", "has_content": false, "content": {}}
+            ]
+        },
+        {
+            "id": "biology",
+            "name": "Biology",
+            "status": "available",
+            "icon": "biology_icon.jpg",
+            "units": [
+                {"id": "unit_1", "title": "Unit 1: Application of Biology", "has_content": false, "content": {}},
+                {"id": "unit_2", "title": "Unit 2: Microorganisms", "has_content": false, "content": {}},
+                {"id": "unit_3", "title": "Unit 3: Energy Transformation", "has_content": false, "content": {}},
+                {"id": "unit_4", "title": "Unit 4: Evolution", "has_content": false, "content": {}},
+                {"id": "unit_5", "title": "Unit 5: Human Body System", "has_content": false, "content": {}},
+                {"id": "unit_6", "title": "Unit 6: Climate Change", "has_content": false, "content": {}}
+            ]
+        },
+        {
+            "id": "chemistry",
+            "name": "Chemistry",
+            "status": "available",
+            "icon": "chemistry_icon.jpg",
+            "units": [
+                {"id": "unit_1", "title": "Unit 1: Acid-Base Concepts and Ionic Equilibria", "has_content": false, "content": {}},
+                {"id": "unit_2", "title": "Unit 2: Electrochemistry", "has_content": false, "content": {}},
+                {"id": "unit_3", "title": "Unit 3: Industrial Chemistry", "has_content": false, "content": {}},
+                {"id": "unit_4", "title": "Unit 4: Polymers", "has_content": false, "content": {}},
+                {"id": "unit_5", "title": "Unit 5: Introduction to Environmental Chemistry", "has_content": false, "content": {}}
+            ]
+        },
+        {
+            "id": "english",
+            "name": "English",
+            "status": "available",
+            "icon": "english_icon.jpg",
+            "units": [
+                {"id": "unit_1", "title": "Unit 1: Sustainable Development", "has_content": false, "content": {}},
+                {"id": "unit_2", "title": "Unit 2: Time Management", "has_content": false, "content": {}},
+                {"id": "unit_3", "title": "Unit 3: Evidence on Traffic Accident", "has_content": false, "content": {}},
+                {"id": "unit_4", "title": "Unit 4: Natural Resource Management", "has_content": false, "content": {}},
+                {"id": "unit_5", "title": "Unit 5: Mechanized Agriculture", "has_content": false, "content": {}},
+                {"id": "unit_6", "title": "Unit 6: Green Economies", "has_content": false, "content": {}},
+                {"id": "unit_7", "title": "Unit 7: National Pride", "has_content": false, "content": {}},
+                {"id": "unit_8", "title": "Unit 8: Telemedicine", "has_content": false, "content": {}},
+                {"id": "unit_9", "title": "Unit 9: Conflict Management", "has_content": false, "content": {}},
+                {"id": "unit_10", "title": "Unit 10: Robotics", "has_content": false, "content": {}}
+            ]
+        },
+        {
+            "id": "it",
+            "name": "IT",
+            "status": "available",
+            "icon": "it_icon.jpg",
+            "units": [
+                {"id": "unit_1", "title": "Unit 1: Information Systems and Their Applications", "has_content": false, "content": {}},
+                {"id": "unit_2", "title": "Unit 2: Emerging Technologies", "has_content": false, "content": {}},
+                {"id": "unit_3", "title": "Unit 3: Database Management System", "has_content": false, "content": {}},
+                {"id": "unit_4", "title": "Unit 4: Web Authoring", "has_content": false, "content": {}},
+                {"id": "unit_5", "title": "Unit 5: Maintenance and Troubleshooting", "has_content": false, "content": {}},
+                {"id": "unit_6", "title": "Unit 6: Fundamentals of Programming", "has_content": false, "content": {}}
+            ]
+        },
+        {
+            "id": "mathematics",
+            "name": "Mathematics",
+            "status": "available",
+            "icon": "mathematics_icon.jpg",
+            "units": [
+                {"id": "unit_1", "title": "Unit 1: Sequences and Series", "has_content": false, "content": {}},
+                {"id": "unit_2", "title": "Unit 2: Introductions to Calculus", "has_content": false, "content": {}},
+                {"id": "unit_3", "title": "Unit 3: Statistics", "has_content": false, "content": {}},
+                {"id": "unit_4", "title": "Unit 4: Introduction to Linear Programming", "has_content": false, "content": {}},
+                {"id": "unit_5", "title": "Unit 5: Mathematical Applications in Business", "has_content": false, "content": {}}
+            ]
+        },
+        {
+            "id": "physics",
+            "name": "Physics",
+            "status": "available",
+            "icon": "physics_icon.jpg",
+            "units": [
+                {"id": "unit_1", "title": "Unit 1: Application of Physics in Other Fields", "has_content": false, "content": {}},
+                {"id": "unit_2", "title": "Unit 2: Two-Dimensional Motion", "has_content": false, "content": {}},
+                {"id": "unit_3", "title": "Unit 3: Fluid Mechanics", "has_content": false, "content": {}},
+                {"id": "unit_4", "title": "Unit 4: Electromagnetism", "has_content": false, "content": {}},
+                {"id": "unit_5", "title": "Unit 5: Basics of Electronics", "has_content": false, "content": {}}
+            ]
+        }
+    ]
+}

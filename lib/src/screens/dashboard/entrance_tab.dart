@@ -312,7 +312,7 @@ class _EntranceTabState extends State<EntranceTab> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withAlpha(((255 * 0.2)).toInt()),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Icon(Icons.school, color: Colors.white, size: 32),
@@ -325,7 +325,7 @@ class _EntranceTabState extends State<EntranceTab> {
                             const Text('University Entrance Exam',
                                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20)),
                             Text('Grade $_userGrade - $_streamDisplayName',
-                                style: TextStyle(color: Colors.white.withOpacity(0.9))),
+                                style: TextStyle(color: Colors.white.withAlpha(((255 * 0.9)).toInt()))),
                           ],
                         ),
                       ),
@@ -428,7 +428,7 @@ class _EntranceTabState extends State<EntranceTab> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withAlpha(((255 * 0.1)).toInt()),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(icon, color: color, size: 32),
@@ -446,7 +446,7 @@ class _EntranceTabState extends State<EntranceTab> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: color.withOpacity(0.1),
+                          color: color.withAlpha(((255 * 0.1)).toInt()),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(

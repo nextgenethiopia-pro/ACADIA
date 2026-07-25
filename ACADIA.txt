@@ -1,590 +1,2999 @@
-FULL DESC
+# ACADIA V1.0.0 — COMPLETE PLATFORM DESCRIPTION
 
-# ACADIA V1.0.0 — COMPLETE DESCRIPTION
-
----
-
-## 1. APP OVERVIEW
-
-ACADIA is a digital education platform built for Ethiopian students. It covers High School (Grades 9–12, Natural and Social Science streams) and University (Freshman and Senior, all generations and technology institutes).
-
-**Six content formats** are delivered per chapter: **Video, Short Note, Quiz, Exam, Flashcard, and Past Paper**.
-
-The app is fully **offline-first**. All content files — videos, PDFs, quizzes, exams, flashcards, past papers — are hosted on **Internet Archive**. The app downloads them once and stores them in private app storage. Students study without needing an internet connection after the initial download.
-
-**Firebase** handles authentication (email/password with verification) and the Firestore database (user profiles, payments, notifications, content metadata). **GitHub Pages** hosts a lightweight configuration file so content can be updated without releasing a new APK.
-
-The primary color is **`#111844`** (deep navy blue).
+## THE ULTIMATE EDUCATIONAL PLATFORM FOR ETHIOPIAN STUDENTS
 
 ---
 
-## 2. USER DATA & PERMANENT PATH
+# TABLE OF CONTENTS
 
-Every user's complete academic path is saved **permanently** in Firebase Firestore and locally in SharedPreferences. The path cannot be changed after registration.
-
-**Data saved:**
-
-| Field | Example Value |
-|-------|---------------|
-| `school_level` | `high-school` or `university` |
-| `grade` | `9`, `10`, `11`, `12` |
-| `stream` | `natural_science` or `social_science` |
-| `generation` | `1st Generation`, `2nd Generation`, `3rd Generation`, `4th Generation`, `Technology Institutes` |
-| `university` | Full university name (e.g., `AAU - Addis Ababa University`) |
-| `university_year` | `freshman` or `senior` |
-| `semester` | `1` or `2` |
-| `track` | `pre_engineering` or `other_natural_science` |
-| `path_status` | `permanently_locked` |
-
-All selections — from the first academic path choice down to the final university name or stream — are recorded and permanently locked.
+1. [Platform Overview](#platform-overview)
+2. [Core Philosophy](#core-philosophy)
+3. [Technical Architecture](#technical-architecture)
+4. [Complete Screen Descriptions](#complete-screen-descriptions)
+5. [File Delivery System](#file-delivery-system)
+6. [Data Storage & Offline Strategy](#data-storage--offline-strategy)
+7. [Authentication & Security](#authentication--security)
+8. [Payment System](#payment-system)
+9. [ACADIA AI Assistant](#acadia-ai-assistant)
+10. [Admin Panel](#admin-panel)
+11. [Technical Specifications](#technical-specifications)
+12. [Deployment & Maintenance](#deployment--maintenance)
 
 ---
 
-## 3. PROGRESS TRACKING (LOCAL)
+# PLATFORM OVERVIEW
 
-All user progress is tracked **locally** in the app's SQLite database and displayed for every user in the **Progress Tab**. Firebase syncs progress when a connection is available so data can be restored on a new device.
+## What is ACADIA?
 
-**Tracked data:**
+ACADIA is an **offline-first educational platform** designed specifically for Ethiopian students. It provides comprehensive learning materials for High School (Grades 9-12) and University students, with content delivered dynamically without requiring app updates.
 
-| Metric | Description |
-|--------|-------------|
-| Total study time | Accumulated hours across all subjects |
-| Lessons completed | Count of videos, PDFs, and content marked done |
-| Quizzes passed | Count of quizzes with score ≥ 60% |
-| Average score | Average percentage across all quizzes and exams |
-| Current streak | Consecutive days of activity |
-| Longest streak | Best consecutive day run |
-| Downloaded content | Number of items and total storage used |
-| Subject progress | Per-subject completion percentage |
-| Weekly activity | Hours studied per day (Mon–Sun bar chart) |
+## Key Features
 
-**Achievements (4 badges):**
+- **50 Screens** of rich educational content
+- **19 Subjects** with 6 content types per chapter
+- **Offline-First Architecture** - Download once, study anywhere
+- **Interactive Learning** - Quizzes, exams, flashcards with instant feedback
+- **University Entrance Exam Preparation** - Past papers, practice questions, study schedules
+- **ACADIA AI** - Offline AI assistant for personalized tutoring
+- **Secure Payments** - 5 Ethiopian payment methods with admin approval
+- **Admin Dashboard** - Complete content and user management
+- **Multi-Language Support** - English, Amharic, Afaan Oromoo
 
-| Badge | Requirement | Color |
-|-------|------------|-------|
-| First Steps | Complete first content item | Blue |
-| Perfect Week | 7-day study streak | Orange |
-| Quiz Master | Pass 10 quizzes | Gold |
-| Dedicated | 50 hours of study | Purple |
+## Target Users
 
-Unlocked badges show normally. Locked badges show a lock icon with the requirement text.
+### Students
+- High School (Grades 9-12, Natural & Social Science streams)
+- University (Freshman to Senior, all generations)
+- Entrance Exam candidates (Grade 11-12)
 
----
-
-## 4. SUBJECTS & CHAPTER LOCKING
-
-### Subjects are always visible
-All subjects for the user's academic path are displayed in the Subjects tab. Students can browse every subject without purchasing a package.
-
-### Chapters are locked until purchase
-Each chapter shows a lock overlay until the user purchases their grade package. **When purchased, all chapters unlock immediately** — no prerequisites, no sequential unlocking. The lock overlay shows the package name, price, and an "UNLOCK NOW" button that navigates to the payment screen.
-
-### Package validity
-Each grade package is valid for **one year** from admin approval date. After expiry, chapters lock again and the user must repurchase.
+### Admins
+- Content managers
+- Payment approvers
+- User managers
+- Analytics viewers
 
 ---
 
-## 5. CONTENT SYSTEM
+# CORE PHILOSOPHY
 
-### 6 Content Types Per Chapter
+## Design Principles
 
-| Type | Format | Player/Viewer |
-|------|--------|---------------|
-| **Video** | .mp4 | Native video player with speed control (0.5x–2.0x), play/pause, rewind/forward 10s, volume, progress scrubbing |
-| **Short Note** | .pdf | PDF viewer with pinch-to-zoom, page navigation |
-| **Quiz** | .json | MCQ with A/B/C/D options, two feedback modes |
-| **Exam** | .json | Timed MCQ with pause, question grid, auto-finish |
-| **Flashcard** | .json | Flip animation, "Got it" / "Didn't know" tracking |
-| **Past Paper** | .json | MCQ from previous exams, timed |
+### 1. Offline-First
+> "Ethiopian students deserve education without internet dependency."
 
-### Content Storage & Delivery
+- All content downloadable for offline access
+- Local database (Isar) for progress tracking
+- No internet required after initial content download
+- Automatic sync when online
 
-| Layer | Technology |
-|-------|-----------|
-| All content files (videos, PDFs, JSONs) | **Internet Archive** (free, unlimited) |
-| Content metadata (titles, subjects, chapters, URLs) | **Firebase Firestore** |
-| Content update config | **GitHub Pages** (single JSON file) |
-| Offline storage | **SQLite** + app private directory |
+### 2. Content Separated from Code
+> "Change content without rebuilding the app."
 
-### Download Flow
-1. Student sees content slot with DOWNLOAD button and file size.
-2. Taps download → progress indicator shows.
-3. File saved to app private storage.
-4. SQLite records the download (content_id, local_path, file_size, date).
-5. Button changes to PLAY/VIEW with green "OFFLINE" badge.
-6. All playback is from the local file — no streaming.
+- Educational content in GitHub
+- App configuration in Firebase
+- Code is only the learning engine
+- No APK updates for content changes
 
----
+### 3. Zero Cost Philosophy
+> "Education should be accessible without server costs."
 
-## 6. QUIZ & EXAM BEHAVIOR
+- Firebase free tier (10,000 users)
+- GitHub free storage
+- ImgBB free image hosting
+- YouTube free video hosting
 
-### No Submit Button
-There is no separate "Submit" step. Students answer questions and navigate. Results are calculated automatically and shown at the end.
+### 4. One Device, One Account
+> "Your account is tied to your device for security."
 
-### Quiz — Two Feedback Modes
+- Single device per account
+- Auto-logout on new device login
+- Session management with Firebase
+- Manual logout required for device switch
 
-**Option 1: Immediate Feedback**
-- Student taps an answer choice.
-- **Correct** → choice turns green.
-- **Wrong** → choice turns red, correct answer highlights green.
-- A "Show Explanation" button appears. Tapping it reveals the explanation.
-- Student taps "Next" to continue.
-- At the end, sees full result with all answers and explanations.
+### 5. Simple Color Palette
+> "Clean, professional, distraction-free."
 
-**Option 2: Review at End**
-- Student answers all questions without immediate feedback.
-- At the end, sees every answer marked correct (green) or wrong (red) with explanation for each.
-
-### Exam — Same as Quiz
-The exam follows the same pattern as the quiz. A countdown timer runs. When time expires or all questions are answered, the result screen appears. Students can pause the timer; while paused, the question area is hidden.
+- Navy Blue (#093C5D) - Primary
+- White - Backgrounds
+- Black - Text
+- Dark Mode - Compatible
 
 ---
 
-## 7. VIDEO PLAYER FEATURES
-
-| Feature | Details |
-|---------|---------|
-| Playback source | Local file (downloaded from Internet Archive) |
-| Play/Pause | Center button overlay |
-| Seek | Draggable progress bar |
-| Rewind | 10 seconds back |
-| Forward | 10 seconds forward |
-| Volume | Toggle mute/unmute |
-| **Speed control** | 0.5x, 0.75x, 1.0x, 1.25x, 1.5x, 2.0x |
-| Full screen | Toggle full screen mode |
-| Time display | Current position / total duration |
-| Auto-complete | Marks as completed when video finishes |
-| Design | Dark immersive, no external branding |
-
----
-
-## 8. MAIN DASHBOARD (6 Tabs)
-
-### Tab 1: Home
-- Time-appropriate greeting with user's first name
-- Current date (day of week, month, date, year)
-- Study streak counter with fire icon
-- 4 Quick Actions: Continue, Study Time, Entrance, Downloads
-- "Your Subjects" grid with custom subject icons (19 JPG files) and unique colors
-- Daily Quote loaded from Firebase settings
-- "See All" opens bottom sheet with all subjects
-
-### Tab 2: Subjects
-- **Locked state:** Orange banner showing package name, price, and UNLOCK button
-- **Unlocked state:** Green banner showing "Package Unlocked" with validity info
-- Subject count badge in header
-- 2-column grid of subject cards with custom icons
-- Each card shows subject name, chapter count, and progress bar
-- Lock overlay on each card when package is locked
-- Tap locked → payment screen. Tap unlocked → Subject Portal
-
-**Subject Portal:**
-- Lists all chapters for the subject
-- Each chapter shows unit number, title, content item count
-- Tap chapter → Chapter Content Screen
-
-**Chapter Content Screen:**
-- 6 sections: Video, Short Note, Quiz, Exam, Flashcard, Past Paper
-- Empty slots: "Content will be uploaded soon by admin" in grey italic
-- Each content item shows title, metadata (duration, pages, questions), and download/view button
-
-### Tab 3: Progress
-- 3 stat cards: Total Study Time, Lessons Completed, Quizzes Passed
-- Weekly Activity bar chart (Mon–Sun) with percentage change vs last week
-- Subject Progress bars with custom icons and colors
-- Achievements grid (2×2): First Steps, Perfect Week, Quiz Master, Dedicated
-
-### Tab 4: Entrance (Grade 11–12 ONLY)
-Hidden for Grade 9, Grade 10, and University students.
-
-**Four sections:**
-1. **Past Papers** — 6 subjects → years (free text, set by admin) → download JSON → practice as timed exam
-2. **Entrance Exam** — 6 subjects → grade (9–12) → chapter → download JSON → practice as quiz
-3. **Study Schedule** — Recommended daily/weekly plan
-4. **Exam Tips** — Admin-configurable strategies loaded from Firebase
-
-### Tab 5: Notifications
-- Filter chips: All, Unread, Payment, Content, Quiz, Exam, Achievement
-- Type colors: Payment (Green), Content (Blue), Quiz (Orange), Exam (Purple), Achievement (Gold), System (Brown)
-- Unread indicator dot, mark all read, relative timestamps
-- Real-time updates from Firestore
-
-### Tab 6: Profile
-- Profile photo (uploads sent to Telegram bot)
-- Full name, email, academic path display
-- PRO badge if package purchased
-- Study stats: Hours, Lessons, Average Score
-- **Admin Panel section** (visible only to admin emails):
-  - Admin Dashboard, Content Upload, Content Management
-  - User Management, Payment Approval, Create Notification
-  - Analytics Dashboard, App Settings, Entrance Management
-  - About Management, Image Management
-- Account: Edit Profile, Payment History, Downloads
-- Settings: App Settings, Change Password
-- Support: Help Center, About ACADIA
-- Sign Out (red button)
-
----
-
-## 9. ADMIN PANEL
-
-### Admin Access
-Hardcoded admin emails (always have access, no Firebase dependency):
-- `nextgenethiopia@gmail.com`
-- `adminacadia@gmail.com`
-
-Additional admins can be added/removed via the **User Management** screen and are stored in Firebase `admin_emails`.
-
-### Admin Dashboard
-**5 stat cards:**
-| Card | Icon |
-|------|------|
-| Total Users | People |
-| Total Content | Description |
-| Total Revenue | Attach Money |
-| Universities | Account Balance |
-| High Schools | School |
-
-- Users by Academic Path horizontal bar chart
-- Quick Actions grid (3×3)
-- Recent Activity feed
-
-### Content Upload
-Three paths: High School, University, Entrance
-
-**High School path:** Grade → Stream (for 11–12) → Subject → Chapter → Content Type → Upload
-
-**University path:** Year → Semester → Stream/Track → Subject → Chapter → Content Type → Upload
-
-**Entrance path:** Entrance Type (Past Papers / Entrance Exam) → Stream → Subject → Year (free text) or Grade+Chapter → Upload
-
-Two upload methods: **Cloudinary** (file picker) or **External Link** (paste URL). Content metadata fields change based on content type (page count for PDFs, question count and time limit for quizzes/exams, card count for flashcards).
-
-Free Content checkbox makes content accessible without purchase or authentication.
-
-### Content Management
-- Type filter chips: All, Video, PDF, Quiz, Exam, Flashcard, Past Paper, Pending
-- Subject and Status dropdown filters
-- Search by title, subject, chapter
-- Select All with bulk approve/delete
-- Per-item Edit and Delete actions
-- Edit Structure: Add Subject, Add Chapter
-
-### User Management
-- Filters: Academic Path, Status (Active/Banned), Subscription (Pro/Free)
-- Search by name, email, or phone number
-- Full user detail bottom sheet showing:
-  - Personal information, academic path, subscription details
-  - Study statistics, payment history, recent activity, notifications sent
-- Actions: Make Pro / Revoke Pro, Ban / Unban, Send/Edit/Delete Notification, Delete User
-- **Export PDF / CSV** of all users or filtered users with full information
-- Manage Admin Emails (add/remove)
-
-### Payment Approval
-- Stats bar: Pending, Approved, Rejected, Total
-- Filters: Status (All/Pending/Approved/Rejected), Package
-- Search by name, email, or phone
-- Full detail view: user info, academic path, package details, payment info, receipt image
-- **Approve:** Unlocks package for 1 year, sends notification
-- **Reject:** Mandatory reason field with quick-select common reasons, sends notification
-
-### Notification Creation
-- 6 notification types: Payment, Content, Quiz, Exam, Achievement, System
-- 3 target audiences: All Users, Specific Academic Paths, Specific Users
-- Broadcast with confirmation dialog
-
-### Analytics Dashboard
-- Date range: Today, This Week, This Month, This Year
-- Revenue trend bar chart (6 months)
-- Users by Academic Path horizontal bars
-- Revenue by Package horizontal bars
-- Payment Method Distribution horizontal bars
-- User Growth percentage indicator
-- Most Viewed Content ranking
-- Content by Type distribution
-- Export CSV / PDF
-
-### Entrance Management
-- Past Papers: Stream → Subject → Year (free text input) → Questions JSON upload
-- Entrance Exam: Stream → Subject → Grade → Chapter → Questions JSON upload
-- Edit/delete existing entrance content
-- Filter by type, stream, subject, year, grade
-
-### App Settings
-- Package Prices per grade
-- Daily Quote management
-- Exam Tips (add/edit/delete)
-- Welcome Screen content (title, subtitle, button text)
-- How-To Popup content (title, steps, button text)
-- About & Contact info (developer name, email, Telegram, website, social media)
-- Reset to Defaults
-
-### Image Management
-- App Logo, Splash Images (up to 3), Welcome Image, Popup Image
-- Upload via Cloudinary URL or file picker
-- Preview, replace, delete
-
-### About Management
-- App name, version, description, mission, vision
-- Contact information and social media links
-- Preview About screen
-
----
-
-## 10. AUTHENTICATION
-
-| Screen | Features |
-|--------|----------|
-| Login | Email + password, forgot password link, register link |
-| Register | Full name, phone (+251 prefix, 9 digits), email, password (6+ chars), confirm password |
-| Forgot Password | Email input, sends reset link via Firebase Auth |
-| Email Verification | Large email icon, "Verify Your Email" title, resend button with 60s cooldown, manual check button |
-| Profile Setup | Green checkmark, shows permanent academic path, "Go to Dashboard" button |
-
----
-
-## 11. ONBOARDING FLOW
-
-1. **Splash Screen** — ACADIA logo, splash.jpg background, 3-second green loading bar, auto-navigates
-2. **Welcome Screen** — 3-slide carousel, title, Amharic subtitle, GET STARTED button, login link, help icon
-3. **Academic Path** — HIGH SCHOOL or UNIVERSITY, permanent warning pill
-4. **Grade Selection** — 2×2 grid (9, 10, 11, 12), color-coded
-5. **Stream Selection** — Natural Science (8 subjects) or Social Science (8 subjects), subject chips
-6. **Generation Selection** — 1st/2nd/3rd/4th Gen + Technology Institutes
-7. **University Selection** — Search, radio button selection, shows all universities for chosen generation
-8. **Year Selection** — Freshman or Senior
-9. **Senior Year** — "Content Being Prepared" message, "GO BACK TO WELCOME SCREEN" button
-10. **Semester Selection** — First or Second
-11. **University Stream Selection** — Natural Science or Social Science
-12. **University Track Selection** — Pre-Engineering or Other Natural Science
-13. **How-To Popup** — 4 swipeable slides with "Don't show again" checkbox, "GOT IT" button
-
----
-
-## 12. PAYMENT SYSTEM
-
-### Payment Methods (5)
-
-| Method | Account | Holder |
-|--------|---------|--------|
-| Telebirr | 0967870090 | FIRAOL TADESA |
-| M-PESA | 0705578277 | BONA BAYU |
-| CBE | 1000720789985 | FIRAOL TADESA |
-| CBO | 1016100072577 | FIRAOL TADESA |
-| AWASH BANK | 01320500140900 | FIRAOL TADESA |
-
-### Payment Flow
-1. User selects their grade package (auto-detected from academic path).
-2. Chooses payment method.
-3. Makes payment to the displayed account.
-4. Uploads receipt screenshot (gallery or camera).
-5. Enters account number and transaction reference.
-6. Taps "CONFIRM PAYMENT" — status set to "pending".
-7. Telegram bot sends admin a notification with all details.
-8. Admin reviews in Payment Approval screen.
-9. Admin approves → package unlocked for 1 year → notification sent to user.
-10. Admin rejects → reason required → notification sent.
-
-### Payment History
-- Filter by status: All, Pending, Approved, Rejected
-- Search by package or date
-- Each payment shows amount, method, status, date
-- Rejected payments show reason in red box
-
----
-
-## 13. ENTRANCE TAB DETAIL
-
-### Past Papers
-- **Natural Science subjects:** Mathematics, English, Biology, Chemistry, Physics, Aptitude
-- **Social Science subjects:** Mathematics, English, Aptitude, Economics, Geography, History
-- Admin uploads one JSON file per subject per year
-- **Year is free text input by admin** — not hardcoded
-- Students see years sorted newest first
-- Download → practice as timed exam
-
-### Entrance Exam
-- Same 6 subjects per stream
-- Flow: Subject → Grade (9–12) → Chapter
-- Admin uploads one JSON file per chapter per grade per subject
-- Students see "Last Updated" date and question count
-- Download → practice as quiz
-
----
-
-## 14. CONTENT VIEWERS
-
-| Viewer | Key Features |
-|--------|-------------|
-| **Video Player** | Local file playback, speed control (0.5x–2.0x), rewind/forward 10s, volume, full screen, mark complete |
-| **PDF Viewer** | Pinch-to-zoom, page navigation, zoom level indicator, mark complete |
-| **Quiz** | A/B/C/D circular selection, two feedback modes, explanation reveal, auto-scoring |
-| **Exam** | Countdown timer, pause (hides questions), question grid navigator, auto-finish on time expiry, result with unanswered count |
-| **Flashcard** | Flip animation on tap, "GOT IT" (green) / "DIDN'T KNOW" (red) buttons, mastered count, completion dialog with restart |
-
----
-
-## 15. SETTINGS SCREENS
-
-| Screen | Description |
-|--------|-------------|
-| App Settings | Dark mode toggle, notifications toggle, language, auto-download, data saver, clear cache |
-| Edit Profile | Full name (editable), email (locked), phone (locked) |
-| Change Password | Current password, new password, confirm |
-| Downloads Manager | Storage usage bar, list of downloads with size/date, delete individual, clear all |
-| Help Center | Search, 5 FAQ categories, quick actions (email/Telegram), tutorial video link, contact info |
-| Tutorial Video | 3 language options (English, Amharic, Afaan Oromoo), local MP4 playback with controls |
-| About | ACADIA logo, version, developer info, copyright, social media links |
-| Privacy Policy | Full privacy policy text |
-| Terms of Service | Full terms text |
-
----
-
-## 16. UNIVERSITY GENERATIONS
-
-| Generation | Count | Universities |
-|-----------|-------|-------------|
-| 1st | 8 | AAU, JU, HU, Haramaya, AASTU, AMU, BDU, MU |
-| 2nd | 8 | Wollega, Wollo, Dilla, Debre Berhan, Wachamo, Jigjiga, Woldia, Debre Markos |
-| 3rd | 8 | Mizan-Tepi, Bule Hora, Wolaita Sodo, Ambo, Assosa, Samara, Dire Dawa, Gambella |
-| 4th | 8 | Raya, Debre Tabor, Wachemo, Jinka, Aksum, Werabe, Kebri Dehar, Borana |
-| Technology | 4 | AASTU, ASTU, JIT, Mekelle Technology University |
-
----
-
-## 17. ACADEMIC STRUCTURE
-
-### High School
-
-| Grade | Stream | Subjects |
-|-------|--------|----------|
-| 9 | — | Biology, Chemistry, Citizenship, Economics, English, Geography, History, IT, Mathematics, Physics (10) |
-| 10 | — | Biology, Chemistry, Citizenship, Economics, English, Geography, History, IT, Mathematics, Physics (10) |
-| 11 | Natural | Agriculture, Aptitude, Biology, Chemistry, English, IT, Mathematics, Physics (8) |
-| 11 | Social | Aptitude, Citizenship, Economics, English, Geography, History, IT, Mathematics (8) |
-| 12 | Natural | Agriculture, Aptitude, Biology, Chemistry, English, IT, Mathematics, Physics (8) |
-| 12 | Social | Aptitude, Citizenship, Economics, English, Geography, History, IT, Mathematics (8) |
-
-### University Freshman
-
-| Semester | Track | Subjects |
-|----------|-------|----------|
-| 1 | Natural Science | English, Geography, Logic, Mathematics, Physics, Psychology (6) |
-| 1 | Social Science | Economics, English, Geography, Logic, Mathematics, Psychology (6) |
-| 2 | Pre-Engineering | Anthropology, Applied Mathematics, C++ Programming, Emerging Technologies, English Skill 2, Entrepreneurship, History, Moral & Citizenship Education (8) |
-| 2 | Other Natural | Anthropology, Biology, Chemistry, Economics, Emerging Technologies, English Skill II, History, Moral & Citizenship Education (8) |
-
----
-
-## 18. SUBJECT ICONS & COLORS
-
-| Subject | Color | Hex |
-|---------|-------|-----|
-| Mathematics | Purple | #9C27B0 |
-| English | Blue | #2196F3 |
-| Physics | Orange | #FF9800 |
-| Chemistry | Green | #4CAF50 |
-| Biology | Pink | #E91E63 |
-| Aptitude | Slate Grey | #708090 |
-| Geography | Teal | #009688 |
-| History | Brown | #795548 |
-| Economics | Deep Orange | #FF5722 |
-| IT | Indigo | #3F51B5 |
-| Agriculture | Light Green | #8BC34A |
-| Citizenship | Cyan | #00BCD4 |
-| Logic | Dark Blue | #1A237E |
-| Psychology | Lavender | #CE93D8 |
-| Anthropology | Mustard | #FFD54F |
-| Applied Mathematics | Violet | #7E57C2 |
-| C++ Programming | Dark Grey | #424242 |
-| Emerging Technologies | Silver | #B0BEC5 |
-| Entrepreneurship | Gold | #FFD700 |
-| Moral & Citizenship | Olive | #808000 |
-
-Custom subject icon files (19 JPGs) are stored in `assets/icons/subjects_icon/`.
-
----
-
-## 19. TECHNICAL ARCHITECTURE
-
-| Layer | Technology |
-|-------|-----------|
-| Framework | Flutter (Dart) |
-| State Management | flutter_bloc + equatable |
-| Navigation | GoRouter (50+ routes) |
-| Authentication | Firebase Auth (email/password + email verification) |
-| Database | Cloud Firestore |
-| Local Storage | SQLite (sqflite) + SharedPreferences |
-| File Hosting | Internet Archive (all content files) |
-| Config Updates | GitHub Pages (content_config.json) |
-| Admin Alerts | Telegram Bot API |
-| Video Player | video_player (local file playback) |
-| Charts | fl_chart |
-| PDF Viewer | syncfusion_flutter_pdfviewer |
-| HTTP Client | http + dio |
-
----
-
-## 20. DEPENDENCIES
-
-```yaml
-flutter_bloc, equatable, get_it, go_router
-firebase_core, firebase_auth, cloud_firestore, firebase_storage
-video_player, chewie, syncfusion_flutter_pdfviewer, pdf
-sqflite, path_provider, shared_preferences, flutter_secure_storage
-dio, http, url_launcher, connectivity_plus
-image_picker, file_picker, csv, path, permission_handler
-fl_chart, cached_network_image, shimmer, flutter_svg
-flutter_local_notifications, timezone
-intl, share_plus, device_info_plus, package_info_plus
-flutter_markdown, open_filex
+# TECHNICAL ARCHITECTURE
+
+## System Overview Diagram
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                           USER DEVICE                               │
+│                                                                     │
+│  ┌─────────────────────────────────────────────────────────────────┐ │
+│  │                    FLUTTER APK (50 Screens)                     │ │
+│  │                                                                  │ │
+│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐      │ │
+│  │  │Onboarding│  │   Auth   │  │Dashboard │  │ Content  │      │ │
+│  │  │   (12)   │  │   (5)    │  │   (5)    │  │ Viewers  │      │ │
+│  │  └──────────┘  └──────────┘  └──────────┘  └──────────┘      │ │
+│  │                                                                  │ │
+│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐      │ │
+│  │  │ Entrance │  │ Payment  │  │Profile/  │  │  Admin   │      │ │
+│  │  │   (5)    │  │   (2)    │  │   Notif   │  │  (10)    │      │ │
+│  │  └──────────┘  └──────────┘  └──────────┘  └──────────┘      │ │
+│  │                                                                  │ │
+│  └─────────────────────────────────────────────────────────────────┘ │
+│                                    │                                  │
+│                                    ↓                                  │
+│  ┌─────────────────────────────────────────────────────────────────┐ │
+│  │                   LOCAL STORAGE (Isar DB)                       │ │
+│  │                                                                  │ │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐        │ │
+│  │  │   Progress   │  │  Downloads   │  │   Results    │        │ │
+│  │  └──────────────┘  └──────────────┘  └──────────────┘        │ │
+│  │                                                                  │ │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐        │ │
+│  │  │   Streaks    │  │    Cache     │  │  AI Memory   │        │ │
+│  │  └──────────────┘  └──────────────┘  └──────────────┘        │ │
+│  └─────────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ↓
+┌─────────────────────────────────────────────────────────────────────┐
+│                        EXTERNAL SERVICES                            │
+│                                                                     │
+│  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌────────────┐  │
+│  │  FIREBASE  │  │   GITHUB   │  │   IMGBB    │  │  YOUTUBE   │  │
+│  │            │  │            │  │            │  │            │  │
+│  │ • Auth     │  │ • Content  │  │ • Profile  │  │ • Videos   │  │
+│  │ • Firestore│  │ • Metadata │  │   Photos   │  │   (Links)  │  │
+│  │ • Settings │  │ • Releases │  │            │  │            │  │
+│  └────────────┘  └────────────┘  └────────────┘  └────────────┘  │
+│                                                                     │
+│  ┌────────────┐  ┌────────────┐  ┌────────────┐                  │
+│  │  TELEGRAM  │  │  FIREBASE  │  │   GITHUB   │                  │
+│  │            │  │   FCM      │  │   RELEASES │                  │
+│  │ • Admin    │  │ • Push     │  │ • Large    │                  │
+│  │   Bot      │  │   Notif    │  │   Files    │                  │
+│  └────────────┘  └────────────┘  └────────────┘                  │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+## Technology Stack
+
+### Frontend (Flutter)
+```
+Framework: Flutter 3.x
+Language: Dart 3.x
+State Management: Riverpod / Provider
+Navigation: GoRouter
+Local Database: Isar (SQLite alternative)
+Networking: Dio / http
+Video Player: video_player / chewie
+PDF Viewer: syncfusion_flutter_pdfviewer
+Image Picker: image_picker
+File Management: path_provider / file_picker
+```
+
+### Backend (Firebase)
+```
+Authentication: Firebase Auth
+Database: Firestore
+Notifications: Firebase Cloud Messaging (FCM)
+Analytics: Firebase Analytics
+Crash Reporting: Firebase Crashlytics
+```
+
+### Content Storage (GitHub)
+```
+Repository: ACADIA-CONTENT
+Content: Educational material
+Metadata: JSON files
+Releases: Large files (videos, PDFs)
+```
+
+### Images (ImgBB)
+```
+API Key: dd99798a85c18c52282c4d2dfd128146
+Purpose: Profile pictures only
+Storage: All other images in assets
 ```
 
 ---
 
-## 21. COMPLETE SCREEN INVENTORY (53 SCREENS)
+# COMPLETE SCREEN DESCRIPTIONS
 
-### Onboarding (13)
-Splash, Welcome, Academic Path, Grade Selection, Stream Selection, Generation Selection, University Selection, Year Selection, Senior Year, Semester Selection, University Stream Selection, University Track Selection, How-To Popup
+## PART 1: ONBOARDING FLOW (12 Screens)
 
-### Authentication (5)
-Login, Register, Forgot Password, Email Verification, Profile Setup Complete
+### 1. SPLASH SCREEN
 
-### Dashboard (6 tabs)
-Home, Subjects, Progress, Entrance (Grade 11–12 only), Notifications, Profile
+**Purpose:** Loading screen and app initialization.
 
-### Content (9)
-Subject Portal, Chapter Content, Video Player, PDF Viewer, Quiz, Quiz Result, Exam, Exam Result, Flashcard
+**What Users See:**
+- Full-screen background image (`splash.jpg`) with dark overlay
+- ACADIA logo (fire icon inside Ethiopian map outline) in center
+- "ACADIA" text (32px bold white)
+- "Empowering Ethiopian Students" tagline (16px light white)
+- Navy blue gradient loading bar (bottom)
+- Dot indicators for multiple splash images
 
-### Entrance (5)
-Entrance Past Papers, Entrance Exam, Entrance Subject, Study Schedule, Exam Tips
+**What Happens:**
+1. Firebase initialization
+2. Check saved login credentials
+3. Load splash images from assets
+4. Cycle images every second (crossfade)
+5. After 3 seconds, check:
+   - Logged in + completed onboarding → Dashboard
+   - Completed onboarding + not logged in → Login
+   - Otherwise → Welcome Screen
 
-### Payment (2)
-Payment, Payment History
-
-### Settings (9)
-App Settings, Edit Profile, Change Password, Downloads, Help Center, Tutorial Video, About, Privacy Policy, Terms of Service
-
-### Admin (11)
-Admin Dashboard, Content Upload, Content Management, User Management, Payment Approval, Notification Creation, Analytics Dashboard, App Settings, Entrance Management, About Management, Image Management
-
----
-
-## 22. USER JOURNEY
-
-1. Splash → Welcome
-2. Academic Path → Grade → Stream (or full University flow)
-3. Register → Email Verification → Login
-4. How‑To Popup (first time only)
-5. Dashboard with 5 tabs (Grade 9–10) or 6 tabs (Grade 11–12)
-6. Browse Subjects → Chapters locked until purchase
-7. Purchase Package → Payment → Admin Approval → All chapters unlocked
-8. Download content → Offline study
-9. Practice quizzes/exams with immediate feedback or review at end
-10. Track progress locally in Progress Tab
-11. Grade 11–12: Entrance Tab for exam preparation
-12. Admin manages via Admin Panel
+**Technical Details:**
+- Assets stored offline (no internet needed)
+- ImgBB API used only for profile pictures
+- Text color adapts to background
 
 ---
 
-**END OF DOCUMENTATION — ACADIA V1.0.0**
+### 2. WELCOME SCREEN
+
+**Purpose:** Landing page with app introduction.
+
+**What Users See:**
+- Auto-sliding carousel (3 images) with dot indicators
+- Title: "Empowering Ethiopian Students Through Digital Education"
+- Amharic subtitle: "የኢትዮጵያ ተማሪዎችን በዲጂታል ትምህርት ማብቃት"
+- Navy blue "GET STARTED" button
+- "Already a member? LOG IN" link
+- Help icon (top-right) - tutorial popup
+- Globe icon (top-left) - language switcher
+
+**Tutorial Popup:**
+- 4 swipeable slides with screenshots:
+  - Slide 1: Browse Subjects (`screenshot1.jpg`)
+  - Slide 2: Purchase Grade (`screenshot2.jpg`)
+  - Slide 3: Submit Payment (`screenshot3.jpg`)
+  - Slide 4: Start Learning (`screenshot4.jpg`)
+- "Don't show again" checkbox (checked by default)
+- Navy blue "GOT IT" button
+- "Watch Video" option (3 languages)
+
+**Iconography:**
+- Help: `Icons.help_outline`
+- Language: `Icons.language`
+- Video: `Icons.play_circle`
+
+---
+
+### 3. ACADEMIC PATH SELECTION
+
+**Purpose:** Choose educational path (permanent choice).
+
+**What Users See:**
+- Back arrow (top-left)
+- Title: "Choose Your Academic Path"
+- Yellow warning pill: "This choice is PERMANENT"
+- Two cards:
+  - **HIGH SCHOOL** (Grades 9-12, Natural & Social streams)
+  - **UNIVERSITY** (Freshman-Senior, all generations)
+- Selected card: Navy blue border, shadow, checkmark
+- Navy blue "CONTINUE" button (disabled until selection)
+
+**Permanent Storage:**
+- Path stored in Firebase upon registration
+- Cannot be changed later
+
+---
+
+### 4. GRADE SELECTION (High School Path)
+
+**Purpose:** Select grade level.
+
+**What Users See:**
+- Back arrow
+- Title: "Select Your Grade"
+- 2×2 grid of grade cards:
+  - Grade 9 (Navy Blue)
+  - Grade 10 (Dark Navy)
+  - Grade 11 (Navy)
+  - Grade 12 (Deep Navy)
+- Info box (explains stream selection for 11-12)
+- Navy blue "CONTINUE" button (disabled until selection)
+
+**Flow:**
+- Grades 11-12 → Stream Selection
+- Grades 9-10 → Registration
+
+---
+
+### 5. STREAM SELECTION (Grades 11-12 Only)
+
+**Purpose:** Choose academic stream (permanent choice).
+
+**What Users See:**
+- Back arrow
+- Title: "Select Your Stream"
+- Navy blue pill shows grade
+- Two cards:
+  - **NATURAL SCIENCE** (Mathematics, Physics, Chemistry, Biology, IT, English, Agriculture, Aptitude)
+  - **SOCIAL SCIENCE** (Economics, Geography, History, Citizenship, IT, English, Mathematics, Aptitude)
+- Yellow warning box: "This choice is permanent"
+- Navy blue "CONTINUE" button (enabled after selection)
+
+**Flow:**
+- Selection → Registration
+
+---
+
+### 6. GENERATION SELECTION (University Path)
+
+**Purpose:** Select university generation.
+
+**What Users See:**
+- Back arrow
+- Title: "Select University Generation"
+- Five scrollable cards:
+  - 1st Generation (8 universities)
+  - 2nd Generation (8 universities)
+  - 3rd Generation (8 universities)
+  - 4th Generation (8 universities)
+  - Technology Institutes (4 institutes)
+- Navy blue "CONTINUE" button
+
+**Flow:**
+- Selection → University Selection
+
+---
+
+### 7. UNIVERSITY SELECTION
+
+**Purpose:** Select specific university.
+
+**What Users See:**
+- Back arrow
+- Title: Selected generation name
+- Search bar (magnifying glass icon)
+- Generation name + institution count
+- University cards:
+  - Radio button (left)
+  - Full name (bold)
+  - Abbreviation (below)
+  - "4-year program" or "Technology Institute"
+- Navy blue "CONTINUE" button
+
+**Flow:**
+- Selection → Year Selection
+
+---
+
+### 8. YEAR SELECTION (University Path)
+
+**Purpose:** Select academic year.
+
+**What Users See:**
+- Two cards:
+  - **FRESHMAN** (Year 1, two semesters)
+  - **SENIOR** (Years 2-4, content being prepared)
+- Info box (explains choice)
+- Navy blue "CONTINUE" button
+
+**Flow:**
+- Freshman → Semester Selection
+- Senior → Senior Year Screen
+
+---
+
+### 9. SENIOR YEAR SCREEN
+
+**Purpose:** Informational screen (content being prepared).
+
+**What Users See:**
+- Navy blue circle with school icon
+- Title: "Content Being Prepared"
+- Body text: "Content for Senior years is being prepared by NextGen Ethiopia team"
+- Notification box: "You will be notified when Senior content becomes available"
+- Navy blue "GO BACK TO WELCOME SCREEN" button
+
+---
+
+### 10. SEMESTER SELECTION (University Path)
+
+**Purpose:** Select semester.
+
+**What Users See:**
+- Title: "Select Semester"
+- Subtitle: "Freshman Year"
+- Two cards:
+  - **FIRST SEMESTER** (6 subjects each)
+  - **SECOND SEMESTER** (8 subjects)
+- Navy blue "CONTINUE" button
+
+**Flow:**
+- Semester 1 → University Stream Selection
+- Semester 2 → University Track Selection
+
+---
+
+### 11. UNIVERSITY STREAM SELECTION (Semester 1)
+
+**Purpose:** Select Natural or Social Science stream.
+
+**What Users See:**
+- Two cards:
+  - **NATURAL SCIENCE** (English, Geography, Logic, Mathematics, Physics, Psychology)
+  - **SOCIAL SCIENCE** (Economics, English, Geography, Logic, Mathematics, Psychology)
+- Navy blue "CONTINUE" button
+
+**Flow:**
+- Selection → Registration
+
+---
+
+### 12. UNIVERSITY TRACK SELECTION (Semester 2)
+
+**Purpose:** Select Pre-Engineering or Other Natural Science.
+
+**What Users See:**
+- Two cards:
+  - **PRE-ENGINEERING COURSES** (8 subjects)
+  - **OTHER NATURAL SCIENCE** (8 subjects)
+- Navy blue "CONTINUE" button
+
+**Flow:**
+- Selection → Registration
+
+---
+
+## PART 2: AUTHENTICATION (5 Screens)
+
+### 13. REGISTER SCREEN
+
+**Purpose:** Create user account.
+
+**What Users See:**
+- Back arrow
+- Title: "Create Account"
+- Google Sign-In button
+- Six form fields:
+  1. Full Name (text input)
+  2. Phone Number (+251 prefix, removes leading 0)
+  3. Email (format validation)
+  4. Password (min 6 chars, visibility toggle)
+  5. Confirm Password (visibility toggle)
+  6. High School Name (only for High School path)
+- Validation errors (red text)
+- Navy blue "REGISTER" button (loading spinner during submission)
+- "Already have an account? LOG IN" link
+
+**Iconography:**
+- Person: `Icons.person_outline`
+- Phone: `Icons.phone_outlined`
+- Email: `Icons.email_outlined`
+- Lock: `Icons.lock_outlined`
+- Visibility: `Icons.visibility` / `Icons.visibility_off`
+
+**What Happens:**
+1. Validate all fields
+2. Firebase Auth registration (Email + Password)
+3. Academic path saved to Firestore
+4. Email verification sent
+5. Navigate to Email Verification
+
+**One Device, One Account:**
+- On registration, device ID stored with account
+- Login on new device requires logout from old device
+- Session management via Firebase
+
+---
+
+### 14. LOGIN SCREEN
+
+**Purpose:** User login.
+
+**What Users See:**
+- Back arrow
+- Title: "Welcome Back"
+- Email input field (with validation)
+- Password input field (visibility toggle)
+- "Forgot Password?" link
+- Navy blue "LOGIN" button (loading spinner)
+- Error snackbar (invalid credentials)
+- "Don't have an account? REGISTER" link
+- Support agent icon (support info box)
+
+**Iconography:**
+- Support: `Icons.support_agent`
+
+**What Happens:**
+1. Validate credentials
+2. Check device association
+3. If already logged in on another device, prompt logout
+4. Navigate to Dashboard Home Tab
+
+---
+
+### 15. FORGOT PASSWORD SCREEN
+
+**Purpose:** Reset password.
+
+**What Users See:**
+- Back arrow
+- Title: "Reset Password"
+- Instructional text
+- Email input field
+- "SEND RESET LINK" button
+- Success confirmation message
+- "Remember password? BACK TO LOGIN" link
+
+---
+
+### 16. EMAIL VERIFICATION SCREEN
+
+**Purpose:** Verify email address.
+
+**What Users See:**
+- Back arrow
+- Large email icon (64px)
+- Title: "Verify Your Email"
+- User's email displayed
+- Three screenshots showing how to verify:
+  - `email1.jpg`
+  - `email2.jpg`
+  - `email3.jpg`
+- "I HAVE VERIFIED" button (polls Firebase every 5s)
+- "RESEND EMAIL" button (60-second cooldown)
+- "LOGOUT" button
+
+**What Happens:**
+1. User checks email
+2. Clicks verification link
+3. Returns to app
+4. Taps "I HAVE VERIFIED"
+5. Firebase verified → Profile Setup Completion
+
+---
+
+### 17. PROFILE SETUP COMPLETION
+
+**Purpose:** Confirmation screen.
+
+**What Users See:**
+- Large navy blue checkmark (80px)
+- Title: "Account Created Successfully"
+- Info card showing academic path
+- Note: "(This choice is permanent)"
+- Text: "Your grade package is now locked. Purchase to unlock all subjects."
+- "GO TO DASHBOARD" button
+- Auto-navigation after 10 seconds
+
+---
+
+## PART 3: MAIN DASHBOARD (5 Screens)
+
+### 18. DASHBOARD SCREEN — BOTTOM NAVIGATION
+
+**Purpose:** Main navigation container.
+
+**Tabs:**
+- Grades 9-10: Home, Subjects, Progress, Notifications, Profile
+- Grades 11-12: Home, Subjects, Progress, Entrance, Notifications, Profile
+
+**Navigation Icons:**
+- Home: `Icons.home_outlined` / `Icons.home`
+- Subjects: `Icons.menu_book_outlined` / `Icons.menu_book`
+- Progress: `Icons.trending_up_outlined` / `Icons.trending_up`
+- Entrance: `Icons.school_outlined` / `Icons.school`
+- Notifications: `Icons.notifications_outlined` / `Icons.notifications`
+- Profile: `Icons.person_outline` / `Icons.person`
+
+**Technical:**
+- IndexedStack (preserves tab state)
+- Selected icon: Navy blue (#093C5D)
+
+---
+
+### 19. HOME TAB
+
+**Purpose:** Dashboard overview.
+
+**What Users See:**
+- Time-appropriate greeting (e.g., "Good Morning, Abebe!")
+- Full date (e.g., "Monday, May 15, 2026")
+- Streak counter (fire icon, orange pill, works offline)
+- Quick Actions (4 buttons):
+  1. Continue (play icon) - resume last content
+  2. Study Time (timer icon) - focus timer
+  3. Entrance (assignment icon) - entrance tab
+  4. Downloads (download icon) - downloaded content
+- Your Subjects section:
+  - "Your Subjects" header
+  - "See All" link
+  - 2×3 grid of subject cards
+  - Navy blue color for all cards
+  - Subject icons (19 JPGs)
+- Daily Quote section:
+  - Gradient background
+  - Quote icon
+  - One of 20 hardcoded educational quotes (changes daily)
+
+**Subject Icons:**
+```
+Agriculture_icon.jpg
+Anthropology_icon.jpg
+Applied_math_icon.jpg
+Aptitude _icon.jpg
+Biology_icon.jpg
+C++_icon.jpg
+Chemistry_icon.jpg
+Citizenship_icon.jpg
+Economics_icon.jpg
+Emerging_icon.jpg
+English_icon.jpg
+Geography_icon.jpg
+History_icon.jpg
+It_icon.jpg
+Logic_icon.jpg
+Math_icon.jpg
+Physics_icon.jpg
+Psychology_icon.jpg
+```
+
+---
+
+### 20. SUBJECTS TAB
+
+**Purpose:** View all subjects and package status.
+
+**When Locked:**
+- Orange banner: "Grade X Stream Package - Locked"
+- "UNLOCK - XXX ETB" button
+- 2-column grid of subject cards
+- Lock icon overlay on each card
+- Subject name in navy blue
+- Number of chapters shown
+
+**When Unlocked:**
+- Navy blue banner: "Package Unlocked"
+- Validity info (e.g., "Valid until Jan 15, 2027")
+- Progress bars instead of lock icons
+- Tapping subject navigates to Subject Portal
+
+**Important:**
+- All units/chapters visible but locked
+- One payment unlocks entire package
+- Valid for 1 year from approval
+
+---
+
+### 21. SUBJECT PORTAL
+
+**Purpose:** View chapters for a subject.
+
+**What Users See:**
+- App bar: Subject name (back arrow)
+- Header card:
+  - Subject icon
+  - Subject name
+  - Grade and stream path
+  - Purchase validity (if purchased)
+- CHAPTERS section:
+  - Unit number and title (e.g., "Unit 1: Introduction to Biology")
+  - Content item count
+  - Colored progress bar
+- Tapping chapter → Chapter Content Screen
+
+---
+
+### 22. CHAPTER CONTENT SCREEN
+
+**Purpose:** View content types for a chapter.
+
+**What Users See:**
+- Gradient header card:
+  - Subject name
+  - Chapter title
+- 6 content type sections (vertical list):
+
+**1. Video** (red play icon)
+- Content from YouTube (embedded, no branding)
+- Or GitHub releases
+
+**2. Short Note** (blue description icon)
+- PDF files from GitHub
+
+**3. Quiz** (orange quiz icon)
+- Interactive MCQ JSON from GitHub
+
+**4. Exam** (purple assignment icon)
+- Timed exam JSON from GitHub
+
+**5. Flashcard** (teal style icon)
+- Flashcards JSON from GitHub
+
+**6. Past Paper** (brown folder icon)
+- Interactive MCQ from GitHub
+
+**Content States:**
+- **Uploaded:** Title, metadata, DOWNLOAD button, progress indicator, OFFLINE badge
+- **Not Uploaded:** Hourglass icon, "Content will be uploaded soon by NextGen team"
+
+**Content Type Icons:**
+```
+Video: Icons.play_circle
+Short Note: Icons.description
+Quiz: Icons.quiz
+Exam: Icons.assignment
+Flashcard: Icons.style
+Past Paper: Icons.folder_open
+```
+
+---
+
+## PART 4: CONTENT VIEWERS (7 Screens)
+
+### 23. VIDEO PLAYER
+
+**Purpose:** Watch educational videos.
+
+**What Users See:**
+- Full black immersive screen
+- Video title (top bar)
+- "Done" completion badge (if watched)
+- Native video player (full-width)
+- Media controls (bottom):
+  - Draggable progress bar
+  - Current position / total duration
+  - Rewind 10s button
+  - Play/Pause button (navy blue circle)
+  - Forward 10s button
+  - Volume toggle
+  - Speed selector (0.5x, 0.75x, 1.0x, 1.25x, 1.5x, 2.0x)
+- Large play icon overlay (when paused)
+- "Mark as Completed" button (bottom)
+- Auto-marks completed when video finishes
+
+---
+
+### 24. PDF VIEWER
+
+**Purpose:** Read PDF documents.
+
+**What Users See:**
+- App bar: Document title (back arrow)
+- Document info bar:
+  - "Page X of Y" (left)
+  - File size (right)
+  - "Completed" badge (if done)
+- Full-screen PDF display
+- Pinch-to-zoom enabled
+- Zoom level percentage (app bar)
+- Zoom in/out buttons
+- Navigation bar (bottom):
+  - Left arrow
+  - Right arrow
+  - Current page / total pages
+- "Mark as Completed" button (navy blue checkmark)
+
+---
+
+### 25. QUIZ SCREEN
+
+**Purpose:** Take interactive quizzes.
+
+**What Users See:**
+- App bar: "Quiz: [Title]" (close button)
+- Top status bar:
+  - "Question X of Y"
+  - Horizontal progress bar
+- Question area:
+  - White card
+  - "Question X" pill (top)
+  - Question text (bold 18px)
+- Four options (A, B, C, D):
+  - Rounded rectangular containers
+  - Circular letter indicator (left)
+  - Option text
+  - Selected: colored border, filled letter, checkmark
+
+**Modes:**
+1. **Immediate Feedback:**
+   - Correct: Green + green checkmark
+   - Wrong: Red + correct answer highlights green
+   - "Show Explanation" button appears
+   - Explanation text in light grey box
+
+2. **Review at End:**
+   - No feedback during quiz
+   - Final review: correct (green) / wrong (red) with explanations
+
+**Navigation:**
+- "PREV" button
+- "NEXT" button (changes to "FINISH" on last question)
+- Auto-calculated results (no separate submit)
+
+---
+
+### 26. QUIZ RESULT SCREEN
+
+**Purpose:** Display quiz results.
+
+**What Users See:**
+- Circular score indicator (200px):
+  - Score fraction (e.g., "7/10") - 48px bold
+  - Percentage (e.g., "70%") - 22px
+  - Border: Green (≥60%) / Red (<60%)
+- Pass/Fail message (bold)
+- Three stat cards (horizontal):
+  - Correct (green check) + percentage
+  - Wrong (red cancel) + percentage
+  - Time taken (navy blue timer) + mm:ss
+- Details card:
+  - Quiz name, subject, chapter
+  - Total questions, passing score
+  - User's score (highlighted)
+- "View Answers & Explanations" button (outlined)
+- "Retry Quiz" button (orange, only if failed)
+- "Back to Dashboard" button (navy blue gradient)
+- Achievement banner (if passed): "Achievement Unlocked! Quiz Master"
+
+---
+
+### 27. EXAM SCREEN
+
+**Purpose:** Take timed exams.
+
+**What Users See:**
+- Same as Quiz Screen PLUS:
+- Countdown timer bar (top):
+  - Large bold digits
+  - Timer icon
+  - Bar color: Grey (normal), Orange (<5 min), Red (<1 min)
+- "Pause" button (next to timer)
+- When paused:
+  - Orange banner: "Exam is paused. Questions are hidden. Tap Resume to continue."
+- Question Navigator Grid:
+  - Numbered squares for every question
+  - Green border (answered)
+  - Primary color fill (current)
+  - Grey (unanswered)
+  - Tapping jumps to question
+
+**Navigation:**
+- "PREV" button
+- "SUBMIT EXAM" button
+- "NEXT" button
+- Confirmation dialog for unanswered questions
+- Auto-submit when timer reaches zero
+
+---
+
+### 28. EXAM RESULT SCREEN
+
+**Purpose:** Display exam results.
+
+**What Users See:**
+- Same as Quiz Result Screen PLUS:
+- Unanswered count stat card (orange) - if applicable
+- Full answers with descriptions
+
+---
+
+### 29. FLASHCARD SCREEN
+
+**Purpose:** Review flashcards.
+
+**What Users See:**
+- App bar: "Flashcards: [Title]"
+- Mastered count (e.g., "5/20") - right side
+- Progress bar: "Card X of Y"
+- Flashcard (center):
+  - Rounded corners
+  - White background
+  - Subtle shadow
+  - **Front:** Question mark icon (top), question text (22px bold), "QUESTION" label, "TAP TO FLIP" (bottom)
+  - **Back:** Lightbulb icon (top), answer text (18px), "ANSWER" label
+  - Smooth 3D flip animation
+
+- Action buttons (below card):
+  - "DIDN'T KNOW" (red outlined)
+  - "GOT IT!" (navy blue filled)
+
+**Completion Dialog:**
+- Total reviewed
+- Mastered count
+- Cards needing more practice
+- Restart or Finish options
+
+---
+
+## PART 5: ENTRANCE TAB (Grade 11-12 Only) (5 Screens)
+
+### 30. ENTRANCE TAB — MAIN VIEW
+
+**Purpose:** University Entrance Exam preparation hub.
+
+**What Users See:**
+- Gradient header:
+  - School icon
+  - "University Entrance Exam"
+  - User's grade and stream
+- Four section cards:
+  1. **Past Papers** (Navy blue, description icon)
+  2. **Entrance Exam** (Navy blue, quiz icon)
+  3. **Study Schedule** (Navy blue, calendar icon)
+  4. **Exam Tips** (Navy blue, lightbulb icon)
+
+---
+
+### 31. ENTRANCE PAST PAPERS SCREEN
+
+**Purpose:** View past exam papers.
+
+**What Users See:**
+- Navy blue gradient header: "Past Papers"
+- Subjects listed by stream:
+  - Natural: Mathematics, English, Biology, Chemistry, Physics, Aptitude
+  - Social: Mathematics, English, Aptitude, Economics, Geography, History
+- Subject header row (icon, name, paper count)
+- Past paper cards by year (newest first):
+  - Paper title
+  - "Year: 2024"
+  - Question count
+  - Time limit
+  - Download button (with progress)
+  - OFFLINE badge + play button (when downloaded)
+
+**Important:**
+- Past papers are interactive MCQs (NOT PDFs)
+- Answers and explanations at end or during clicking
+- Includes models, mock exams, unofficial EUEE
+
+---
+
+### 32. ENTRANCE EXAM SCREEN
+
+**Purpose:** Practice questions by grade and chapter.
+
+**Three-Step Flow:**
+1. **Select Subject:** 2×3 grid of subject cards
+2. **Select Grade:** 2×2 grid (9, 10, 11, 12)
+3. **Select Chapter:** Chapter cards with question count and last updated
+
+---
+
+### 33. STUDY SCHEDULE SCREEN
+
+**Purpose:** Personalized study plan.
+
+**What Users See:**
+- Navy blue gradient header
+- Three session cards:
+  - Morning (9 AM-12 PM) - Focus on difficult subjects
+  - Afternoon (2 PM-5 PM) - Practice with past papers
+  - Evening (7 PM-9 PM) - Light review and flashcards
+- Weekly focus section:
+  - Each day with colored dot
+  - Assigned subject (based on progress)
+- Study tips with checkmark icons
+
+---
+
+### 34. EXAM TIPS SCREEN
+
+**Purpose:** Exam preparation strategies.
+
+**What Users See:**
+- Navy blue gradient header
+- Lightbulb icon
+- Numbered tip cards (hardcoded):
+  - Unique colored circle number
+  - Detailed tip text
+- Motivation card: "You've got this!" + star icon
+
+---
+
+## PART 6: PAYMENT (2 Screens)
+
+### 35. PAYMENT SCREEN
+
+**Purpose:** Purchase package.
+
+**What Users See:**
+- App bar: "Payment Details" (back arrow)
+- Order Summary card:
+  - Package name (auto-detected)
+  - "1 Year from approval" validity
+  - Total amount (e.g., "300 ETB")
+- Select Payment Method (5 options):
+  1. Telebirr (`telebirr_icon.png`)
+  2. M-PESA (`m-pesa_icon.png`)
+  3. CBE Birr (`cbe_birr_icon.png`)
+  4. CBO Bank (`cbo_bank_icon.png`)
+  5. Awash Bank (`awash_bank_icon.png`)
+- Each card: method name (bold), account number, account holder
+- Selected: Navy blue border + radio fill
+- Pay to: recipient's phone/account
+- Transaction Details:
+  - "Your Account Number" (user's phone/account)
+  - "Transaction Reference" (optional)
+- Upload Payment Receipt:
+  - Dashed-border square
+  - "TAP TO SELECT SCREENSHOT"
+  - Cloud upload icon
+  - Thumbnail preview + remove button (X)
+- Navy blue "CONFIRM PAYMENT" button
+- Success dialog: Navy blue checkmark, "Payment Submitted"
+
+**What Happens:**
+1. Submit payment record to Firestore (status: pending)
+2. Send receipt image to Telegram bot
+3. Admin notification received
+
+---
+
+### 36. PAYMENT HISTORY SCREEN
+
+**Purpose:** View payment history.
+
+**What Users See:**
+- App bar: "Payment History" (back arrow, refresh)
+- Filter chips: All, Pending, Approved, Rejected (with counts)
+- Search bar (by package or date)
+- Payment cards:
+  - Status icon: Green checkmark / Orange clock / Red cross
+  - Package name
+  - Date
+  - Amount (primary color)
+  - Payment method
+  - Status badge
+- Rejected payments: Rejection reason (red info box)
+- Tapping payment: Detail dialog with full transaction info
+
+---
+
+## PART 7: NOTIFICATIONS & PROFILE (2 Screens)
+
+### 37. NOTIFICATIONS TAB
+
+**Purpose:** View all notifications.
+
+**What Users See:**
+- Header: "Notifications"
+- "Mark All Read" link (with unread count)
+- Filter chips (horizontal scroll):
+  - All
+  - Unread (red count badge)
+  - Payment
+  - Content
+  - Quiz
+  - Exam
+  - Achievement
+- Notification cards:
+  - Colored type indicator dot (left)
+  - Unread red dot indicator
+  - Title (bold)
+  - Message body (grey)
+  - Relative timestamp (e.g., "5 minutes ago")
+- Unread notifications: Elevated card + colored left border
+
+**Notification Types:**
+- Payment (navy blue)
+- Content (blue)
+- Quiz (orange)
+- Exam (purple)
+- Achievement (gold)
+- System (brown)
+
+---
+
+### 38. PROFILE TAB
+
+**Purpose:** User profile and settings.
+
+**What Users See:**
+- Premium geometric background
+- Gradient header (primary color)
+- White rounded card (overlay):
+  - Circular profile photo (or initial letter)
+  - Camera icon (bottom-right) - upload via ImgBB
+  - Full name (26px bold)
+  - Email (grey)
+  - Academic path (navy blue pill)
+  - "PRO" pill (amber, if applicable)
+- Three stat cards:
+  - Study Hours (navy blue)
+  - Lessons (navy blue)
+  - Average Score (navy blue)
+
+**Menu Sections:**
+
+**ADMIN PANEL** (admin only):
+- Admin Dashboard
+- Content Management
+- User Management
+- Payment Approval
+- Create Notification
+- Analytics
+- Entrance Management
+
+**ACCOUNT:**
+- Edit Profile
+- Payment History
+- Downloads
+
+**SETTINGS:**
+- App Settings
+- Change Password
+
+**SUPPORT:**
+- Help Center
+- About ACADIA
+
+**Social Media Icons (6 icons):**
+```
+telegram_icon.png
+facebook_icon.png
+instagram_icon.jpg
+twitter_png.png
+youtube_icon.png
+tiktok_icon.png
+```
+
+---
+
+## PART 8: ADMIN PANEL (10 Screens)
+
+### 39. ADMIN DASHBOARD
+
+**Purpose:** Overview of platform metrics.
+
+**What Users See:**
+- Welcome header: "Welcome, Admin" + last login
+- Five stat cards (horizontal scroll):
+  - Total Users (people icon)
+  - Total Content (description icon)
+  - Total Revenue (money icon)
+  - Universities (account balance icon)
+  - High Schools (school icon)
+- Users by Academic Path (horizontal bar chart)
+- Quick Actions (3×3 grid):
+  - Content Management
+  - User Management
+  - Payments (red pending count badge)
+  - Notifications
+  - Analytics
+  - Entrance
+  - App Settings
+  - About
+- Recent Activity feed (latest registrations + payments)
+
+---
+
+### 40. CONTENT MANAGEMENT
+
+**Purpose:** View and manage content.
+
+**What Users See:**
+- Stats row: Total, Videos, PDFs, JSONs
+- Filter chips: All, Video, PDF, Quiz, Exam, Flashcard, Past Paper
+- Subject and Status dropdown filters
+- Search bar
+- Select All checkbox + bulk actions
+- Content cards:
+  - Checkbox
+  - Content type icon (colored)
+  - Title
+  - Subject/Chapter info
+  - Status badge (green Approved / orange Pending)
+  - "FREE" badge (if applicable)
+  - Upload date
+  - Download count
+- Three-dot menu: Edit, Approve, Delete
+- Edit Structure: Add/edit subjects and chapters
+
+**Important:** Content is uploaded through GitHub, not through admin panel.
+
+---
+
+### 41. USER MANAGEMENT
+
+**Purpose:** Manage users.
+
+**What Users See:**
+- Stats row: Total, Active, Pro, Free, Banned
+- Filters: Academic Path, Status, Subscription
+- Search bar (name, email, phone)
+- "Export PDF" button (bulk or single)
+- User cards:
+  - Circular avatar (initial letter)
+  - Full name
+  - Email
+  - Phone
+  - Academic path
+  - PRO/FREE badge
+  - BANNED badge (if applicable)
+
+**User Detail Bottom Sheet:**
+- Personal Information: Name, email, phone, join date, last active, profile picture
+- Academic Path: Complete path, permanent status
+- Subscription: PRO/FREE, package, amount, method, valid from/to, days remaining
+- Study Statistics: Hours, lessons, quizzes, average score, streaks, downloads
+- Payment History: All records
+- Recent Activity: Timestamped list
+- Notifications Sent: Edit and delete options
+
+**Action Buttons:**
+- Make Pro / Revoke Pro (package selection dialog)
+- Ban / Unban (optional reason)
+- Send Notification (type, title, message)
+- Delete User (permanent deletion warning)
+- Manage Admins (view, add, remove)
+
+**Revenue Info:**
+- App revenue from approved payments
+- Most approved paths (bar graphs, pie charts)
+
+---
+
+### 42. PAYMENT APPROVAL
+
+**Purpose:** Approve or reject payments.
+
+**What Users See:**
+- Stats bar: Pending, Approved, Rejected, Total
+- Search bar (name, email, phone)
+- Status and Package dropdown filters
+- Payment cards:
+  - User name, email, phone
+  - Package name, amount (primary color)
+  - Payment method, date
+  - Status badge
+
+**Payment Detail Panel:**
+- User Information: Name, email, phone, join date, status, profile photo (ImgBB)
+- Academic Path: Complete path, permanent status
+- Package Being Purchased: Name, subjects, amount, validity
+- Payment Information: Method, recipient, sender account, transaction ref, submission date
+- Receipt Image: Full-screen viewable
+- User Payment History: Previous attempts
+
+**Action Buttons:**
+- **APPROVE** (green): Confirms payment, unlocks package for 1 year, sends notification
+- **REJECT** (red): Mandatory reason, quick-select options (receipt unclear, wrong amount, missing reference, account mismatch, duplicate, suspicious)
+
+---
+
+### 43. NOTIFICATION CREATION
+
+**Purpose:** Create and send notifications.
+
+**What Users See:**
+- Six notification type cards (2×3 grid):
+  - Payment (green)
+  - Content (blue)
+  - Quiz (orange)
+  - Exam (purple)
+  - Achievement (gold)
+  - System (brown)
+- Selected card: Colored border
+- Target Audience (radio options):
+  1. All Users
+  2. Specific Academic Path (multi-select chips, Select All/Clear All)
+  3. Specific Users (search by name/email/phone, checkbox selection)
+- Title text field
+- Message text field
+- Navy blue "BROADCAST NOTIFICATION" button (confirmation dialog)
+
+---
+
+### 44. ANALYTICS DASHBOARD
+
+**Purpose:** View platform analytics.
+
+**What Users See:**
+- Date range chips: Today, This Week, This Month, This Year
+- Five stat cards (2 rows)
+- Revenue Trend (navy blue bar chart, last 6 months)
+- Users by Academic Path (horizontal progress bars)
+- Revenue by Package (horizontal progress bars)
+- Payment Method Distribution (horizontal progress bars, navy blue)
+- User Growth (percentage indicator, green positive / red negative)
+- Most Viewed Content (ranked list, type icons, download counts)
+- Content by Type (colored progress bars)
+- Export CSV and Export PDF buttons
+
+---
+
+### 45. ENTRANCE MANAGEMENT
+
+**Purpose:** View entrance content.
+
+**What Users See:**
+- Search bar
+- Filter chips: Type, Stream, Subject, Year, Grade
+- Content cards: Title, type, subject, stream, year/grade info
+
+**Important:** Admin can view content uploaded through GitHub but cannot add/edit from here.
+
+---
+
+### 46. APP SETTINGS
+
+**Purpose:** Configure app settings.
+
+**Functional Settings:**
+- Package Prices: Text fields per grade
+- About & Contact: Website URL field
+
+**Non-Functional (Hardcoded):**
+- Daily Quote (hardcoded quotes)
+- Exam Tips (hardcoded tips)
+
+---
+
+### 47. ABOUT MANAGEMENT
+
+**Purpose:** Configure About screen.
+
+**What Users See:**
+- All About screen content is hardcoded
+- Only editable field: Website URL (managed through App Settings)
+
+---
+
+## PART 9: SETTINGS (2 Screens)
+
+### 48. HELP CENTER
+
+**Purpose:** Help and support.
+
+**What Users See:**
+- Gradient header: "How can we help you?"
+- Search bar below
+- Five FAQ category chips:
+  - All
+  - Account Issues
+  - Content Access
+  - App Performance
+  - Payment Issues
+  - Technical Support
+- FAQ items (ExpansionTile cards):
+  - Help icon
+  - Question (bold)
+  - Category (subtitle)
+  - Answer (revealed on tap)
+- Quick Action cards:
+  - Email Support (red)
+  - Telegram (blue)
+- Tutorial video card (play icon)
+- Contact section: Email, Telegram handle, phone number, response time
+
+**ACADIA AI:**
+- Integrated AI assistant
+- Analyzes all sources and information
+- Full information and help
+- Works offline using existing academic content
+- Answers questions, helps with exams, provides tutoring
+
+---
+
+### 49. TUTORIAL VIDEO
+
+**Purpose:** Watch tutorial videos.
+
+**What Users See:**
+- Language selector dropdown:
+  - English
+  - Amharic
+  - Afaan Oromoo
+- Description text below
+- Video player (center):
+  - Standard controls
+  - Progress bar (scrubbing)
+  - Time display
+  - Rewind 10s
+  - Play/Pause (colored circle)
+  - Forward 10s
+- Videos from local MP4 assets
+
+---
+
+### 50. ABOUT SCREEN
+
+**Purpose:** App information.
+
+**What Users See:**
+- ACADIA logo (fire icon in gradient circle)
+- App name: "ACADIA" (28px bold)
+- Version: "V1.0.0" (grey)
+- Tagline (italic)
+- Developer Information card:
+  - Business icon
+  - Company name
+  - Email link
+  - Telegram link
+  - Website link (from App Settings)
+- Copyright Notice card:
+  - Copyright text
+  - "View Full Terms" link
+- Social Media card (6 links):
+  - Telegram (blue icon)
+  - Facebook (indigo icon)
+  - Instagram (pink icon)
+  - Twitter/X (light blue icon)
+  - YouTube (red icon)
+  - TikTok (black icon)
+
+---
+
+# FILE DELIVERY SYSTEM
+
+## Content Storage Architecture
+
+### GitHub Repository Structure
+```
+ACADIA-CONTENT/
+│
+├── version.json                          # Content version
+├── subjects_list.json                    # All subjects
+│
+├── high_school/
+│   ├── grade_9/
+│   │   ├── subjects.json
+│   │   ├── mathematics/
+│   │   │   ├── metadata.json
+│   │   │   ├── unit_1/
+│   │   │   │   ├── video.json
+│   │   │   │   │   └── {"youtube": "https://youtube.com/..."}
+│   │   │   │   ├── short_note.pdf
+│   │   │   │   ├── quiz.json
+│   │   │   │   ├── exam.json
+│   │   │   │   └── flashcards.json
+│   │   │   ├── unit_2/
+│   │   │   └── unit_3/
+│   │   ├── physics/
+│   │   ├── chemistry/
+│   │   └── ...
+│   ├── grade_10/
+│   ├── grade_11/
+│   │   ├── natural/
+│   │   │   ├── mathematics/
+│   │   │   ├── physics/
+│   │   │   ├── chemistry/
+│   │   │   └── biology/
+│   │   └── social/
+│   │       ├── economics/
+│   │       ├── geography/
+│   │       └── history/
+│   └── grade_12/
+│       ├── natural/
+│       └── social/
+│
+├── university/
+│   ├── freshman/
+│   │   ├── natural_science/
+│   │   └── social_science/
+│   └── semester_2/
+│       ├── pre_engineering/
+│       └── other_natural_science/
+│
+├── entrance/
+│   ├── past_papers/
+│   │   ├── mathematics/
+│   │   │   ├── 2024.json
+│   │   │   ├── 2023.json
+│   │   │   └── ...
+│   │   ├── english/
+│   │   └── ...
+│   └── practice_questions/
+│       ├── grade_9/
+│       ├── grade_10/
+│       ├── grade_11/
+│       └── grade_12/
+│
+└── common/
+    ├── content_types.json
+    └── languages.json
+```
+
+### Sample Metadata Files
+
+#### version.json
+```json
+{
+    "version": "1.0.0",
+    "lastUpdated": "2026-07-17",
+    "subjects": {
+        "high_school": 19,
+        "university": 12,
+        "entrance": 6
+    },
+    "totalContent": 342,
+    "contentTypes": {
+        "videos": 57,
+        "pdfs": 57,
+        "quizzes": 57,
+        "exams": 57,
+        "flashcards": 57,
+        "past_papers": 57
+    }
+}
+```
+
+#### subjects_list.json
+```json
+{
+    "high_school": {
+        "grade_9": {
+            "subjects": [
+                "mathematics",
+                "physics",
+                "chemistry",
+                "biology",
+                "english",
+                "geography",
+                "history",
+                "citizenship"
+            ]
+        },
+        "grade_10": {
+            "subjects": [
+                "mathematics",
+                "physics",
+                "chemistry",
+                "biology",
+                "english",
+                "geography",
+                "history",
+                "citizenship",
+                "it"
+            ]
+        },
+        "grade_11": {
+            "natural": [
+                "mathematics",
+                "physics",
+                "chemistry",
+                "biology",
+                "english",
+                "it",
+                "agriculture",
+                "aptitude"
+            ],
+            "social": [
+                "economics",
+                "geography",
+                "history",
+                "citizenship",
+                "english",
+                "it",
+                "mathematics",
+                "aptitude"
+            ]
+        },
+        "grade_12": {
+            "natural": [
+                "mathematics",
+                "physics",
+                "chemistry",
+                "biology",
+                "english",
+                "it",
+                "agriculture",
+                "aptitude"
+            ],
+            "social": [
+                "economics",
+                "geography",
+                "history",
+                "citizenship",
+                "english",
+                "it",
+                "mathematics",
+                "aptitude"
+            ]
+        }
+    },
+    "university": {
+        "freshman": {
+            "natural_science": [
+                "english",
+                "geography",
+                "logic",
+                "mathematics",
+                "physics",
+                "psychology"
+            ],
+            "social_science": [
+                "economics",
+                "english",
+                "geography",
+                "logic",
+                "mathematics",
+                "psychology"
+            ]
+        },
+        "semester_2": {
+            "pre_engineering": [
+                "anthropology",
+                "applied_mathematics",
+                "cplusplus",
+                "emerging_technologies",
+                "english_skill_2",
+                "entrepreneurship",
+                "history",
+                "moral_citizenship"
+            ],
+            "other_natural_science": [
+                "anthropology",
+                "biology",
+                "chemistry",
+                "economics",
+                "emerging_technologies",
+                "english_skill_2",
+                "history",
+                "moral_citizenship"
+            ]
+        }
+    }
+}
+```
+
+#### subject_metadata.json
+```json
+{
+    "subject": "Physics",
+    "grade": "11",
+    "stream": "natural_science",
+    "units": [
+        {
+            "unit": 1,
+            "title": "Physics and Human Society",
+            "content": {
+                "video": {
+                    "url": "https://youtube.com/watch?v=xxxxx",
+                    "duration": "00:15:30",
+                    "size": "150MB"
+                },
+                "short_note": {
+                    "url": "https://github.com/.../physics_unit1_notes.pdf",
+                    "pages": 12,
+                    "size": "2.5MB"
+                },
+                "quiz": {
+                    "url": "https://github.com/.../physics_unit1_quiz.json",
+                    "questions": 10,
+                    "time": "15:00"
+                },
+                "exam": {
+                    "url": "https://github.com/.../physics_unit1_exam.json",
+                    "questions": 30,
+                    "time": "45:00",
+                    "passingScore": 60
+                },
+                "flashcards": {
+                    "url": "https://github.com/.../physics_unit1_flashcards.json",
+                    "cards": 20
+                },
+                "past_paper": null
+            }
+        },
+        {
+            "unit": 2,
+            "title": "Vector Quantities",
+            "content": {
+                "video": {
+                    "url": "https://youtube.com/watch?v=yyyyy",
+                    "duration": "00:20:15",
+                    "size": "180MB"
+                },
+                "short_note": {
+                    "url": "https://github.com/.../physics_unit2_notes.pdf",
+                    "pages": 15,
+                    "size": "3MB"
+                },
+                "quiz": {
+                    "url": "https://github.com/.../physics_unit2_quiz.json",
+                    "questions": 15,
+                    "time": "20:00"
+                },
+                "exam": null,
+                "flashcards": {
+                    "url": "https://github.com/.../physics_unit2_flashcards.json",
+                    "cards": 15
+                },
+                "past_paper": null
+            }
+        }
+    ]
+}
+```
+
+#### quiz.json
+```json
+{
+    "title": "Physics and Human Society Quiz",
+    "subject": "Physics",
+    "grade": "11",
+    "unit": 1,
+    "totalQuestions": 10,
+    "timeLimit": 15,
+    "passingScore": 60,
+    "questions": [
+        {
+            "id": 1,
+            "question": "What is physics?",
+            "options": [
+                "A) Study of living things",
+                "B) Study of matter and energy",
+                "C) Study of chemicals",
+                "D) Study of rocks"
+            ],
+            "correct": 1,
+            "explanation": "Physics is the study of matter, energy, and their interactions.",
+            "difficulty": "easy"
+        },
+        {
+            "id": 2,
+            "question": "Which of these is a vector quantity?",
+            "options": [
+                "A) Mass",
+                "B) Temperature",
+                "C) Velocity",
+                "D) Time"
+            ],
+            "correct": 2,
+            "explanation": "Velocity is a vector quantity because it has both magnitude and direction.",
+            "difficulty": "medium"
+        }
+    ],
+    "metadata": {
+        "createdAt": "2026-07-17",
+        "updatedAt": "2026-07-17",
+        "createdBy": "admin"
+    }
+}
+```
+
+#### past_paper.json
+```json
+{
+    "year": "2024",
+    "subject": "Mathematics",
+    "stream": "natural",
+    "type": "euee",
+    "totalQuestions": 60,
+    "timeLimit": 180,
+    "passingScore": 50,
+    "questions": [
+        {
+            "id": 1,
+            "question": "What is the value of 2x + 3 when x = 5?",
+            "options": [
+                "A) 10",
+                "B) 13",
+                "C) 15",
+                "D) 18"
+            ],
+            "correct": 1,
+            "explanation": "2(5) + 3 = 10 + 3 = 13",
+            "topic": "algebra"
+        },
+        {
+            "id": 2,
+            "question": "What is the area of a circle with radius 7cm?",
+            "options": [
+                "A) 154 cm²",
+                "B) 49 cm²",
+                "C) 44 cm²",
+                "D) 22 cm²"
+            ],
+            "correct": 0,
+            "explanation": "Area = πr² = 22/7 × 7 × 7 = 154 cm²",
+            "topic": "geometry"
+        }
+    ],
+    "metadata": {
+        "source": "Unofficial EUEE",
+        "createdAt": "2026-07-17",
+        "adminNotes": "Collected from various sources"
+    }
+}
+```
+
+### Content Delivery Flow
+
+```
+Admin Uploads Content
+        ↓
+1. Push to GitHub Repository
+   - Update metadata.json
+   - Update version.json
+   - Upload new files
+   - Create GitHub Release (large files)
+        ↓
+2. App Checks for Updates
+   - Daily check
+   - Compare version.json
+   - New version detected
+        ↓
+3. App Fetches Updated Content
+   - Download new metadata
+   - Update local Isar database
+   - Show new content
+        ↓
+4. User Downloads Content
+   - Taps DOWNLOAD button
+   - Fetches from GitHub Release
+   - Saves to private storage
+   - Shows OFFLINE badge
+        ↓
+5. User Accesses Content Offline
+   - No internet needed
+   - All content available
+   - Progress tracked locally
+   - Sync when online
+```
+
+---
+
+# DATA STORAGE & OFFLINE STRATEGY
+
+## Isar Local Database
+
+### Database Schema
+
+#### 1. UserProgress Collection
+```dart
+@Collection()
+class UserProgress {
+    Id id;
+    String userId;
+    String subjectId;
+    String chapterId;
+    int completedVideos;
+    int totalVideos;
+    int completedQuizzes;
+    int totalQuizzes;
+    int completedExams;
+    int totalExams;
+    int completedFlashcards;
+    int totalFlashcards;
+    int masteredFlashcards;
+    int averageQuizScore;
+    int averageExamScore;
+    DateTime lastActivity;
+    DateTime createdAt;
+    DateTime updatedAt;
+}
+```
+
+#### 2. DownloadedContent Collection
+```dart
+@Collection()
+class DownloadedContent {
+    Id id;
+    String userId;
+    String contentId;          // Unique content identifier
+    String contentPath;        // Local file path
+    String contentType;        // video, pdf, quiz, exam, flashcard, past_paper
+    String subject;
+    String grade;
+    String chapter;
+    double downloadProgress;   // 0.0 to 1.0
+    bool isDownloaded;
+    int fileSize;
+    DateTime downloadedAt;
+    DateTime lastAccessed;
+}
+```
+
+#### 3. QuizResult Collection
+```dart
+@Collection()
+class QuizResult {
+    Id id;
+    String userId;
+    String quizId;
+    String quizTitle;
+    String subject;
+    String grade;
+    String chapter;
+    List<QuestionAnswer> answers;
+    int score;
+    int totalQuestions;
+    int correctCount;
+    int wrongCount;
+    double percentage;
+    int timeTaken;             // in seconds
+    bool passed;
+    DateTime createdAt;
+}
+```
+
+#### 4. ExamResult Collection
+```dart
+@Collection()
+class ExamResult {
+    Id id;
+    String userId;
+    String examId;
+    String examTitle;
+    String subject;
+    String grade;
+    String chapter;
+    List<QuestionAnswer> answers;
+    int score;
+    int totalQuestions;
+    int correctCount;
+    int wrongCount;
+    int unansweredCount;
+    double percentage;
+    int timeTaken;
+    bool passed;
+    bool autoSubmitted;
+    DateTime createdAt;
+}
+```
+
+#### 5. FlashcardProgress Collection
+```dart
+@Collection()
+class FlashcardProgress {
+    Id id;
+    String userId;
+    String deckId;
+    String cardId;
+    bool mastered;
+    int reviewCount;
+    int correctCount;
+    int wrongCount;
+    DateTime lastReviewed;
+}
+```
+
+#### 6. StudyStreak Collection
+```dart
+@Collection()
+class StudyStreak {
+    Id id;
+    String userId;
+    int currentStreak;         // Days
+    int longestStreak;
+    DateTime lastStudyDate;
+    List<DateTime> studyHistory;
+    int totalStudyDays;
+}
+```
+
+#### 7. ContentCache Collection
+```dart
+@Collection()
+class ContentCache {
+    Id id;
+    String url;
+    String localPath;
+    String contentType;
+    DateTime cachedAt;
+    DateTime expiresAt;
+    int size;
+}
+```
+
+#### 8. AIContext Collection
+```dart
+@Collection()
+class AIContext {
+    Id id;
+    String userId;
+    String topic;
+    String question;
+    String answer;
+    int relevanceScore;
+    DateTime createdAt;
+}
+```
+
+### Offline-First Strategy
+
+**Download Flow:**
+```
+User Taps Download
+        ↓
+Check Storage Space
+        ↓
+Start Download from GitHub
+        ↓
+Show Progress (Circular Indicator)
+        ↓
+Save to Private Storage
+        ↓
+Store in Isar Database
+        ↓
+Show OFFLINE Badge
+        ↓
+User Can Access Offline
+```
+
+**Access Flow:**
+```
+User Opens Content
+        ↓
+Check Isar Database
+        ↓
+Content Downloaded? 
+    ├── Yes → Load from Local Storage
+    └── No → Check Internet
+            ├── Yes → Download
+            └── No → Show "Offline" Message
+```
+
+**Progress Sync:**
+```
+User Studies Offline
+        ↓
+Progress Saved to Isar
+        ↓
+Internet Available?
+    ├── Yes → Sync to Firestore
+    └── No → Queue for Later Sync
+        ↓
+Sync Completed
+```
+
+---
+
+# AUTHENTICATION & SECURITY
+
+## One Device, One Account System
+
+### How It Works
+
+```
+User Logs In (Device A)
+        ↓
+Device ID Stored with User Account
+        ↓
+User Tries to Login (Device B)
+        ↓
+Check Device ID
+    ├── Same Device → Login Success
+    └── Different Device → Error: "Account already logged in on another device"
+            ↓
+        Option: "Logout from other device?"
+            ↓
+        User Confirms
+            ↓
+        Device A Logged Out
+        ↓
+        Device B Logged In
+```
+
+### Implementation
+
+```dart
+class AuthService {
+    Future<void> signIn(String email, String password) async {
+        // 1. Authenticate with Firebase
+        UserCredential result = await FirebaseAuth.instance
+            .signInWithEmailAndPassword(email: email, password: password);
+        
+        // 2. Get device ID
+        String deviceId = await getDeviceId();
+        
+        // 3. Check Firestore for existing device
+        DocumentSnapshot doc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(result.user!.uid)
+            .get();
+        
+        String? storedDeviceId = doc.data()?['deviceId'];
+        
+        // 4. Device mismatch check
+        if (storedDeviceId != null && storedDeviceId != deviceId) {
+            // Show dialog: Account logged in on another device
+            bool confirm = await showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                    title: Text('Device Conflict'),
+                    content: Text('This account is logged in on another device. Logout from other device?'),
+                    actions: [
+                        TextButton(
+                            onPressed: () => Navigator.pop(context, false),
+                            child: Text('Cancel'),
+                        ),
+                        TextButton(
+                            onPressed: () => Navigator.pop(context, true),
+                            child: Text('Logout Other Device'),
+                        ),
+                    ],
+                ),
+            );
+            
+            if (confirm) {
+                // Logout other device
+                await logoutOtherDevice(result.user!.uid);
+                // Update device ID
+                await updateDeviceId(result.user!.uid, deviceId);
+            } else {
+                throw Exception('Please logout from the other device first.');
+            }
+        } else {
+            // Update device ID
+            await updateDeviceId(result.user!.uid, deviceId);
+        }
+        
+        // 5. Continue login
+        await handleUserAuth(result);
+    }
+    
+    Future<void> logoutOtherDevice(String userId) async {
+        // Force logout other device via FCM
+        String? fcmToken = await getFCMToken();
+        if (fcmToken != null) {
+            await FirebaseMessaging.instance.send(
+                message: RemoteMessage(
+                    data: {
+                        'type': 'force_logout',
+                        'userId': userId,
+                    },
+                    token: fcmToken,
+                ),
+            );
+        }
+        
+        // Clear session in Firestore
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userId)
+            .update({
+                'activeSession': false,
+                'deviceId': null,
+            });
+    }
+}
+```
+
+### Security Features
+
+```
+1. Firebase Authentication
+   - Email/Password (min 6 chars)
+   - Google Sign-In
+   - Email Verification Required
+
+2. Firestore Security Rules
+   - Only authenticated users
+   - Users can only read/write their own data
+   - Admins have full access
+
+3. Device Security
+   - One device per account
+   - Session management
+   - Force logout on new device
+
+4. Data Encryption
+   - Isar database encrypted
+   - API keys stored securely
+   - HTTPS for all requests
+
+5. Privacy
+   - No third-party analytics
+   - Minimal data collection
+   - User can delete account
+
+6. Content Security
+   - No sensitive data in GitHub
+   - Public repository allowed
+   - No user data in GitHub
+```
+
+---
+
+# PAYMENT SYSTEM
+
+## Payment Flow
+
+```
+1. User Selects Package
+        ↓
+2. User Views Order Summary
+   - Package name
+   - Validity (1 year)
+   - Total amount
+        ↓
+3. User Selects Payment Method
+   - Telebirr
+   - M-PESA
+   - CBE Birr
+   - CBO Bank
+   - Awash Bank
+        ↓
+4. User Provides Transaction Details
+   - Account Number (sender)
+   - Transaction Reference (optional)
+        ↓
+5. User Uploads Receipt
+   - Select screenshot
+   - Preview thumbnail
+   - Remove option
+        ↓
+6. User Confirms Payment
+        ↓
+7. Payment Record Submitted
+   - Status: Pending
+   - Firebase Firestore
+   - Receipt to Telegram Bot
+        ↓
+8. Admin Notification (Telegram Bot)
+   - User details
+   - Package details
+   - Receipt image
+        ↓
+9. Admin Reviews
+   - View receipt
+   - Check user info
+   - Verify transaction
+        ↓
+10. Admin Action
+    - APPROVE: Unlock package (1 year), send notification
+    - REJECT: Mandatory reason, quick options, send notification
+        ↓
+11. User Notification
+    - Approved: Package unlocked, can access content
+    - Rejected: Reason provided, can resubmit
+```
+
+## Payment Methods
+
+| Method | Icon | Account Details |
+|--------|------|-----------------|
+| Telebirr | `telebirr_icon.png` | Admin account number |
+| M-PESA | `m-pesa_icon.png` | Admin account number |
+| CBE Birr | `cbe_birr_icon.png` | Admin account number |
+| CBO Bank | `cbo_bank_icon.png` | Admin account number |
+| Awash Bank | `awash_bank_icon.png` | Admin account number |
+
+## Admin Approval Process
+
+**Approve:**
+- Confirms payment
+- Unlocks package for 1 year from approval date
+- Sends notification to user
+- Updates Firestore subscription status
+
+**Reject:**
+- Opens dialog with mandatory reason
+- Quick-select reasons:
+  1. Receipt unclear
+  2. Wrong amount
+  3. Missing reference
+  4. Account mismatch
+  5. Duplicate
+  6. Suspicious
+- Sends notification with reason
+- User can resubmit with corrected information
+
+---
+
+# ACADIA AI ASSISTANT
+
+## Overview
+
+ACADIA AI is an offline-first AI assistant that helps students with questions, exams, and tutoring using downloaded academic content.
+
+## Features
+
+### 1. Question Answering
+- Students ask questions in natural language
+- AI searches through downloaded content
+- Provides relevant answers with explanations
+- Cites sources (subject, chapter, unit)
+
+### 2. Exam Preparation
+- Analyzes weak areas
+- Generates practice questions
+- Creates personalized study plans
+- Recommends specific units to review
+
+### 3. Tutoring
+- Explains concepts in simple terms
+- Provides examples from downloaded content
+- Offers step-by-step solutions
+- Adapts explanation level based on progress
+
+### 4. Progress Tracking
+- Monitors improvement over time
+- Identifies knowledge gaps
+- Suggests next topics to study
+- Tracks study streak
+
+### 5. Personalized Recommendations
+- Based on quiz/exam performance
+- Focuses on weak subjects
+- Recommends video, notes, or flashcards
+- Adjusts difficulty level
+
+### 6. Offline First
+- Works without internet
+- Uses downloaded content
+- No external API calls
+- Private and secure
+
+## How It Works
+
+```
+User Asks Question
+        ↓
+AI Analyzes Question
+        ↓
+Searches Local Content
+    ├── Flashcards (quickest)
+    ├── Quiz Questions
+    ├── PDFs (text extraction)
+    └── Video Transcripts
+        ↓
+Finds Relevant Content
+        ↓
+Generates Response
+    ├── Answer
+    ├── Explanation
+    ├── Example
+    └── Source Reference
+        ↓
+Returns to User
+        ↓
+User Provides Feedback
+    ├── Helpful → Save to Knowledge Base
+    └── Unhelpful → Refine Search
+```
+
+## Implementation
+
+```dart
+class AcadiaAI {
+    final IsarLocalDatabase db;
+    final UserProgress progress;
+    
+    // Core AI Functions
+    Future<String> askQuestion(String question) async {
+        // 1. Analyze question intent
+        QuestionIntent intent = await analyzeIntent(question);
+        
+        // 2. Search local content
+        List<SearchResult> results = await searchContent(question);
+        
+        // 3. Generate response
+        String answer = await generateAnswer(question, results);
+        
+        // 4. Save context
+        await saveContext(question, answer);
+        
+        return answer;
+    }
+    
+    // Search Functions
+    Future<List<SearchResult>> searchContent(String query) async {
+        List<SearchResult> results = [];
+        
+        // Search flashcards (fastest)
+        results.addAll(await searchFlashcards(query));
+        
+        // Search quiz questions
+        results.addAll(await searchQuizzes(query));
+        
+        // Search PDFs (if downloaded)
+        if (await hasDownloadedPDFs()) {
+            results.addAll(await searchPDFs(query));
+        }
+        
+        // Rank by relevance
+        results.sort((a, b) => b.relevance.compareTo(a.relevance));
+        
+        return results;
+    }
+    
+    // Study Recommendations
+    Future<List<String>> recommendStudyTopics() async {
+        // Get weak areas from results
+        List<WeakArea> weakAreas = await getWeakAreas();
+        
+        // Generate recommendations
+        List<String> recommendations = [];
+        for (var weak in weakAreas) {
+            recommendations.add(
+                "Review ${weak.subject} Unit ${weak.unit}: ${weak.topic} "
+                "(Score: ${weak.score}%)"
+            );
+        }
+        
+        return recommendations;
+    }
+    
+    // Generate Practice Questions
+    Future<List<Question>> generatePracticeQuestions() async {
+        // Identify weak areas
+        List<WeakArea> weakAreas = await getWeakAreas();
+        
+        // Generate questions for weak areas
+        List<Question> questions = [];
+        for (var weak in weakAreas) {
+            questions.addAll(await generateQuestionsForTopic(
+                weak.subject,
+                weak.unit,
+                weak.topic,
+                count: 5,
+            ));
+        }
+        
+        return questions;
+    }
+}
+```
+
+## Knowledge Base
+
+The AI builds a knowledge base from:
+1. **Downloaded Content**
+   - Videos (transcripts extracted)
+   - PDFs (text extracted)
+   - Quiz questions and answers
+   - Flashcard content
+   - Past papers
+
+2. **User Progress**
+   - Quiz/exam performance
+   - Mastered flashcards
+   - Completed content
+   - Study streak
+
+3. **AI Memory**
+   - Previous questions
+   - User feedback
+   - Context from conversations
+
+---
+
+# TECHNICAL SPECIFICATIONS
+
+## Frontend (Flutter)
+
+### Dependencies
+```yaml
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # State Management
+  riverpod: ^2.0.0
+  
+  # Navigation
+  go_router: ^10.0.0
+  
+  # Local Database (Isar)
+  isar: ^3.0.0
+  isar_flutter_libs: ^3.0.0
+  
+  # Firebase
+  firebase_core: ^2.0.0
+  firebase_auth: ^4.0.0
+  cloud_firestore: ^4.0.0
+  firebase_messaging: ^14.0.0
+  firebase_analytics: ^10.0.0
+  firebase_crashlytics: ^3.0.0
+  
+  # Networking
+  dio: ^5.0.0
+  http: ^1.0.0
+  
+  # Video Player
+  video_player: ^2.0.0
+  chewie: ^1.0.0
+  
+  # PDF Viewer
+  syncfusion_flutter_pdfviewer: ^22.0.0
+  
+  # Image Handling
+  image_picker: ^1.0.0
+  image_compression: ^1.0.0
+  
+  # File Management
+  path_provider: ^2.0.0
+  file_picker: ^5.0.0
+  
+  # UI Components
+  flutter_svg: ^2.0.0
+  shimmer: ^3.0.0
+  cached_network_image: ^3.0.0
+  
+  # Utilities
+  intl: ^0.18.0
+  shared_preferences: ^2.0.0
+  device_info_plus: ^9.0.0
+  connectivity_plus: ^4.0.0
+```
+
+### Project Structure
+```
+lib/
+├── core/
+│   ├── constants/
+│   │   ├── colors.dart
+│   │   ├── strings.dart
+│   │   └── routes.dart
+│   ├── theme/
+│   │   ├── light_theme.dart
+│   │   └── dark_theme.dart
+│   ├── utils/
+│   │   ├── validators.dart
+│   │   ├── formatters.dart
+│   │   └── helpers.dart
+│   └── widgets/
+│       ├── buttons.dart
+│       ├── cards.dart
+│       └── loaders.dart
+│
+├── data/
+│   ├── models/
+│   │   ├── user.dart
+│   │   ├── subject.dart
+│   │   ├── chapter.dart
+│   │   ├── content.dart
+│   │   ├── quiz.dart
+│   │   ├── exam.dart
+│   │   ├── flashcard.dart
+│   │   ├── past_paper.dart
+│   │   └── payment.dart
+│   ├── repositories/
+│   │   ├── auth_repository.dart
+│   │   ├── user_repository.dart
+│   │   ├── content_repository.dart
+│   │   ├── progress_repository.dart
+│   │   └── payment_repository.dart
+│   └── services/
+│       ├── firebase_service.dart
+│       ├── github_service.dart
+│       ├── imgbb_service.dart
+│       ├── download_service.dart
+│       └── ai_service.dart
+│
+├── features/
+│   ├── onboarding/
+│   ├── auth/
+│   ├── dashboard/
+│   ├── subjects/
+│   ├── content/
+│   ├── entrance/
+│   ├── payment/
+│   ├── notifications/
+│   ├── profile/
+│   └── admin/
+│
+├── local_database/
+│   ├── isar_service.dart
+│   └── schemas/
+│       ├── user_progress.dart
+│       ├── downloaded_content.dart
+│       ├── quiz_result.dart
+│       ├── exam_result.dart
+│       ├── flashcard_progress.dart
+│       ├── study_streak.dart
+│       └── ai_context.dart
+│
+└── main.dart
+```
+
+## Backend (Firebase)
+
+### Firestore Collections
+```
+users/                           # User profiles
+  {uid}/
+    fullName
+    email
+    phone
+    academicPath
+    highSchool (optional)
+    subscription
+    status
+    profilePhoto (ImgBB URL)
+    deviceId
+    createdAt
+    lastActive
+
+settings/                        # App settings
+  app/
+    latestVersion
+    minimumVersion
+    maintenance
+    packagePrices
+    telegram
+    website
+
+notifications/                   # User notifications
+  {id}/
+    title
+    message
+    type
+    target
+    createdAt
+    readBy
+
+payments/                        # Payment records
+  {id}/
+    userId
+    packageName
+    amount
+    paymentMethod
+    senderAccount
+    transactionRef (optional)
+    receiptImage (ImgBB URL)
+    status
+    rejectionReason (optional)
+    createdAt
+    approvedAt (optional)
+```
+
+### Firestore Security Rules
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users collection
+    match /users/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null && request.auth.uid == userId;
+      allow read: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+    
+    // Settings collection
+    match /settings/{doc} {
+      allow read: if true;
+      allow write: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+    
+    // Notifications collection
+    match /notifications/{doc} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+    
+    // Payments collection
+    match /payments/{doc} {
+      allow read: if request.auth != null && 
+        (request.auth.uid == resource.data.userId || 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true);
+      allow write: if request.auth != null && 
+        (request.auth.uid == resource.data.userId ||
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true);
+    }
+  }
+}
+```
+
+## Content (GitHub)
+
+### Repository Structure
+```
+ACADIA-CONTENT/
+├── version.json
+├── subjects_list.json
+├── high_school/
+│   ├── grade_9/
+│   │   ├── subjects.json
+│   │   ├── mathematics/
+│   │   │   ├── metadata.json
+│   │   │   └── unit_1/
+│   │   │       ├── video.json
+│   │   │       ├── short_note.pdf
+│   │   │       ├── quiz.json
+│   │   │       ├── exam.json
+│   │   │       └── flashcards.json
+│   │   ├── physics/
+│   │   └── ...
+│   ├── grade_10/
+│   ├── grade_11/
+│   └── grade_12/
+├── university/
+│   ├── freshman/
+│   └── semester_2/
+├── entrance/
+│   ├── past_papers/
+│   └── practice_questions/
+└── common/
+    ├── content_types.json
+    └── languages.json
+```
+
+## Image Management
+
+### Assets (Offline)
+```
+assets/
+├── images/
+│   ├── splash.jpg
+│   ├── welcome1.jpg
+│   ├── welcome2.jpg
+│   ├── welcome3.jpg
+│   ├── screenshot1.jpg
+│   ├── screenshot2.jpg
+│   ├── screenshot3.jpg
+│   ├── screenshot4.jpg
+│   ├── email1.jpg
+│   ├── email2.jpg
+│   └── email3.jpg
+├── icons/
+│   ├── subjects_icon/
+│   │   ├── Agriculture_icon.jpg
+│   │   ├── Anthropology_icon.jpg
+│   │   ├── Applied_math_icon.jpg
+│   │   ├── Aptitude _icon.jpg
+│   │   ├── Biology_icon.jpg
+│   │   ├── C++_icon.jpg
+│   │   ├── Chemistry_icon.jpg
+│   │   ├── Citizenship_icon.jpg
+│   │   ├── Economics_icon.jpg
+│   │   ├── Emerging_icon.jpg
+│   │   ├── English_icon.jpg
+│   │   ├── Geography_icon.jpg
+│   │   ├── History_icon.jpg
+│   │   ├── It_icon.jpg
+│   │   ├── Logic_icon.jpg
+│   │   ├── Math_icon.jpg
+│   │   ├── Physics_icon.jpg
+│   │   └── Psychology_icon.jpg
+│   ├── telebirr_icon.png
+│   ├── m-pesa_icon.png
+│   ├── cbe_birr_icon.png
+│   ├── cbo_bank_icon.png
+│   ├── awash_bank_icon.png
+│   ├── telegram_icon.png
+│   ├── facebook_icon.png
+│   ├── instagram_icon.jpg
+│   ├── twitter_png.png
+│   ├── youtube_icon.png
+│   └── tiktok_icon.png
+└── videos/
+    ├── tutorial_en.mp4
+    ├── tutorial_am.mp4
+    └── tutorial_or.mp4
+```
+
+### ImgBB (Profile Photos)
+```
+Purpose: Profile pictures only
+API Key: dd99798a85c18c52282c4d2dfd128146
+Upload Flow: Image → Compress → ImgBB → URL → Firestore
+Cost: Free (10,000 uploads/month)
+```
+
+---
+
+# DEPLOYMENT & MAINTENANCE
+
+## App Deployment
+
+### Build Process
+```
+1. Prepare Code
+   - Update version in pubspec.yaml
+   - Update changelog
+   - Test on multiple devices
+   
+2. Build APK
+   - flutter build apk --release
+   - flutter build appbundle --release (Google Play)
+   
+3. Sign APK
+   - Use keystore for signing
+   - Enable ProGuard (code obfuscation)
+   
+4. Upload to Firebase App Distribution
+   - Beta testing
+   - Internal testing
+   
+5. Update Firestore
+   - latestVersion: "1.0.0"
+   - minimumVersion: "1.0.0"
+   - updateMessage: "New version available"
+   
+6. Release to Production
+   - Google Play Store (optional)
+   - Direct APK download from website
+```
+
+### Version Management
+```dart
+// pubspec.yaml
+version: 1.0.0+1
+
+// Firestore settings
+{
+    "latestVersion": "1.0.0",
+    "minimumVersion": "1.0.0",
+    "updateMessage": "Bug fixes and performance improvements",
+    "updateURL": "https://acadia.app/download",
+    "forceUpdate": false
+}
+```
+
+## Content Maintenance
+
+### Adding New Content
+```
+1. Prepare Content
+   - Create video (upload to YouTube)
+   - Create PDF notes
+   - Create Quiz JSON
+   - Create Exam JSON
+   - Create Flashcards JSON
+   
+2. Update GitHub
+   - Add files to appropriate folder
+   - Update metadata.json
+   - Update version.json
+   - Create GitHub Release (large files)
+   
+3. Test
+   - App fetches new content
+   - Verify all fields
+   - Check offline access
+   
+4. Deploy
+   - Push to GitHub
+   - App automatically updates
+```
+
+### Content Update Frequency
+```
+- Weekly: Bug fixes, minor updates
+- Monthly: New content (units, chapters)
+- Quarterly: New subjects, major content updates
+- Annually: New academic year content
+```
+
+## Monitoring & Analytics
+
+### Firebase Analytics Events
+```
+- user_registration
+- user_login
+- content_download
+- content_view
+- quiz_start
+- quiz_complete
+- exam_start
+- exam_complete
+- payment_submit
+- payment_approve
+- payment_reject
+- ai_query
+- screen_view
+```
+
+### Crash Reporting
+```
+- Firebase Crashlytics
+- Automatic crash reports
+- Non-fatal error logging
+- Performance monitoring
+- App size monitoring
+```
+
+## Maintenance Schedule
+
+### Daily
+```
+- Monitor user registrations
+- Check payment submissions
+- Review pending approvals
+- Check for crashes
+- Respond to support tickets
+```
+
+### Weekly
+```
+- Review analytics
+- Update content
+- Fix minor bugs
+- Security updates
+```
+
+### Monthly
+```
+- Comprehensive testing
+- Performance optimization
+- Content review
+- User feedback analysis
+- Feature planning
+```
+
+---
+
+# COMPLETE TECHNICAL SUMMARY
+
+## System Components
+
+| Component | Technology | Purpose |
+|-----------|------------|---------|
+| **App** | Flutter 3.x | User Interface |
+| **State Management** | Riverpod | App state |
+| **Navigation** | GoRouter | Screen navigation |
+| **Local Database** | Isar | Offline data storage |
+| **Authentication** | Firebase Auth | User login |
+| **User Data** | Firebase Firestore | Profiles, payments |
+| **Content Storage** | GitHub | Educational material |
+| **Large Files** | GitHub Releases | Videos, PDFs |
+| **Images** | Assets (offline) + ImgBB | All images |
+| **Profile Photos** | ImgBB API | User pictures |
+| **Videos** | YouTube (embedded) | Educational videos |
+| **Notifications** | FCM (Firebase) | Push notifications |
+| **Admin Bot** | Telegram Bot | Payment notifications |
+| **Analytics** | Firebase Analytics | Usage tracking |
+| **Crash Reporting** | Firebase Crashlytics | Error tracking |
+| **AI Assistant** | Custom (offline) | Student tutoring |
+
+## Screen Count: 50
+
+| Section | Screens |
+|---------|---------|
+| Onboarding Flow | 12 |
+| Authentication | 5 |
+| Main Dashboard | 5 |
+| Content Viewers | 7 |
+| Entrance Tab | 5 |
+| Payment | 2 |
+| Notifications & Profile | 2 |
+| Admin Panel | 10 |
+| Settings | 2 |
+| **TOTAL** | **50** |
+
+## Cost Analysis
+
+| Service | Free Tier | Cost After |
+|---------|-----------|------------|
+| Firebase Auth | 10,000 users | $0.005/user |
+| Firestore | 50K reads/day, 20K writes/day | $0.06/100K reads |
+| GitHub | Unlimited public | $0 |
+| GitHub Releases | Unlimited | $0 |
+| ImgBB | 10,000 uploads/month | $0 |
+| YouTube | Unlimited embedding | $0 |
+| Telegram Bot | Unlimited | $0 |
+
+**Monthly Cost Estimate: $0** (within free tiers)
+
+---
+
+# FINAL NOTES
+
+## Design Consistency
+- **Primary Color:** Navy Blue (#093C5D)
+- **Secondary Colors:** White (background), Black (text)
+- **Dark Mode:** Fully compatible
+- **All buttons:** Navy blue gradient
+- **All selections:** Navy blue borders + checkmarks
+
+## Key Features Summary
+1. ✅ Offline-first architecture
+2. ✅ 50 screens
+3. ✅ 19 subjects
+4. ✅ 6 content types per chapter
+5. ✅ University entrance exam prep
+6. ✅ ACADIA AI assistant
+7. ✅ One device, one account
+8. ✅ 5 Ethiopian payment methods
+9. ✅ Admin dashboard (10 screens)
+10. ✅ Multi-language support (English, Amharic, Afaan Oromoo)
+11. ✅ Dark mode
+12. ✅ 20 hardcoded educational quotes
+13. ✅ YouTube videos embedded (no branding)
+14. ✅ GitHub content delivery
+15. ✅ ImgBB profile photos
+16. ✅ Isar offline database
+17. ✅ Telegram bot notifications
+18. ✅ Force update system
+
+---
+
+**END OF ACADIA V1.0.0 COMPLETE PLATFORM DESCRIPTION**

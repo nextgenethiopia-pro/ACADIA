@@ -278,7 +278,7 @@ class _NotificationsTabState extends State<NotificationsTab> {
                   selected: isSelected,
                   onSelected: (v) => setState(() => _selectedFilter = filter),
                   backgroundColor: Colors.grey[200],
-                  selectedColor: AppColors.primary.withOpacity(0.2),
+                  selectedColor: AppColors.primary.withAlpha(((255 * 0.2)).toInt()),
                   labelStyle: TextStyle(
                     color: isSelected ? AppColors.primary : Colors.black87,
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -337,7 +337,7 @@ class _NotificationsTabState extends State<NotificationsTab> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: isRead ? Colors.grey[200]! : color.withOpacity(0.3),
+          color: isRead ? Colors.grey[200]! : color.withAlpha(((255 * 0.3)).toInt()),
           width: 1,
         ),
       ),
@@ -357,7 +357,7 @@ class _NotificationsTabState extends State<NotificationsTab> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: color.withOpacity(0.1),
+                      color: color.withAlpha(((255 * 0.1)).toInt()),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(icon, color: color, size: 22),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:acadia/src/core/services/offline_database.dart';
+import 'package:acadia/src/core/services/firebase_service.dart';
 import 'package:acadia/src/core/constants/colors.dart';
 
 class PdfViewerScreen extends StatefulWidget {
@@ -21,18 +22,19 @@ class PdfViewerScreen extends StatefulWidget {
 
 class _PdfViewerScreenState extends State<PdfViewerScreen> {
   final PdfViewerController _pdfController = PdfViewerController();
-  
+
   int _currentPage = 1;
   int _totalPages = 1;
   bool _isCompleted = false;
   bool _isLoading = true;
   bool _isDownloaded = false;
   double _zoomLevel = 100.0;
-  
+
   String _pdfTitle = '';
   String _fileSize = '';
   String? _localPath;
-  
+  String? _pdfNetworkUrl;
+
   @override
   void initState() {
     super.initState();
@@ -78,6 +80,25 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
           }
           return;
         }
+      }
+
+      // Fallback to online Firebase content document
+      final firebase = FirebaseService();
+      final contentDoc = await firebase.getDocument('content', widget.contentId);
+      final downloadUrl = contentDoc?['download_url']?.toString() ??
+          contentDoc?['url']?.toString() ??
+          contentDoc?['pdf_url']?.toString();
+
+      if (downloadUrl != null && downloadUrl.isNotEmpty) {
+        if (mounted) {
+          setState(() {
+            _pdfTitle = contentDoc?['title']?.toString() ?? widget.title;
+            _pdfNetworkUrl = downloadUrl;
+            _isDownloaded = false;
+            _isLoading = false;
+          });
+        }
+        return;
       }
 
       if (mounted) {
@@ -178,8 +199,10 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
                 icon: const Icon(Icons.arrow_back),
                 label: const Text('Go Back'),
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
               ),
             ],
@@ -252,17 +275,19 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
                     const SizedBox(width: 8),
                     Text(
                       'Page $_currentPage of $_totalPages',
-                      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w600, fontSize: 14),
                     ),
                   ],
                 ),
                 if (_isCompleted)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
-                      color: Colors.green.withOpacity(0.1),
+                      color: Colors.green.withAlpha(((255 * 0.1)).toInt()),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.green.withOpacity(0.3)),
+                      border: Border.all(color: Colors.green.withAlpha(((255 * 0.3)).toInt())),
                     ),
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
@@ -271,7 +296,10 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
                         SizedBox(width: 6),
                         Text(
                           'Completed',
-                          style: TextStyle(color: Colors.green, fontSize: 11, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              color: Colors.green,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -279,44 +307,83 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
               ],
             ),
           ),
-          
+
           // PDF Viewer with pinch-to-zoom (actual PDF rendering)
           Expanded(
-            child: SfPdfViewer.file(
-              File(_localPath!),
-              controller: _pdfController,
-              scrollDirection: PdfScrollDirection.vertical,
-              enableDoubleTapZoom: true,
-              pageSpacing: 8,
-              canShowScrollHead: true,
-              canShowPaginationDialog: true,
-              onPageChanged: (details) {
-                if (mounted) {
-                  setState(() {
-                    _currentPage = details.newPageNumber;
-                    _totalPages = _pdfController.pageCount;
-                  });
-                }
-              },
-              onDocumentLoaded: (details) {
-                if (mounted) {
-                  setState(() {
-                    _totalPages = _pdfController.pageCount;
-                  });
-                }
-              },
-              onZoomLevelChanged: (details) {
-                if (mounted) {
-                  setState(() {
-                    _zoomLevel = (details.newZoomLevel * 100).clamp(50, 300);
-                  });
-                }
-              },
-              pageLayout: PdfPageLayout.single,
-              password: '',
-            ),
+            child: _localPath != null
+                ? SfPdfViewer.file(
+                    File(_localPath!),
+                    controller: _pdfController,
+                    scrollDirection: PdfScrollDirection.vertical,
+                    enableDoubleTapZooming: true,
+                    pageSpacing: 8,
+                    canShowScrollHead: true,
+                    canShowPaginationDialog: true,
+                    onPageChanged: (details) {
+                      if (mounted) {
+                        setState(() {
+                          _currentPage = details.newPageNumber;
+                          _totalPages = _pdfController.pageCount;
+                        });
+                      }
+                    },
+                    onDocumentLoaded: (details) {
+                      if (mounted) {
+                        setState(() {
+                          _totalPages = _pdfController.pageCount;
+                        });
+                      }
+                    },
+                    onZoomLevelChanged: (details) {
+                      if (mounted) {
+                        setState(() {
+                          _zoomLevel = (details.newZoomLevel * 100).clamp(50, 300);
+                        });
+                      }
+                    },
+                    pageLayoutMode: PdfPageLayoutMode.single,
+                  )
+                : _pdfNetworkUrl != null
+                    ? SfPdfViewer.network(
+                        _pdfNetworkUrl!,
+                        controller: _pdfController,
+                        scrollDirection: PdfScrollDirection.vertical,
+                        enableDoubleTapZooming: true,
+                        pageSpacing: 8,
+                        canShowScrollHead: true,
+                        canShowPaginationDialog: true,
+                        onPageChanged: (details) {
+                          if (mounted) {
+                            setState(() {
+                              _currentPage = details.newPageNumber;
+                              _totalPages = _pdfController.pageCount;
+                            });
+                          }
+                        },
+                        onDocumentLoaded: (details) {
+                          if (mounted) {
+                            setState(() {
+                              _totalPages = _pdfController.pageCount;
+                            });
+                          }
+                        },
+                        onZoomLevelChanged: (details) {
+                          if (mounted) {
+                            setState(() {
+                              _zoomLevel = (details.newZoomLevel * 100).clamp(50, 300);
+                            });
+                          }
+                        },
+                        pageLayoutMode: PdfPageLayoutMode.single,
+                      )
+                    : const Center(
+                        child: Text(
+                          'PDF document not found or unavailable offline.',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ),
           ),
-          
+
           // Bottom bar with page navigation and mark complete button
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -324,7 +391,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withAlpha(((255 * 0.05)).toInt()),
                   blurRadius: 8,
                   offset: const Offset(0, -4),
                 )
@@ -350,12 +417,16 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
                           child: Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: _currentPage > 1 ? AppColors.primary.withOpacity(0.1) : Colors.grey[100],
+                              color: _currentPage > 1
+                                  ? AppColors.primary.withAlpha(((255 * 0.1)).toInt())
+                                  : Colors.grey[100],
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Icon(
                               Icons.chevron_left,
-                              color: _currentPage > 1 ? AppColors.primary : Colors.grey[400],
+                              color: _currentPage > 1
+                                  ? AppColors.primary
+                                  : Colors.grey[400],
                               size: 28,
                             ),
                           ),
@@ -364,7 +435,8 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
                       const SizedBox(width: 8),
                       // Page indicator
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
                           color: Colors.grey[100],
                           borderRadius: BorderRadius.circular(20),
@@ -381,7 +453,8 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
                             ),
                             Text(
                               ' / $_totalPages',
-                              style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                              style: TextStyle(
+                                  color: Colors.grey[600], fontSize: 14),
                             ),
                           ],
                         ),
@@ -400,12 +473,16 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
                           child: Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: _currentPage < _totalPages ? AppColors.primary.withOpacity(0.1) : Colors.grey[100],
+                              color: _currentPage < _totalPages
+                                  ? AppColors.primary.withAlpha(((255 * 0.1)).toInt())
+                                  : Colors.grey[100],
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Icon(
                               Icons.chevron_right,
-                              color: _currentPage < _totalPages ? AppColors.primary : Colors.grey[400],
+                              color: _currentPage < _totalPages
+                                  ? AppColors.primary
+                                  : Colors.grey[400],
                               size: 28,
                             ),
                           ),
@@ -413,22 +490,27 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
                       ),
                     ],
                   ),
-                  
+
                   // Mark as Completed button
                   ElevatedButton.icon(
                     onPressed: _isCompleted ? null : _markAsCompleted,
                     icon: Icon(
-                      _isCompleted ? Icons.check_circle : Icons.check_circle_outline,
+                      _isCompleted
+                          ? Icons.check_circle
+                          : Icons.check_circle_outline,
                       size: 20,
                     ),
                     label: Text(
                       _isCompleted ? 'Completed' : 'Mark Complete',
-                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                      style: const TextStyle(
+                          fontSize: 13, fontWeight: FontWeight.w600),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: _isCompleted ? Colors.green : AppColors.primary,
+                      backgroundColor:
+                          _isCompleted ? Colors.green : AppColors.primary,
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 12),
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),

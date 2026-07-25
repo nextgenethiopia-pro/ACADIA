@@ -1,4 +1,5 @@
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
 
 class CrashlyticsService {
   static final FirebaseCrashlytics _crashlytics = FirebaseCrashlytics.instance;
@@ -30,7 +31,8 @@ class CrashlyticsService {
     await _crashlytics.log(message);
   }
 
-  static Future<void> recordError(dynamic error, StackTrace? stack, {bool fatal = false}) async {
+  static Future<void> recordError(dynamic error, StackTrace? stack,
+      {bool fatal = false}) async {
     await _crashlytics.recordError(error, stack, fatal: fatal);
   }
 }

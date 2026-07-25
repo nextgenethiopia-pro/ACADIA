@@ -37,8 +37,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _userGrade = prefs.getString('grade') ?? prefs.getString('selected_grade');
-      _userStream = prefs.getString('stream') ?? prefs.getString('selected_stream');
+      _userGrade =
+          prefs.getString('grade') ?? prefs.getString('selected_grade');
+      _userStream =
+          prefs.getString('stream') ?? prefs.getString('selected_stream');
       _userPath = prefs.getString('academic_path');
       _userName = prefs.getString('user_name');
       _userEmail = prefs.getString('user_email');
@@ -52,11 +54,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
     // Track last active time
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('last_active', DateTime.now().toIso8601String());
-    
+
     // Update in Firebase if user is logged in
     try {
       final firebase = FirebaseService();
-      final user = firebase.auth.currentUser;
+      final user = firebase.currentUser;
       if (user != null) {
         await firebase.updateDocument('users', user.uid, {
           'last_active': DateTime.now().toIso8601String(),
@@ -165,20 +167,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Future<void> _markAllNotificationsRead() async {
     try {
       final firebase = FirebaseService();
-      final user = firebase.auth.currentUser;
+      final user = firebase.currentUser;
       if (user != null) {
         // Mark all notifications as read
-        final notifications = await firebase.getDocuments('notifications', where: {
+        final notifications =
+            await firebase.getDocuments('notifications', where: {
           'user_id': user.uid,
           'read': false,
         });
-        
+
         for (final notification in notifications) {
           await firebase.updateDocument('notifications', notification['id'], {
             'read': true,
           });
         }
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -225,7 +228,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // Tab titles
   List<String> get _titles {
     if (_hasEntranceTab) {
-      return ['Home', 'Subjects', 'Progress', 'Entrance', 'Notifications', 'Profile'];
+      return [
+        'Home',
+        'Subjects',
+        'Progress',
+        'Entrance',
+        'Notifications',
+        'Profile'
+      ];
     }
     return ['Home', 'Subjects', 'Progress', 'Notifications', 'Profile'];
   }
@@ -250,7 +260,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             onPressed: _showHowToPopup,
             tooltip: 'How to use ACADIA',
           ),
-          
+
           // Search for Home tab
           if (_currentIndex == 0)
             IconButton(
@@ -258,7 +268,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               onPressed: _showSearchDialog,
               tooltip: 'Search content',
             ),
-          
+
           // Notification bell on Home tab
           if (_currentIndex == 0)
             IconButton(
@@ -268,7 +278,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               },
               tooltip: 'View notifications',
             ),
-          
+
           // Mark all read on Notifications tab
           if (_currentIndex == _notificationsIndex)
             IconButton(
@@ -286,7 +296,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withAlpha(((255 * 0.05)).toInt()),
               blurRadius: 8,
               offset: const Offset(0, -2),
             ),

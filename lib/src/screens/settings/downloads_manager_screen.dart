@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:acadia/src/core/services/offline_database.dart';
+import 'package:acadia/src/local_database/isar_service.dart';
 import 'package:acadia/src/core/constants/colors.dart';
 import 'dart:io';
 
@@ -20,7 +21,7 @@ class _DownloadsManagerScreenState extends State<DownloadsManagerScreen> {
   String? _errorMessage;
   bool _hasNetworkError = false;
 
-  final OfflineDatabase _offlineDb = OfflineDatabase.instance;
+  final IsarService _isarService = IsarService.instance;
 
   @override
   void initState() {
@@ -38,22 +39,42 @@ class _DownloadsManagerScreenState extends State<DownloadsManagerScreen> {
     }
 
     try {
-      final offlineDb = OfflineDatabase.instance;
-      final db = await offlineDb.database;
-      
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        if (mounted)
+          setState(() {
+            _isLoading = false;
+            _isRefreshing = false;
+          });
+        return;
+      }
+
       // Get all downloaded content from local database
-      final downloads = await db.query('offline_content', orderBy: 'download_date');
-      
-      // Calculate actual storage usage from file sizes
+      final downloadedContents =
+          await _isarService.getAllDownloadedContent(user.uid);
+
+      // Convert to Map<String, dynamic> and calculate storage
+      final downloads = <Map<String, dynamic>>[];
       double totalSizeMB = 0;
-      for (final download in downloads) {
-        final fileSize = download['file_size_bytes'] as int? ?? 0;
-        totalSizeMB += fileSize / (1024 * 1024);
+      for (final content in downloadedContents) {
+        final downloadMap = {
+          'content_id': content.contentId,
+          'title': '${content.subject} • ${content.chapter}',
+          'subject': content.subject,
+          'chapter': content.chapter,
+          'content_type': content.contentType,
+          'file_size_bytes': content.fileSize,
+          'download_date': content.downloadedAt?.toIso8601String(),
+          'local_path': content.contentPath,
+          'is_completed': 0, // TODO: Add completion tracking
+        };
+        downloads.add(downloadMap);
+        totalSizeMB += (content.fileSize / (1024 * 1024));
       }
 
       if (mounted) {
         setState(() {
-          _downloads = List<Map<String, dynamic>>.from(downloads);
+          _downloads = downloads;
           _storageUsed = totalSizeMB;
           _isLoading = false;
           _isRefreshing = false;
@@ -65,9 +86,10 @@ class _DownloadsManagerScreenState extends State<DownloadsManagerScreen> {
           _isLoading = false;
           _isRefreshing = false;
           _hasNetworkError = true;
-          _errorMessage = 'Failed to load downloads. Please check your connection.';
+          _errorMessage =
+              'Failed to load downloads. Please check your connection.';
         });
-        
+
         _showErrorSnackBar(_errorMessage!);
       }
       debugPrint('Error loading downloads: $e');
@@ -91,7 +113,9 @@ class _DownloadsManagerScreenState extends State<DownloadsManagerScreen> {
   Future<void> _deleteDownload(Map<String, dynamic> download) async {
     final contentId = download['content_id']?.toString() ?? '';
     final title = download['title']?.toString() ?? 'this item';
-    
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -117,10 +141,10 @@ class _DownloadsManagerScreenState extends State<DownloadsManagerScreen> {
     if (confirmed == true) {
       try {
         // Delete from local database
-        await _offlineDb.deleteDownload(contentId);
-        
+        await _isarService.deleteDownloadedContent(contentId, user.uid);
+
         await _loadDownloads();
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -147,7 +171,8 @@ class _DownloadsManagerScreenState extends State<DownloadsManagerScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Clear All Downloads'),
-        content: Text('Are you sure you want to delete all ${_downloads.length} downloaded items?'),
+        content: Text(
+            'Are you sure you want to delete all ${_downloads.length} downloaded items?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -167,16 +192,18 @@ class _DownloadsManagerScreenState extends State<DownloadsManagerScreen> {
 
     if (confirmed == true) {
       try {
+        final user = FirebaseAuth.instance.currentUser;
+        if (user == null) return;
         // Delete all from local database
         for (final download in _downloads) {
           final contentId = download['content_id']?.toString() ?? '';
           if (contentId.isNotEmpty) {
-            await _offlineDb.deleteDownload(contentId);
+            await _isarService.deleteDownloadedContent(contentId, user.uid);
           }
         }
-        
+
         await _loadDownloads();
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -200,25 +227,39 @@ class _DownloadsManagerScreenState extends State<DownloadsManagerScreen> {
 
   IconData _getContentIcon(String type) {
     switch (type.toLowerCase()) {
-      case 'video': return Icons.play_circle;
-      case 'short_note': return Icons.description;
-      case 'quiz': return Icons.quiz;
-      case 'exam': return Icons.assignment;
-      case 'flashcard': return Icons.style;
-      case 'past_paper': return Icons.folder_open;
-      default: return Icons.description;
+      case 'video':
+        return Icons.play_circle;
+      case 'short_note':
+        return Icons.description;
+      case 'quiz':
+        return Icons.quiz;
+      case 'exam':
+        return Icons.assignment;
+      case 'flashcard':
+        return Icons.style;
+      case 'past_paper':
+        return Icons.folder_open;
+      default:
+        return Icons.description;
     }
   }
 
   Color _getContentColor(String type) {
     switch (type.toLowerCase()) {
-      case 'video': return const Color(0xFFFF9800);
-      case 'short_note': return const Color(0xFF2196F3);
-      case 'quiz': return const Color(0xFF4CAF50);
-      case 'exam': return const Color(0xFF9C27B0);
-      case 'flashcard': return const Color(0xFFE91E63);
-      case 'past_paper': return const Color(0xFF795548);
-      default: return Colors.grey;
+      case 'video':
+        return const Color(0xFFFF9800);
+      case 'short_note':
+        return const Color(0xFF2196F3);
+      case 'quiz':
+        return const Color(0xFF4CAF50);
+      case 'exam':
+        return const Color(0xFF9C27B0);
+      case 'flashcard':
+        return const Color(0xFFE91E63);
+      case 'past_paper':
+        return const Color(0xFF795548);
+      default:
+        return Colors.grey;
     }
   }
 
@@ -229,10 +270,12 @@ class _DownloadsManagerScreenState extends State<DownloadsManagerScreen> {
 
     switch (contentType) {
       case 'video':
-        context.push('/video-player', extra: {'contentId': contentId, 'title': title});
+        context.push('/video-player',
+            extra: {'contentId': contentId, 'title': title});
         break;
       case 'short_note':
-        context.push('/pdf-viewer', extra: {'contentId': contentId, 'title': title});
+        context.push('/pdf-viewer',
+            extra: {'contentId': contentId, 'title': title});
         break;
       case 'quiz':
         context.push('/quiz', extra: {'contentId': contentId, 'title': title});
@@ -241,7 +284,8 @@ class _DownloadsManagerScreenState extends State<DownloadsManagerScreen> {
         context.push('/exam', extra: {'contentId': contentId, 'title': title});
         break;
       case 'flashcard':
-        context.push('/flashcard', extra: {'contentId': contentId, 'title': title});
+        context.push('/flashcard',
+            extra: {'contentId': contentId, 'title': title});
         break;
       case 'past_paper':
         context.push('/quiz', extra: {'contentId': contentId, 'title': title});
@@ -252,7 +296,9 @@ class _DownloadsManagerScreenState extends State<DownloadsManagerScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final storagePercentage = _storageTotal > 0 ? (_storageUsed / _storageTotal * 100).clamp(0, 100) : 0;
+    final storagePercentage = _storageTotal > 0
+        ? (_storageUsed / _storageTotal * 100).clamp(0, 100)
+        : 0;
     final isStorageWarning = storagePercentage > 80;
 
     return Scaffold(
@@ -297,7 +343,9 @@ class _DownloadsManagerScreenState extends State<DownloadsManagerScreen> {
                           gradient: LinearGradient(
                             colors: [
                               theme.cardColor,
-                              isStorageWarning ? Colors.orange.withOpacity(0.05) : theme.cardColor,
+                              isStorageWarning
+                                  ? Colors.orange.withAlpha(((255 * 0.05)).toInt())
+                                  : theme.cardColor,
                             ],
                           ),
                           borderRadius: BorderRadius.circular(16),
@@ -311,11 +359,13 @@ class _DownloadsManagerScreenState extends State<DownloadsManagerScreen> {
                               children: [
                                 Row(
                                   children: [
-                                    Icon(Icons.storage, color: AppColors.primary, size: 20),
+                                    Icon(Icons.storage,
+                                        color: AppColors.primary, size: 20),
                                     const SizedBox(width: 8),
                                     Text(
                                       'Storage Used',
-                                      style: theme.textTheme.titleMedium?.copyWith(
+                                      style:
+                                          theme.textTheme.titleMedium?.copyWith(
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -323,9 +373,10 @@ class _DownloadsManagerScreenState extends State<DownloadsManagerScreen> {
                                 ),
                                 if (isStorageWarning)
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 3),
                                     decoration: BoxDecoration(
-                                      color: Colors.orange.withOpacity(0.1),
+                                      color: Colors.orange.withAlpha(((255 * 0.1)).toInt()),
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Text(
@@ -346,7 +397,9 @@ class _DownloadsManagerScreenState extends State<DownloadsManagerScreen> {
                                 value: storagePercentage / 100,
                                 backgroundColor: Colors.grey[200],
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                  isStorageWarning ? Colors.orange : AppColors.primary,
+                                  isStorageWarning
+                                      ? Colors.orange
+                                      : AppColors.primary,
                                 ),
                                 minHeight: 8,
                               ),
@@ -358,7 +411,9 @@ class _DownloadsManagerScreenState extends State<DownloadsManagerScreen> {
                                 Text(
                                   '${_storageUsed.toStringAsFixed(1)} MB of ${_storageTotal.toStringAsFixed(0)} MB used',
                                   style: theme.textTheme.bodySmall?.copyWith(
-                                    color: isStorageWarning ? Colors.orange : Colors.grey[600],
+                                    color: isStorageWarning
+                                        ? Colors.orange
+                                        : Colors.grey[600],
                                   ),
                                 ),
                                 Text(
@@ -381,27 +436,30 @@ class _DownloadsManagerScreenState extends State<DownloadsManagerScreen> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Icon(
-                                      Icons.download_off,
+                                      Icons.file_download_off,
                                       size: 80,
                                       color: Colors.grey[400],
                                     ),
                                     const SizedBox(height: 16),
                                     Text(
                                       'No downloads yet',
-                                      style: theme.textTheme.titleLarge?.copyWith(
+                                      style:
+                                          theme.textTheme.titleLarge?.copyWith(
                                         color: Colors.grey[600],
                                       ),
                                     ),
                                     const SizedBox(height: 8),
                                     Text(
                                       'Downloaded content will appear here',
-                                      style: theme.textTheme.bodyMedium?.copyWith(
+                                      style:
+                                          theme.textTheme.bodyMedium?.copyWith(
                                         color: Colors.grey[500],
                                       ),
                                     ),
                                     const SizedBox(height: 24),
                                     ElevatedButton.icon(
-                                      onPressed: () => context.push('/subjects'),
+                                      onPressed: () =>
+                                          context.push('/subjects'),
                                       icon: const Icon(Icons.explore),
                                       label: const Text('Browse Subjects'),
                                       style: ElevatedButton.styleFrom(
@@ -413,24 +471,38 @@ class _DownloadsManagerScreenState extends State<DownloadsManagerScreen> {
                                 ),
                               )
                             : ListView.builder(
-                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 16),
                                 itemCount: _downloads.length,
                                 itemBuilder: (context, index) {
                                   final download = _downloads[index];
-                                  final contentType = download['content_type']?.toString() ?? 'document';
-                                  final title = download['title']?.toString() ?? 'Unknown';
-                                  final subject = download['subject']?.toString() ?? '';
-                                  final chapter = download['chapter']?.toString() ?? '';
-                                  final fileSizeMB = (download['file_size_bytes'] as int? ?? 0) / (1024 * 1024);
-                                  final downloadDate = download['download_date']?.toString() ?? '';
-                                  final isCompleted = download['is_completed'] == 1;
+                                  final contentType =
+                                      download['content_type']?.toString() ??
+                                          'document';
+                                  final title = download['title']?.toString() ??
+                                      'Unknown';
+                                  final subject =
+                                      download['subject']?.toString() ?? '';
+                                  final chapter =
+                                      download['chapter']?.toString() ?? '';
+                                  final fileSizeMB =
+                                      (download['file_size_bytes'] as int? ??
+                                              0) /
+                                          (1024 * 1024);
+                                  final downloadDate =
+                                      download['download_date']?.toString() ??
+                                          '';
+                                  final isCompleted =
+                                      download['is_completed'] == 1;
 
                                   final color = _getContentColor(contentType);
                                   final icon = _getContentIcon(contentType);
 
                                   return Card(
                                     margin: const EdgeInsets.only(bottom: 12),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(12)),
                                     child: InkWell(
                                       onTap: () => _openContent(download),
                                       borderRadius: BorderRadius.circular(12),
@@ -443,26 +515,31 @@ class _DownloadsManagerScreenState extends State<DownloadsManagerScreen> {
                                               width: 50,
                                               height: 50,
                                               decoration: BoxDecoration(
-                                                color: color.withOpacity(0.1),
-                                                borderRadius: BorderRadius.circular(10),
+                                                color: color.withAlpha(((255 * 0.1)).toInt()),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
                                               ),
-                                              child: Icon(icon, color: color, size: 28),
+                                              child: Icon(icon,
+                                                  color: color, size: 28),
                                             ),
                                             const SizedBox(width: 12),
-                                            
+
                                             // Details
                                             Expanded(
                                               child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
                                                     title,
                                                     style: const TextStyle(
-                                                      fontWeight: FontWeight.w600,
+                                                      fontWeight:
+                                                          FontWeight.w600,
                                                       fontSize: 14,
                                                     ),
                                                     maxLines: 1,
-                                                    overflow: TextOverflow.ellipsis,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
                                                   ),
                                                   const SizedBox(height: 2),
                                                   if (subject.isNotEmpty)
@@ -476,35 +553,60 @@ class _DownloadsManagerScreenState extends State<DownloadsManagerScreen> {
                                                   const SizedBox(height: 4),
                                                   Row(
                                                     children: [
-                                                      Icon(Icons.storage, size: 12, color: Colors.grey[500]),
+                                                      Icon(Icons.storage,
+                                                          size: 12,
+                                                          color:
+                                                              Colors.grey[500]),
                                                       const SizedBox(width: 4),
                                                       Text(
                                                         '${fileSizeMB.toStringAsFixed(1)} MB',
-                                                        style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+                                                        style: TextStyle(
+                                                            fontSize: 11,
+                                                            color: Colors
+                                                                .grey[500]),
                                                       ),
                                                       const SizedBox(width: 12),
-                                                      Icon(Icons.calendar_today, size: 12, color: Colors.grey[500]),
+                                                      Icon(Icons.calendar_today,
+                                                          size: 12,
+                                                          color:
+                                                              Colors.grey[500]),
                                                       const SizedBox(width: 4),
                                                       Text(
-                                                        _formatDate(downloadDate),
-                                                        style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+                                                        _formatDate(
+                                                            downloadDate),
+                                                        style: TextStyle(
+                                                            fontSize: 11,
+                                                            color: Colors
+                                                                .grey[500]),
                                                       ),
                                                       if (isCompleted) ...[
-                                                        const SizedBox(width: 12),
-                                                        Icon(Icons.check_circle, size: 12, color: Colors.green),
-                                                        const SizedBox(width: 4),
-                                                        Text('Completed', style: TextStyle(fontSize: 11, color: Colors.green)),
+                                                        const SizedBox(
+                                                            width: 12),
+                                                        Icon(Icons.check_circle,
+                                                            size: 12,
+                                                            color:
+                                                                Colors.green),
+                                                        const SizedBox(
+                                                            width: 4),
+                                                        Text('Completed',
+                                                            style: TextStyle(
+                                                                fontSize: 11,
+                                                                color: Colors
+                                                                    .green)),
                                                       ],
                                                     ],
                                                   ),
                                                 ],
                                               ),
                                             ),
-                                            
+
                                             // Delete button
                                             IconButton(
-                                              icon: const Icon(Icons.delete_outline, color: Colors.red),
-                                              onPressed: () => _deleteDownload(download),
+                                              icon: const Icon(
+                                                  Icons.delete_outline,
+                                                  color: Colors.red),
+                                              onPressed: () =>
+                                                  _deleteDownload(download),
                                               tooltip: 'Delete',
                                             ),
                                           ],
@@ -529,7 +631,8 @@ class _DownloadsManagerScreenState extends State<DownloadsManagerScreen> {
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: Colors.red,
                                 side: const BorderSide(color: Colors.red),
-                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 14),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -595,7 +698,8 @@ class _DownloadsManagerScreenState extends State<DownloadsManagerScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               ),
             ),
           ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../core/constants/colors.dart';
 import '../../widgets/common/gradient_button.dart';
 
@@ -16,48 +17,65 @@ class _StreamSelectionScreenState extends State<StreamSelectionScreen> {
   int? _grade;
   bool _isNavigating = false;
 
-  // Subject colors from ACADIA spec
-  static const Map<String, Color> _subjectColors = {
-    'Mathematics': Color(0xFF9C27B0),
-    'Physics': Color(0xFFFF9800),
-    'Chemistry': Color(0xFF4CAF50),
-    'Biology': Color(0xFFE91E63),
-    'English': Color(0xFF2196F3),
-    'IT': Color(0xFF3F51B5),
-    'Agriculture': Color(0xFF8BC34A),
-    'Aptitude': Color(0xFF708090),
-    'Economics': Color(0xFFFF5722),
-    'Geography': Color(0xFF009688),
-    'History': Color(0xFF795548),
-    'Citizenship': Color(0xFF00BCD4),
-  };
-
-  // Stream subjects from ACADIA spec
   static const Map<int, Map<String, List<String>>> _streamSubjects = {
     11: {
-      'natural': ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'IT', 'English', 'Agriculture', 'Aptitude'],
-      'social': ['Economics', 'Geography', 'History', 'Citizenship', 'IT', 'English', 'Mathematics', 'Aptitude'],
+      'natural': [
+        'Mathematics',
+        'Physics',
+        'Chemistry',
+        'Biology',
+        'IT',
+        'English',
+        'Agriculture',
+        'Aptitude',
+      ],
+      'social': [
+        'Economics',
+        'Geography',
+        'History',
+        'Citizenship',
+        'IT',
+        'English',
+        'Mathematics',
+        'Aptitude',
+      ],
     },
     12: {
-      'natural': ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'IT', 'English', 'Agriculture', 'Aptitude'],
-      'social': ['Economics', 'Geography', 'History', 'Citizenship', 'IT', 'English', 'Mathematics', 'Aptitude'],
+      'natural': [
+        'Mathematics',
+        'Physics',
+        'Chemistry',
+        'Biology',
+        'IT',
+        'English',
+        'Agriculture',
+        'Aptitude',
+      ],
+      'social': [
+        'Economics',
+        'Geography',
+        'History',
+        'Citizenship',
+        'IT',
+        'English',
+        'Mathematics',
+        'Aptitude',
+      ],
     },
   };
 
-  final List<StreamOption> _streams = [
+  final List<StreamOption> _streams = const [
     StreamOption(
       value: 'natural',
       title: 'NATURAL SCIENCE',
-      description: 'Focus on science and technology fields',
-      icon: Icons.science,
-      color: Colors.green,
+      description: 'Focus on science and technology-oriented subjects.',
+      icon: Icons.science_outlined,
     ),
     StreamOption(
       value: 'social',
       title: 'SOCIAL SCIENCE',
-      description: 'Focus on humanities and social studies',
-      icon: Icons.menu_book,
-      color: Colors.blue,
+      description: 'Focus on humanities, society, and analytical studies.',
+      icon: Icons.menu_book_outlined,
     ),
   ];
 
@@ -69,14 +87,18 @@ class _StreamSelectionScreenState extends State<StreamSelectionScreen> {
 
   Future<void> _loadGrade() async {
     final prefs = await SharedPreferences.getInstance();
-    final gradeString = prefs.getString('grade') ?? prefs.getString('selected_grade') ?? '11';
+    final gradeString =
+        prefs.getString('grade') ?? prefs.getString('selected_grade') ?? '11';
+
+    if (!mounted) return;
+
     setState(() {
-      _grade = int.tryParse(gradeString);
+      _grade = int.tryParse(gradeString) ?? 11;
     });
   }
 
   List<String> _getSubjects(String stream) {
-    return _streamSubjects[_grade ?? 11]?[stream] ?? [];
+    return _streamSubjects[_grade ?? 11]?[stream] ?? const [];
   }
 
   Future<void> _saveStreamAndContinue() async {
@@ -87,100 +109,160 @@ class _StreamSelectionScreenState extends State<StreamSelectionScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('stream', _selectedStream!);
     await prefs.setString('selected_stream', _selectedStream!);
-    await prefs.setBool('how_to_seen', false); // Show How-To popup on first dashboard load
-    
-    // Mark onboarding as complete
-    await prefs.setBool('onboarding_complete', true);
+    await prefs.setBool('how_to_seen', false);
+    await prefs.setBool('onboarding_complete', false);
 
     if (!mounted) return;
-    context.go('/dashboard');
+    context.pushReplacement('/register');
   }
 
   @override
   Widget build(BuildContext context) {
+    final grade = _grade ?? 11;
+
     return Scaffold(
       appBar: AppBar(
+        elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
+          onPressed: _isNavigating ? null : () => context.pop(),
         ),
         title: const Text('Select Your Stream'),
-        elevation: 0,
       ),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Grade indicator with icon
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(20),
+                      color: AppColors.primary.withAlpha(((255 * 0.08)).toInt()),
+                      borderRadius: BorderRadius.circular(999),
+                      border: Border.all(
+                        color: AppColors.primary.withAlpha(((255 * 0.14)).toInt()),
+                      ),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.school, color: AppColors.primary, size: 16),
+                        const Icon(
+                          Icons.school,
+                          color: AppColors.primary,
+                          size: 16,
+                        ),
                         const SizedBox(width: 6),
                         Text(
-                          'Grade $_grade',
-                          style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 14),
+                          'Grade $grade',
+                          style: const TextStyle(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 13,
+                          ),
                         ),
                       ],
                     ),
                   ),
                   const Spacer(),
                   Text(
-                    '${_streamSubjects[_grade ?? 11]?['natural']?.length ?? 8} subjects per stream',
-                    style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                    '8 subjects per stream',
+                    style: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
-
-              // Stream cards
-              ..._streams.map((stream) => Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: _buildStreamCard(stream),
-              )),
-              
-              const Spacer(),
-
-              // Permanent warning
+              const SizedBox(height: 18),
               Container(
-                padding: const EdgeInsets.all(12),
-                margin: const EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: Colors.amber.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.amber.withOpacity(0.3)),
+                  color: Colors.amber.withAlpha(((255 * 0.12)).toInt()),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: Colors.amber.withAlpha(((255 * 0.28)).toInt()),
+                  ),
                 ),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.warning_amber, color: Colors.amber[700], size: 20),
-                    const SizedBox(width: 12),
+                    Icon(
+                      Icons.warning_amber_rounded,
+                      color: Colors.amber.shade800,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        'This choice is permanent and cannot be changed after registration.',
-                        style: TextStyle(color: Colors.amber[800], fontSize: 13, fontWeight: FontWeight.w500),
+                        'This choice is permanent and will be saved to your account during registration.',
+                        style: TextStyle(
+                          color: Colors.amber.shade900,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          height: 1.4,
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-
-              // Continue Button
-              GradientButton(
-                text: 'CONTINUE TO DASHBOARD',
-                onPressed: _selectedStream != null && !_isNavigating ? _saveStreamAndContinue : () {},
-                isDisabled: _selectedStream == null || _isNavigating,
+              const SizedBox(height: 24),
+              ..._streams.map(
+                (stream) => Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: _buildStreamCard(stream),
+                ),
               ),
-              const SizedBox(height: 16),
+              const Spacer(),
+              if (_selectedStream != null)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withAlpha(((255 * 0.06)).toInt()),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: AppColors.primary.withAlpha(((255 * 0.14)).toInt()),
+                    ),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(
+                        Icons.info_outline,
+                        color: AppColors.primary,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'After choosing your stream, you will continue to registration to complete your account setup.',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey.shade800,
+                            height: 1.4,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              GradientButton(
+                text: 'CONTINUE',
+                onPressed: _selectedStream != null && !_isNavigating
+                    ? _saveStreamAndContinue
+                    : () {},
+                isDisabled: _selectedStream == null || _isNavigating,
+                isLoading: _isNavigating,
+              ),
+              const SizedBox(height: 12),
             ],
           ),
         ),
@@ -190,109 +272,121 @@ class _StreamSelectionScreenState extends State<StreamSelectionScreen> {
 
   Widget _buildStreamCard(StreamOption stream) {
     final isSelected = _selectedStream == stream.value;
-    final color = stream.color;
     final subjects = _getSubjects(stream.value);
 
-    return GestureDetector(
-      onTap: () => setState(() => _selectedStream = stream.value),
+    return InkWell(
+      borderRadius: BorderRadius.circular(20),
+      onTap: _isNavigating
+          ? null
+          : () => setState(() => _selectedStream = stream.value),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 220),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.05) : Colors.grey[50],
+          color:
+              isSelected ? AppColors.primary.withAlpha(((255 * 0.06)).toInt()) : Colors.white,
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? color : Colors.grey[200]!,
-            width: isSelected ? 2.5 : 1.5,
+            color: isSelected ? AppColors.primary : Colors.grey.shade300,
+            width: isSelected ? 2.2 : 1.2,
           ),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: isSelected
-              ? [BoxShadow(color: color.withOpacity(0.2), blurRadius: 12, offset: const Offset(0, 4))]
-              : [],
+          boxShadow: [
+            BoxShadow(
+              color: isSelected
+                  ? AppColors.primary.withAlpha(((255 * 0.14)).toInt())
+                  : Colors.black.withAlpha(((255 * 0.04)).toInt()),
+              blurRadius: isSelected ? 18 : 10,
+              offset: const Offset(0, 6),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header with icon and checkmark
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  width: 54,
+                  height: 54,
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(12),
+                    color: AppColors.primary.withAlpha(((255 * 0.10)).toInt()),
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                  child: Icon(stream.icon, color: color, size: 28),
+                  child: Icon(
+                    stream.icon,
+                    color: AppColors.primary,
+                    size: 28,
+                  ),
                 ),
+                const Spacer(),
                 if (isSelected)
                   Container(
                     padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: color,
+                    decoration: const BoxDecoration(
+                      color: AppColors.primary,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.check, color: Colors.white, size: 20),
+                    child: const Icon(
+                      Icons.check,
+                      color: Colors.white,
+                      size: 18,
+                    ),
                   ),
               ],
             ),
             const SizedBox(height: 16),
-
-            // Title
             Text(
               stream.title,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: isSelected ? color : Colors.black87,
+                fontWeight: FontWeight.w800,
+                color: AppColors.primary,
+                letterSpacing: 0.2,
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 6),
             Text(
               stream.description,
-              style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.grey.shade600,
+                height: 1.4,
+              ),
             ),
-            const SizedBox(height: 16),
-
-            // Subjects divider
+            const SizedBox(height: 14),
             Container(
               height: 1,
-              color: Colors.grey[200],
+              color: Colors.grey.shade200,
             ),
-            const SizedBox(height: 12),
-
-            // Subjects grid
+            const SizedBox(height: 14),
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: subjects.map((subject) {
-                final subjectColor = _subjectColors[subject] ?? color;
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: subjectColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: subjectColor.withOpacity(0.2)),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 6,
-                        height: 6,
-                        decoration: BoxDecoration(
-                          color: subjectColor,
-                          shape: BoxShape.circle,
+              children: subjects
+                  .map(
+                    (subject) => Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 7,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withAlpha(((255 * 0.08)).toInt()),
+                        borderRadius: BorderRadius.circular(999),
+                        border: Border.all(
+                          color: AppColors.primary.withAlpha(((255 * 0.12)).toInt()),
                         ),
                       ),
-                      const SizedBox(width: 6),
-                      Text(
+                      child: Text(
                         subject,
-                        style: TextStyle(fontSize: 11, color: subjectColor, fontWeight: FontWeight.w500),
+                        style: const TextStyle(
+                          fontSize: 11.5,
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ],
-                  ),
-                );
-              }).toList(),
+                    ),
+                  )
+                  .toList(),
             ),
           ],
         ),
@@ -306,13 +400,11 @@ class StreamOption {
   final String title;
   final String description;
   final IconData icon;
-  final Color color;
 
-  StreamOption({
+  const StreamOption({
     required this.value,
     required this.title,
     required this.description,
     required this.icon,
-    required this.color,
   });
 }

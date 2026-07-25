@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:acadia/src/core/services/firebase_service.dart';
 import 'package:acadia/src/core/services/download_manager.dart';
 import 'package:acadia/src/core/services/offline_database.dart';
@@ -40,14 +41,15 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
   bool _isLoading = true;
   final DownloadManager _downloadManager = DownloadManager();
   final OfflineDatabase _offlineDb = OfflineDatabase.instance;
+  String _userGrade = '';
 
   // Content type colors from ACADIA spec
   final Map<String, Color> _typeColors = {
-    'video': const Color(0xFFFF9800),      // Orange
+    'video': const Color(0xFFFF9800), // Orange
     'short_note': const Color(0xFF2196F3), // Blue
-    'quiz': const Color(0xFF4CAF50),       // Green
-    'exam': const Color(0xFF9C27B0),       // Purple
-    'flashcard': const Color(0xFFE91E63),  // Pink
+    'quiz': const Color(0xFF4CAF50), // Green
+    'exam': const Color(0xFF9C27B0), // Purple
+    'flashcard': const Color(0xFFE91E63), // Pink
     'past_paper': const Color(0xFF795548), // Brown
   };
 
@@ -89,7 +91,9 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
       // Group by content type
       final grouped = <String, List<Map<String, dynamic>>>{};
       for (final type in _contentTypes) {
-        grouped[type] = content.where((c) => c['content_type']?.toString() == type).toList();
+        grouped[type] = content
+            .where((c) => c['content_type']?.toString() == type)
+            .toList();
       }
 
       // Check which content is already downloaded
@@ -97,7 +101,8 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
       for (final item in content) {
         final contentId = item['id']?.toString() ?? '';
         if (contentId.isNotEmpty) {
-          downloaded[contentId] = await _offlineDb.isContentDownloaded(contentId);
+          downloaded[contentId] =
+              await _offlineDb.isContentDownloaded(contentId);
         }
       }
 
@@ -121,6 +126,12 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
     setState(() => _downloadProgress[contentId] = 0);
 
     try {
+      if (_userGrade.isEmpty) {
+        final prefs = await SharedPreferences.getInstance();
+        _userGrade =
+            prefs.getString('grade') ?? prefs.getString('selected_grade') ?? '';
+      }
+
       await _downloadManager.downloadContent(
         contentId: contentId,
         title: content['title']?.toString() ?? 'Untitled',
@@ -129,6 +140,7 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
         fileFormat: content['file_format']?.toString() ?? 'json',
         subject: widget.subjectName,
         chapter: widget.chapterName,
+        grade: _userGrade,
         onProgress: (progress) {
           if (mounted) setState(() => _downloadProgress[contentId] = progress);
         },
@@ -151,10 +163,16 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
       if (mounted) {
         setState(() => _downloadProgress.remove(contentId));
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Download failed: $e'), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text('Download failed: $e'),
+              backgroundColor: Colors.red),
         );
       }
     }
+  }
+
+  Future<void> _confirmAndDeleteDownload(String contentId) async {
+    await _deleteDownload(contentId);
   }
 
   Future<void> _deleteDownload(String contentId) async {
@@ -162,19 +180,25 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Content'),
-        content: const Text('Remove this content from your device? You can download it again later.'),
+        content: const Text(
+            'Remove this content from your device? You can download it again later.'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete', style: TextStyle(color: Colors.red))),
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Delete', style: TextStyle(color: Colors.red))),
         ],
       ),
     );
-    
+
     if (confirmed == true) {
       await _offlineDb.deleteDownload(contentId);
       setState(() => _downloadedContent[contentId] = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Content deleted'), backgroundColor: Colors.orange),
+        const SnackBar(
+            content: Text('Content deleted'), backgroundColor: Colors.orange),
       );
     }
   }
@@ -186,10 +210,12 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
 
     switch (contentType) {
       case 'video':
-        context.push('/video-player', extra: {'contentId': contentId, 'title': title});
+        context.push('/video-player',
+            extra: {'contentId': contentId, 'title': title});
         break;
       case 'short_note':
-        context.push('/pdf-viewer', extra: {'contentId': contentId, 'title': title});
+        context.push('/pdf-viewer',
+            extra: {'contentId': contentId, 'title': title});
         break;
       case 'quiz':
         context.push('/quiz', extra: {'contentId': contentId, 'title': title});
@@ -198,7 +224,8 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
         context.push('/exam', extra: {'contentId': contentId, 'title': title});
         break;
       case 'flashcard':
-        context.push('/flashcard', extra: {'contentId': contentId, 'title': title});
+        context.push('/flashcard',
+            extra: {'contentId': contentId, 'title': title});
         break;
       case 'past_paper':
         context.push('/quiz', extra: {'contentId': contentId, 'title': title});
@@ -250,7 +277,8 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.subjectName),
-        leading: IconButton(onPressed: () => context.pop(), icon: const Icon(Icons.arrow_back)),
+        leading: IconButton(
+            onPressed: () => context.pop(), icon: const Icon(Icons.arrow_back)),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -272,10 +300,15 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(widget.subjectName,
-                          style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 14)),
+                          style: TextStyle(
+                              color: Colors.white.withAlpha(((255 * 0.8)).toInt()),
+                              fontSize: 14)),
                       const SizedBox(height: 4),
                       Text(widget.chapterName,
-                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20)),
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20)),
                     ],
                   ),
                 ),
@@ -305,22 +338,28 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withAlpha(((255 * 0.1)).toInt()),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, color: color, size: 24),
             ),
             const SizedBox(width: 12),
-            Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            Text(label,
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
             const Spacer(),
             if (items.isNotEmpty)
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withAlpha(((255 * 0.1)).toInt()),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Text('${items.length}', style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.bold)),
+                child: Text('${items.length}',
+                    style: TextStyle(
+                        color: color,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold)),
               ),
           ],
         ),
@@ -330,21 +369,24 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
         if (items.isEmpty)
           Card(
             margin: const EdgeInsets.only(bottom: 20),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: Row(
                 children: [
-                  Icon(Icons.hourglass_empty, color: Colors.grey[400], size: 24),
+                  Icon(Icons.hourglass_empty,
+                      color: Colors.grey[400], size: 24),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Content will be uploaded soon by admin',
+                        Text('Content will be uploaded soon by NextGen team',
                             style: TextStyle(color: Colors.grey[500])),
                         Text('Check back later for updates',
-                            style: TextStyle(color: Colors.grey[400], fontSize: 12)),
+                            style: TextStyle(
+                                color: Colors.grey[400], fontSize: 12)),
                       ],
                     ),
                   ),
@@ -375,7 +417,10 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 1,
       child: InkWell(
-        onTap: isDownloaded ? () => _openContent(item) : () => _downloadContent(item),
+        onTap: () => _openContent(item),
+        onLongPress: isDownloaded
+            ? () => _confirmAndDeleteDownload(item['id']?.toString() ?? '')
+            : null,
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(12),
@@ -387,10 +432,11 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: color.withOpacity(0.1),
+                      color: color.withAlpha(((255 * 0.1)).toInt()),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Icon(_typeIcons[contentType] ?? Icons.article, color: color, size: 28),
+                    child: Icon(_typeIcons[contentType] ?? Icons.article,
+                        color: color, size: 28),
                   ),
                   if (isDownloaded)
                     Positioned(
@@ -398,8 +444,10 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
                       bottom: -2,
                       child: Container(
                         padding: const EdgeInsets.all(3),
-                        decoration: const BoxDecoration(color: Colors.green, shape: BoxShape.circle),
-                        child: const Icon(Icons.check, color: Colors.white, size: 12),
+                        decoration: const BoxDecoration(
+                            color: Colors.green, shape: BoxShape.circle),
+                        child: const Icon(Icons.check,
+                            color: Colors.white, size: 12),
                       ),
                     ),
                   if (isFree && !isDownloaded)
@@ -407,12 +455,17 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
                       right: -2,
                       top: -2,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 4, vertical: 2),
                         decoration: BoxDecoration(
                           color: Colors.blue,
                           borderRadius: BorderRadius.circular(4),
                         ),
-                        child: const Text('FREE', style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold)),
+                        child: const Text('FREE',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 8,
+                                fontWeight: FontWeight.bold)),
                       ),
                     ),
                 ],
@@ -426,7 +479,8 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w600, fontSize: 15),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -440,12 +494,14 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
                     const SizedBox(height: 4),
                     if (isFree)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: Colors.blue.withOpacity(0.1),
+                          color: Colors.blue.withAlpha(((255 * 0.1)).toInt()),
                           borderRadius: BorderRadius.circular(4),
                         ),
-                        child: const Text('Free Content', style: TextStyle(color: Colors.blue, fontSize: 10)),
+                        child: const Text('Free Content',
+                            style: TextStyle(color: Colors.blue, fontSize: 10)),
                       ),
                   ],
                 ),
@@ -466,25 +522,32 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
                       ),
                       Text(
                         '${(downloadProgress * 100).toInt()}%',
-                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            fontSize: 10, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
                 )
               else if (isDownloaded)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.1),
+                    color: Colors.green.withAlpha(((255 * 0.1)).toInt()),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.green.withOpacity(0.3)),
+                    border: Border.all(color: Colors.green.withAlpha(((255 * 0.3)).toInt())),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.check_circle, color: Colors.green, size: 14),
+                      const Icon(Icons.check_circle,
+                          color: Colors.green, size: 14),
                       const SizedBox(width: 4),
-                      const Text('OFFLINE', style: TextStyle(color: Colors.green, fontSize: 10, fontWeight: FontWeight.bold)),
+                      const Text('OFFLINE',
+                          style: TextStyle(
+                              color: Colors.green,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold)),
                     ],
                   ),
                 )
@@ -497,11 +560,13 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
                         padding: const EdgeInsets.only(right: 8),
                         child: Text(
                           '${item['file_size_mb']} MB',
-                          style: TextStyle(color: Colors.grey[500], fontSize: 11),
+                          style:
+                              TextStyle(color: Colors.grey[500], fontSize: 11),
                         ),
                       ),
                     IconButton(
-                      icon: Icon(Icons.download, color: AppColors.primary, size: 24),
+                      icon: Icon(Icons.download,
+                          color: AppColors.primary, size: 24),
                       onPressed: () => _downloadContent(item),
                       tooltip: 'Download for offline use',
                       padding: EdgeInsets.zero,
@@ -522,7 +587,7 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
     final hours = s ~/ 3600;
     final minutes = (s % 3600) ~/ 60;
     final remainingSeconds = s % 60;
-    
+
     if (hours > 0) {
       return '$hours:${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
     } else if (minutes > 0) {

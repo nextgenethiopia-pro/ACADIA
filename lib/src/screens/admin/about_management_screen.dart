@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:acadia/src/core/services/firebase_service.dart';
 import 'package:acadia/src/core/constants/colors.dart';
 import 'package:acadia/src/widgets/common/gradient_button.dart';
@@ -12,7 +13,7 @@ class AboutManagementScreen extends StatefulWidget {
 
 class _AboutManagementScreenState extends State<AboutManagementScreen> {
   final FirebaseService _firebaseService = FirebaseService();
-  
+
   // Controllers
   final _developerNameController = TextEditingController();
   final _developerEmailController = TextEditingController();
@@ -30,7 +31,7 @@ class _AboutManagementScreenState extends State<AboutManagementScreen> {
   final _descriptionController = TextEditingController();
   final _copyrightYearController = TextEditingController();
   final _copyrightTextController = TextEditingController();
-  
+
   bool _isLoading = true;
   bool _isSaving = false;
 
@@ -65,28 +66,41 @@ class _AboutManagementScreenState extends State<AboutManagementScreen> {
     setState(() => _isLoading = true);
     try {
       final settings = await _firebaseService.getAppSettings();
-      
+
       if (settings != null) {
         final about = settings['about_content'] as Map<String, dynamic>? ?? {};
-        
-        _developerNameController.text = about['developer_name']?.toString() ?? 'NextGen Ethiopia PLC';
-        _developerEmailController.text = about['developer_email']?.toString() ?? 'nextgenethiopia@gmail.com';
-        _telegramController.text = about['telegram']?.toString() ?? '@acadia_support';
-        _telegramUrlController.text = about['telegram_url']?.toString() ?? 'https://t.me/acadia_support';
-        _websiteController.text = about['website']?.toString() ?? 'www.acadia.app';
-        _websiteUrlController.text = about['website_url']?.toString() ?? 'https://www.acadia.app';
-        _facebookUrlController.text = about['facebook_url']?.toString() ?? 'https://facebook.com/acadia.app';
-        _instagramUrlController.text = about['instagram_url']?.toString() ?? 'https://instagram.com/acadia.app';
-        _twitterUrlController.text = about['twitter_url']?.toString() ?? 'https://twitter.com/acadia_app';
-        _youtubeUrlController.text = about['youtube_url']?.toString() ?? 'https://youtube.com/@acadia-app';
-        _tiktokUrlController.text = about['tiktok_url']?.toString() ?? 'https://tiktok.com/@acadia_app';
+
+        _developerNameController.text =
+            about['developer_name']?.toString() ?? 'NextGen Ethiopia PLC';
+        _developerEmailController.text =
+            about['developer_email']?.toString() ?? 'nextgenethiopia@gmail.com';
+        _telegramController.text =
+            about['telegram']?.toString() ?? '@acadia_support';
+        _telegramUrlController.text =
+            about['telegram_url']?.toString() ?? 'https://t.me/acadia_support';
+        _websiteController.text =
+            about['website']?.toString() ?? 'www.acadia.app';
+        _websiteUrlController.text =
+            about['website_url']?.toString() ?? 'https://www.acadia.app';
+        _facebookUrlController.text = about['facebook_url']?.toString() ??
+            'https://facebook.com/acadia.app';
+        _instagramUrlController.text = about['instagram_url']?.toString() ??
+            'https://instagram.com/acadia.app';
+        _twitterUrlController.text = about['twitter_url']?.toString() ??
+            'https://twitter.com/acadia_app';
+        _youtubeUrlController.text = about['youtube_url']?.toString() ??
+            'https://youtube.com/@acadia-app';
+        _tiktokUrlController.text =
+            about['tiktok_url']?.toString() ?? 'https://tiktok.com/@acadia_app';
         _missionController.text = settings['mission']?.toString() ?? '';
         _visionController.text = settings['vision']?.toString() ?? '';
         _descriptionController.text = about['description']?.toString() ?? '';
-        _copyrightYearController.text = about['copyright_year']?.toString() ?? '2026';
-        _copyrightTextController.text = about['copyright_text']?.toString() ?? 'All rights reserved.';
+        _copyrightYearController.text =
+            about['copyright_year']?.toString() ?? '2026';
+        _copyrightTextController.text =
+            about['copyright_text']?.toString() ?? 'All rights reserved.';
       }
-      
+
       setState(() => _isLoading = false);
     } catch (e) {
       setState(() => _isLoading = false);
@@ -96,7 +110,7 @@ class _AboutManagementScreenState extends State<AboutManagementScreen> {
 
   Future<void> _saveData() async {
     setState(() => _isSaving = true);
-    
+
     try {
       final aboutContent = {
         'developer_name': _developerNameController.text.trim(),
@@ -115,17 +129,19 @@ class _AboutManagementScreenState extends State<AboutManagementScreen> {
         'copyright_text': _copyrightTextController.text.trim(),
         'last_updated': DateTime.now().toIso8601String(),
       };
-      
+
       final currentSettings = await _firebaseService.getAppSettings() ?? {};
       currentSettings['about_content'] = aboutContent;
       currentSettings['mission'] = _missionController.text.trim();
       currentSettings['vision'] = _visionController.text.trim();
-      
+
       await _firebaseService.updateAppSettings(currentSettings);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('About content saved!'), backgroundColor: Colors.green),
+          const SnackBar(
+              content: Text('About content saved!'),
+              backgroundColor: Colors.green),
         );
         Navigator.pop(context);
       }
@@ -145,9 +161,9 @@ class _AboutManagementScreenState extends State<AboutManagementScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(
-        appBar: AppBar(title: Text('About Management')),
-        body: Center(child: CircularProgressIndicator()),
+      return Scaffold(
+        appBar: AppBar(title: const Text('About Management')),
+        body: const Center(child: CircularProgressIndicator()),
       );
     }
 
@@ -165,57 +181,70 @@ class _AboutManagementScreenState extends State<AboutManagementScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildSection('Developer Information', [
-              _buildTextField(_developerNameController, 'Developer Name', 'NextGen Ethiopia PLC'),
-              _buildTextField(_developerEmailController, 'Developer Email', 'nextgenethiopia@gmail.com', isEmail: true),
-              _buildTextField(_telegramController, 'Telegram Username', '@acadia_support'),
-              _buildTextField(_telegramUrlController, 'Telegram URL', 'https://t.me/acadia_support', isUrl: true),
-              _buildTextField(_websiteController, 'Website Name', 'www.acadia.app'),
-              _buildTextField(_websiteUrlController, 'Website URL', 'https://www.acadia.app', isUrl: true),
+              _buildTextField(_developerNameController, 'Developer Name',
+                  'NextGen Ethiopia PLC'),
+              _buildTextField(_developerEmailController, 'Developer Email',
+                  'nextgenethiopia@gmail.com',
+                  isEmail: true),
+              _buildTextField(
+                  _telegramController, 'Telegram Username', '@acadia_support'),
+              _buildTextField(_telegramUrlController, 'Telegram URL',
+                  'https://t.me/acadia_support',
+                  isUrl: true),
+              _buildTextField(
+                  _websiteController, 'Website Name', 'www.acadia.app'),
+              _buildTextField(_websiteUrlController, 'Website URL',
+                  'https://www.acadia.app',
+                  isUrl: true),
             ]),
-            
             const SizedBox(height: 24),
-            
             _buildSection('Mission & Vision', [
-              _buildMultilineTextField(_missionController, 'Mission Statement', 'Enter mission...'),
+              _buildMultilineTextField(
+                  _missionController, 'Mission Statement', 'Enter mission...'),
               const SizedBox(height: 12),
-              _buildMultilineTextField(_visionController, 'Vision Statement', 'Enter vision...'),
+              _buildMultilineTextField(
+                  _visionController, 'Vision Statement', 'Enter vision...'),
             ]),
-            
             const SizedBox(height: 24),
-            
             _buildSection('App Description', [
-              _buildMultilineTextField(_descriptionController, 'Description', 'Enter app description...'),
+              _buildMultilineTextField(_descriptionController, 'Description',
+                  'Enter app description...'),
             ]),
-            
             const SizedBox(height: 24),
-            
             _buildSection('Social Media Links', [
-              _buildTextField(_facebookUrlController, 'Facebook URL', 'https://facebook.com/', isUrl: true),
+              _buildTextField(_facebookUrlController, 'Facebook URL',
+                  'https://facebook.com/',
+                  isUrl: true),
               const SizedBox(height: 12),
-              _buildTextField(_instagramUrlController, 'Instagram URL', 'https://instagram.com/', isUrl: true),
+              _buildTextField(_instagramUrlController, 'Instagram URL',
+                  'https://instagram.com/',
+                  isUrl: true),
               const SizedBox(height: 12),
-              _buildTextField(_twitterUrlController, 'Twitter/X URL', 'https://twitter.com/', isUrl: true),
+              _buildTextField(_twitterUrlController, 'Twitter/X URL',
+                  'https://twitter.com/',
+                  isUrl: true),
               const SizedBox(height: 12),
-              _buildTextField(_youtubeUrlController, 'YouTube URL', 'https://youtube.com/', isUrl: true),
+              _buildTextField(
+                  _youtubeUrlController, 'YouTube URL', 'https://youtube.com/',
+                  isUrl: true),
               const SizedBox(height: 12),
-              _buildTextField(_tiktokUrlController, 'TikTok URL', 'https://tiktok.com/', isUrl: true),
+              _buildTextField(
+                  _tiktokUrlController, 'TikTok URL', 'https://tiktok.com/',
+                  isUrl: true),
             ]),
-            
             const SizedBox(height: 24),
-            
             _buildSection('Copyright', [
-              _buildTextField(_copyrightYearController, 'Copyright Year', '2026'),
-              _buildTextField(_copyrightTextController, 'Copyright Text', 'All rights reserved.'),
+              _buildTextField(
+                  _copyrightYearController, 'Copyright Year', '2026'),
+              _buildTextField(_copyrightTextController, 'Copyright Text',
+                  'All rights reserved.'),
             ]),
-            
             const SizedBox(height: 32),
-            
             GradientButton(
               text: 'SAVE CHANGES',
               onPressed: _saveData,
               isLoading: _isSaving,
             ),
-            
             const SizedBox(height: 32),
           ],
         ),
@@ -237,7 +266,10 @@ class _AboutManagementScreenState extends State<AboutManagementScreen> {
           children: [
             Text(
               title,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.primary),
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: AppColors.primary),
             ),
             const SizedBox(height: 16),
             ...children,
@@ -247,7 +279,8 @@ class _AboutManagementScreenState extends State<AboutManagementScreen> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String label, String hint, 
+  Widget _buildTextField(
+      TextEditingController controller, String label, String hint,
       {bool isEmail = false, bool isUrl = false}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -264,12 +297,15 @@ class _AboutManagementScreenState extends State<AboutManagementScreen> {
                 )
               : null,
         ),
-        keyboardType: isEmail ? TextInputType.emailAddress : (isUrl ? TextInputType.url : TextInputType.text),
+        keyboardType: isEmail
+            ? TextInputType.emailAddress
+            : (isUrl ? TextInputType.url : TextInputType.text),
       ),
     );
   }
 
-  Widget _buildMultilineTextField(TextEditingController controller, String label, String hint) {
+  Widget _buildMultilineTextField(
+      TextEditingController controller, String label, String hint) {
     return TextField(
       controller: controller,
       maxLines: 4,
