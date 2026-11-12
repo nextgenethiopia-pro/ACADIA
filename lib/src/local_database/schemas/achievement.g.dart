@@ -15,7 +15,7 @@ extension GetAchievementCollection on Isar {
 
 const AchievementSchema = CollectionSchema(
   name: r'Achievement',
-  id: -1910108531206464,
+  id: -1511299366265280024,
   properties: {
     r'badgeName': PropertySchema(
       id: 0,

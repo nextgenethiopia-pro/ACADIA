@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:acadia/src/core/services/firebase_service.dart';
+import 'package:acadia/src/core/di/injection.dart';
+import 'package:acadia/src/core/services/github_content_service.dart';
 import 'package:acadia/src/core/constants/colors.dart';
-import 'package:csv/csv.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
 import 'package:share_plus/share_plus.dart';
+import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 
 class AnalyticsDashboardScreen extends StatefulWidget {
@@ -46,15 +50,23 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
         if (!_isLoading) _isRefreshing = true;
       });
     }
-    
+
     try {
       final firebase = FirebaseService();
+      final github = getIt<GithubContentService>();
       final users = await firebase.getDocuments('users');
-      final content = await firebase.getDocuments('content');
       final payments = await firebase.getDocuments('payments');
 
+      Map<String, dynamic>? subjectsIndex;
+      try {
+        subjectsIndex = await github.getSubjectsIndex();
+      } catch (e) {
+        debugPrint('Unable to load GitHub subject metadata: $e');
+      }
+      final subjectsFromGithub = _flattenSubjectsIndex(subjectsIndex);
+
       _totalUsers = users.length;
-      _totalContent = content.length;
+      _totalContent = subjectsFromGithub.length;
 
       final approvedPayments = payments.where((p) => p['status'] == 'approved').toList();
       _totalRevenue = approvedPayments.fold<double>(0, (sum, p) => sum + ((p['amount'] as num?)?.toDouble() ?? 0));
@@ -65,8 +77,8 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
       _newUsersThisMonth = growthData['newUsers'];
       _revenueTrend = _calculateRevenueTrend(approvedPayments);
       _revenueByPackage = _calculateRevenueByPackage(approvedPayments);
-      _mostViewedContent = _calculateMostViewedContent(content);
-      _contentByType = _calculateContentByType(content);
+      _mostViewedContent = _calculateSubjectsByAcademicPath(subjectsFromGithub);
+      _contentByType = _calculateContentByType(subjectsFromGithub);
       _paymentMethodDistribution = _calculatePaymentMethodDistribution(payments);
 
       if (mounted) {
@@ -112,10 +124,10 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
     final now = DateTime.now();
     final thisMonth = DateTime(now.year, now.month, 1);
     final lastMonth = DateTime(now.year, now.month - 1, 1);
-    
+
     int thisMonthCount = 0;
     int lastMonthCount = 0;
-    
+
     for (final user in users) {
       try {
         final date = DateTime.parse(user['created_at']?.toString() ?? '');
@@ -128,14 +140,14 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
         // Ignore invalid dates
       }
     }
-    
+
     int percentage;
     if (lastMonthCount == 0) {
       percentage = thisMonthCount > 0 ? 100 : 0;
     } else {
       percentage = ((thisMonthCount - lastMonthCount) / lastMonthCount * 100).round();
     }
-    
+
     return {'percentage': percentage, 'newUsers': thisMonthCount};
   }
 
@@ -143,11 +155,11 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
     final now = DateTime.now();
     final months = <Map<String, dynamic>>[];
     final monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    
+
     for (int i = 5; i >= 0; i--) {
       final month = DateTime(now.year, now.month - i, 1);
       final nextMonth = i == 0 ? now.add(const Duration(days: 1)) : DateTime(now.year, now.month - i + 1, 1);
-      
+
       double revenue = 0;
       for (final p in payments) {
         try {
@@ -174,28 +186,49 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
       ..sort((a, b) => (b['revenue'] as double).compareTo(a['revenue'] as double));
   }
 
-  List<Map<String, dynamic>> _calculateMostViewedContent(List<Map<String, dynamic>> content) {
-    final sorted = List<Map<String, dynamic>>.from(content)
-      ..sort((a, b) {
-        final aVal = a['download_count'] is int ? a['download_count'] as int : int.tryParse(a['download_count']?.toString() ?? '0') ?? 0;
-        final bVal = b['download_count'] is int ? b['download_count'] as int : int.tryParse(b['download_count']?.toString() ?? '0') ?? 0;
-        return bVal - aVal;
-      });
-    return sorted.where((c) => (c['download_count'] as int? ?? 0) > 0).take(10).map((c) => ({
-      'title': c['title']?.toString() ?? 'Untitled',
-      'type': c['content_type']?.toString() ?? 'unknown',
-      'subject': c['subject']?.toString() ?? '',
-      'downloads': c['download_count']?.toString() ?? '0'
-    })).toList();
+  List<Map<String, dynamic>> _flattenSubjectsIndex(Map<String, dynamic>? index) {
+    if (index == null) return const [];
+    final subjects = <Map<String, dynamic>>[];
+    for (final entry in index.entries) {
+      final value = entry.value;
+      if (value is! List) continue;
+      for (final raw in value) {
+        if (raw is! Map) continue;
+        final subject = Map<String, dynamic>.from(raw);
+        subject['academic_key'] = entry.key;
+        subjects.add(subject);
+      }
+    }
+    return subjects;
   }
 
-  List<Map<String, dynamic>> _calculateContentByType(List<Map<String, dynamic>> content) {
-    final typeCounts = <String, int>{};
-    for (final c in content) {
-      final type = c['content_type']?.toString() ?? 'unknown';
-      typeCounts[type] = (typeCounts[type] ?? 0) + 1;
+  String _academicLabel(String key) {
+    if (key.isEmpty) return 'Unknown path';
+    return key
+        .replaceAll('_', ' ')
+        .split(' ')
+        .where((part) => part.isNotEmpty)
+        .map((part) => '${part.substring(0, 1).toUpperCase()}${part.substring(1)}')
+        .join(' ');
+  }
+
+  List<Map<String, dynamic>> _calculateSubjectsByAcademicPath(List<Map<String, dynamic>> subjects) {
+    final pathCounts = <String, int>{};
+    for (final subject in subjects) {
+      final path = subject['academic_key']?.toString() ?? 'unknown';
+      pathCounts[path] = (pathCounts[path] ?? 0) + 1;
     }
-    return typeCounts.entries.map((e) => {'type': e.key, 'count': e.value}).toList()
+    final entries = pathCounts.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
+    return entries.map((e) => {'title': _academicLabel(e.key), 'count': e.value}).toList();
+  }
+
+  List<Map<String, dynamic>> _calculateContentByType(List<Map<String, dynamic>> subjects) {
+    final nameCounts = <String, int>{};
+    for (final subject in subjects) {
+      final name = (subject['name'] ?? subject['title'] ?? subject['id'] ?? 'Unknown').toString();
+      nameCounts[name] = (nameCounts[name] ?? 0) + 1;
+    }
+    return nameCounts.entries.map((e) => {'type': e.key, 'count': e.value}).toList()
       ..sort((a, b) => (b['count'] as int) - (a['count'] as int));
   }
 
@@ -227,32 +260,250 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
     }
   }
 
-  Future<void> _exportCSV() async {
+  Future<void> _exportFullReportPDF() async {
     try {
-      final csvData = <List<String>>[];
-      csvData.add(['Metric', 'Value']);
-      csvData.add(['Total Users', _totalUsers.toString()]);
-      csvData.add(['Total Content', _totalContent.toString()]);
-      csvData.add(['Total Revenue', _totalRevenue.toString()]);
-      csvData.add(['Total Universities', _totalUniversities.toString()]);
-      csvData.add(['User Growth', '$_userGrowthPercentage%']);
-      csvData.add(['New Users This Month', _newUsersThisMonth.toString()]);
-      csvData.add(['']);
-      csvData.add(['Revenue by Package']);
-      csvData.add(['Package', 'Revenue']);
-      for (final p in _revenueByPackage) {
-        csvData.add([p['package'].toString(), p['revenue'].toString()]);
+      final pdf = pw.Document();
+
+      // Cover Page
+      pdf.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          build: (pw.Context context) {
+            return pw.Column(
+              mainAxisAlignment: pw.MainAxisAlignment.center,
+              crossAxisAlignment: pw.CrossAxisAlignment.center,
+              children: [
+                pw.Text('ACADIA', style: pw.TextStyle(fontSize: 48, fontWeight: pw.FontWeight.bold, color: PdfColors.blue700)),
+                pw.Text('Analytics Report', style: pw.TextStyle(fontSize: 32, fontWeight: pw.FontWeight.bold)),
+                pw.SizedBox(height: 20),
+                pw.Text('Generated: ${DateTime.now().toString().split(' ')[0]}', style: pw.TextStyle(fontSize: 16, color: PdfColors.grey)),
+                pw.SizedBox(height: 40),
+                pw.Container(width: 200, height: 2, color: PdfColors.blue700),
+                pw.SizedBox(height: 20),
+                pw.Text('ACADIA - Digital Education Platform', style: pw.TextStyle(fontSize: 14, color: PdfColors.grey)),
+                pw.Text('Powered by NextGen Ethiopia', style: pw.TextStyle(fontSize: 12, color: PdfColors.grey)),
+              ],
+            );
+          },
+        ),
+      );
+
+      // Overview Metrics
+      pdf.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          build: (pw.Context context) {
+            return pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text('Overview Metrics', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold, color: PdfColors.blue700)),
+                pw.Divider(thickness: 2),
+                pw.SizedBox(height: 16),
+                pw.TableHelper.fromTextArray(
+                  context: context,
+                  data: <List<String>>[
+                    <String>['Metric', 'Value'],
+                    <String>['Total Registered Users', '$_totalUsers'],
+                    <String>['Total Subjects (GitHub)', '$_totalContent'],
+                    <String>['Total Revenue', _formatCurrency(_totalRevenue)],
+                    <String>['Universities Supported', '$_totalUniversities'],
+                    <String>['User Growth Rate', '$_userGrowthPercentage%'],
+                    <String>['New Users (This Month)', '$_newUsersThisMonth'],
+                  ],
+                  headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                ),
+                pw.SizedBox(height: 20),
+                pw.Text('Summary', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 14)),
+                pw.SizedBox(height: 8),
+                pw.Text(
+                  'ACADIA currently serves $_totalUsers users across $_totalUniversities universities '
+                  'with $_totalContent subject materials. Revenue has reached ${_formatCurrency(_totalRevenue)} '
+                  'with a user growth rate of $_userGrowthPercentage%.',
+                  style: pw.TextStyle(fontSize: 11),
+                ),
+              ],
+            );
+          },
+        ),
+      );
+
+      // Users by Academic Path
+      pdf.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          build: (pw.Context context) {
+            return pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text('Users by Academic Path', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold, color: PdfColors.blue700)),
+                pw.Divider(thickness: 2),
+                pw.SizedBox(height: 16),
+                pw.TableHelper.fromTextArray(
+                  context: context,
+                  data: <List<String>>[
+                    <String>['Academic Path', 'Users', 'Percentage'],
+                    ..._usersByPath.map((u) {
+                      final count = u['count'] as int;
+                      final percentage = _totalUsers > 0 ? (count / _totalUsers * 100).toStringAsFixed(1) : '0.0';
+                      return <String>[u['path'].toString(), count.toString(), '$percentage%'];
+                    }),
+                  ],
+                  headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                ),
+                pw.SizedBox(height: 20),
+                pw.Text('Total: $_totalUsers users', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+              ],
+            );
+          },
+        ),
+      );
+
+      // Revenue by Package
+      pdf.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          build: (pw.Context context) {
+            return pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text('Revenue by Package', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold, color: PdfColors.blue700)),
+                pw.Divider(thickness: 2),
+                pw.SizedBox(height: 16),
+                pw.TableHelper.fromTextArray(
+                  context: context,
+                  data: <List<String>>[
+                    <String>['Package', 'Revenue (ETB)', 'Percentage'],
+                    ..._revenueByPackage.map((r) {
+                      final revenue = r['revenue'] as double;
+                      final percentage = _totalRevenue > 0 ? (revenue / _totalRevenue * 100).toStringAsFixed(1) : '0.0';
+                      return <String>[
+                        r['package'].toString(),
+                        revenue.toStringAsFixed(2),
+                        '$percentage%'
+                      ];
+                    }),
+                  ],
+                  headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                ),
+                pw.SizedBox(height: 20),
+                pw.Text('Total Revenue: ${_formatCurrency(_totalRevenue)}', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+              ],
+            );
+          },
+        ),
+      );
+
+      // Payment Method Distribution
+      pdf.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          build: (pw.Context context) {
+            return pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text('Payment Method Distribution', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold, color: PdfColors.blue700)),
+                pw.Divider(thickness: 2),
+                pw.SizedBox(height: 16),
+                pw.TableHelper.fromTextArray(
+                  context: context,
+                  data: <List<String>>[
+                    <String>['Payment Method', 'Count', 'Percentage'],
+                    ..._paymentMethodDistribution.map((p) {
+                      final count = p['count'] as int;
+                      final total = _paymentMethodDistribution.fold<int>(0, (sum, m) => sum + (m['count'] as int));
+                      final percentage = total > 0 ? (count / total * 100).toStringAsFixed(1) : '0.0';
+                      return <String>[
+                        p['method'].toString(),
+                        count.toString(),
+                        '$percentage%'
+                      ];
+                    }),
+                  ],
+                  headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                ),
+              ],
+            );
+          },
+        ),
+      );
+
+      // Content by Academic Path
+      pdf.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          build: (pw.Context context) {
+            return pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text('Content by Academic Path', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold, color: PdfColors.blue700)),
+                pw.Divider(thickness: 2),
+                pw.SizedBox(height: 16),
+                pw.TableHelper.fromTextArray(
+                  context: context,
+                  data: <List<String>>[
+                    <String>['Academic Path', 'Subjects', 'Percentage'],
+                    ..._mostViewedContent.map((c) {
+                      final count = c['count'] as int;
+                      final total = _totalContent;
+                      final percentage = total > 0 ? (count / total * 100).toStringAsFixed(1) : '0.0';
+                      return <String>[
+                        c['title'].toString(),
+                        count.toString(),
+                        '$percentage%'
+                      ];
+                    }),
+                  ],
+                  headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                ),
+                pw.SizedBox(height: 20),
+                pw.Text('Total Subjects: $_totalContent', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+              ],
+            );
+          },
+        ),
+      );
+
+      // Footer
+      pdf.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          build: (pw.Context context) {
+            return pw.Column(
+              mainAxisAlignment: pw.MainAxisAlignment.center,
+              crossAxisAlignment: pw.CrossAxisAlignment.center,
+              children: [
+                pw.Text('ACADIA Analytics Report', style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold, color: PdfColors.blue700)),
+                pw.SizedBox(height: 16),
+                pw.Text('Report generated on ${DateTime.now().toString().split(' ')[0]}', style: pw.TextStyle(fontSize: 14, color: PdfColors.grey)),
+                pw.SizedBox(height: 40),
+                pw.Divider(thickness: 1),
+                pw.SizedBox(height: 20),
+                pw.Text('ACADIA - Digital Education Platform', style: pw.TextStyle(fontSize: 14, color: PdfColors.grey)),
+                pw.Text('Powered by NextGen Ethiopia', style: pw.TextStyle(fontSize: 12, color: PdfColors.grey)),
+                pw.SizedBox(height: 10),
+                pw.Text('© ${DateTime.now().year} NextGen Ethiopia PLC. All rights reserved.', style: pw.TextStyle(fontSize: 10, color: PdfColors.grey)),
+              ],
+            );
+          },
+        ),
+      );
+
+      final directory = await getApplicationDocumentsDirectory();
+      final fileName = 'acadia_analytics_full_report_${DateTime.now().millisecondsSinceEpoch}.pdf';
+      final file = File('${directory.path}/$fileName');
+      await file.writeAsBytes(await pdf.save());
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Saved to ${file.path}'), backgroundColor: Colors.green),
+        );
       }
-      
-      final csv = const ListToCsvConverter().convert(csvData);
-      final tempDir = Directory.systemTemp;
-      final file = File('${tempDir.path}/analytics_export_${DateTime.now().millisecondsSinceEpoch}.csv');
-      await file.writeAsString(csv);
-      await Share.shareXFiles([XFile(file.path)], text: 'ACADIA Analytics Report');
+
+      await Share.shareXFiles([XFile(file.path)], text: 'ACADIA Analytics Full Report (PDF)');
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Export failed: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text('PDF Export failed: $e'), backgroundColor: Colors.red),
         );
       }
     }
@@ -276,15 +527,24 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
             tooltip: 'Refresh',
           ),
           PopupMenuButton<String>(
-            icon: const Icon(Icons.download),
-            tooltip: 'Export',
+            icon: const Icon(Icons.picture_as_pdf),
+            tooltip: 'Export Report',
             onSelected: (value) {
-              if (value == 'csv') _exportCSV();
+              if (value == 'full') {
+                _exportFullReportPDF();
+              }
             },
             itemBuilder: (context) => [
-              const PopupMenuItem(value: 'csv', child: Row(
-                children: [Icon(Icons.table_chart, size: 18), SizedBox(width: 8), Text('Export as CSV')],
-              )),
+              const PopupMenuItem(
+                value: 'full',
+                child: Row(
+                  children: [
+                    Icon(Icons.picture_as_pdf, color: Colors.red, size: 18),
+                    SizedBox(width: 8),
+                    Text('Export Full Report as PDF'),
+                  ],
+                ),
+              ),
             ],
           ),
         ],
@@ -296,143 +556,157 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.all(16),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  // Date Range
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(children: _dateRanges.map((range) {
-                      final isSelected = _dateRange == range;
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: ChoiceChip(
-                          label: Text(range),
-                          selected: isSelected,
-                          onSelected: (v) => setState(() => _dateRange = range),
-                          selectedColor: AppColors.primary.withAlpha(((255 * 0.2)).toInt()),
-                        ),
-                      );
-                    }).toList()),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Stat Cards
-                  Row(children: [
-                    _buildStatCard('Total Users', '$_totalUsers', Icons.people, Colors.blue),
-                    const SizedBox(width: 8),
-                    _buildStatCard('Content', '$_totalContent', Icons.description, Colors.green),
-                  ]),
-                  const SizedBox(height: 8),
-                  Row(children: [
-                    _buildStatCard('Revenue', _formatCurrency(_totalRevenue), Icons.attach_money, Colors.orange),
-                    const SizedBox(width: 8),
-                    _buildStatCard('Universities', '$_totalUniversities', Icons.account_balance, Colors.purple),
-                  ]),
-                  const SizedBox(height: 24),
-
-                  // Revenue Trend
-                  _buildSectionTitle('Revenue Trend'),
-                  const SizedBox(height: 4),
-                  Text(_formatCurrency(_totalRevenue), style: TextStyle(color: Colors.grey[600], fontSize: 13)),
-                  const SizedBox(height: 12),
-                  _buildBarChart(_revenueTrend.map((r) => _BarData(r['month'] as String, (r['revenue'] as double).toInt())).toList(), Colors.green),
-                  const SizedBox(height: 24),
-
-                  // Users by Academic Path
-                  _buildSectionTitle('Users by Academic Path'),
-                  const SizedBox(height: 12),
-                  ..._usersByPath.take(6).map((u) => _buildHorizontalBar(u['path'] as String, u['count'] as int, _totalUsers, AppColors.primary)),
-                  const SizedBox(height: 24),
-
-                  // Revenue by Package
-                  _buildSectionTitle('Revenue by Package'),
-                  const SizedBox(height: 12),
-                  ..._revenueByPackage.take(6).map((r) => _buildHorizontalBar(r['package'] as String, (r['revenue'] as double).toInt(), _totalRevenue.toInt(), Colors.green)),
-                  const SizedBox(height: 24),
-
-                  // Payment Method Distribution
-                  _buildSectionTitle('Payment Method Distribution'),
-                  const SizedBox(height: 12),
-                  ..._paymentMethodDistribution.map((p) {
-                    final total = _paymentMethodDistribution.fold<int>(0, (sum, m) => sum + (m['count'] as int));
-                    return _buildHorizontalBar(p['method'] as String, p['count'] as int, total, Colors.orange);
-                  }),
-                  const SizedBox(height: 24),
-
-                  // User Growth
-                  _buildSectionTitle('User Growth'),
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: (_userGrowthPercentage >= 0 ? Colors.green : Colors.red).withAlpha(((255 * 0.1)).toInt()),
-                      borderRadius: BorderRadius.circular(8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Date Range
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: _dateRanges.map((range) {
+                          final isSelected = _dateRange == range;
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: ChoiceChip(
+                              label: Text(range),
+                              selected: isSelected,
+                              onSelected: (v) => setState(() => _dateRange = range),
+                              selectedColor: AppColors.primary.withOpacity(0.2),
+                            ),
+                          );
+                        }).toList(),
+                      ),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    const SizedBox(height: 20),
+
+                    // Stat Cards
+                    Row(
                       children: [
-                        Text('$_newUsersThisMonth new users', style: const TextStyle(fontSize: 14)),
-                        Row(
-                          children: [
-                            Icon(
-                              _userGrowthPercentage >= 0 ? Icons.trending_up : Icons.trending_down,
-                              color: _userGrowthPercentage >= 0 ? Colors.green : Colors.red,
-                              size: 16,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${_userGrowthPercentage >= 0 ? '+' : ''}$_userGrowthPercentage%',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: _userGrowthPercentage >= 0 ? Colors.green : Colors.red,
-                              ),
-                            ),
-                          ],
-                        ),
+                        _buildStatCard('Total Users', '$_totalUsers', Icons.people, Colors.blue),
+                        const SizedBox(width: 8),
+                        _buildStatCard('Subjects', '$_totalContent', Icons.description, Colors.green),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 24),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        _buildStatCard('Revenue', _formatCurrency(_totalRevenue), Icons.attach_money, Colors.orange),
+                        const SizedBox(width: 8),
+                        _buildStatCard('Universities', '$_totalUniversities', Icons.account_balance, Colors.purple),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
 
-                  // Most Viewed Content
-                  _buildSectionTitle('Most Viewed Content'),
-                  const SizedBox(height: 12),
-                  if (_mostViewedContent.isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.all(32),
-                      child: Center(child: Text('No data available', style: TextStyle(color: Colors.grey))),
-                    )
-                  else
-                    ..._mostViewedContent.take(5).map((c) => Card(
-                      margin: const EdgeInsets.only(bottom: 6),
-                      child: ListTile(
-                        dense: true,
-                        leading: Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: _getTypeColor(c['type'] as String).withAlpha(((255 * 0.1)).toInt()),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Icon(Icons.trending_up, color: _getTypeColor(c['type'] as String), size: 18),
-                        ),
-                        title: Text(c['title'] as String, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
-                        subtitle: Text('${c['subject']} • ${(c['type'] as String).replaceAll('_', ' ')}', style: const TextStyle(fontSize: 12)),
-                        trailing: Text('${c['downloads']}', style: TextStyle(color: Colors.grey[600], fontSize: 12, fontWeight: FontWeight.bold)),
+                    // Revenue Trend                    const Text('Revenue Trend', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    const SizedBox(height: 4),
+                    Text(_formatCurrency(_totalRevenue), style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+                    const SizedBox(height: 12),
+                    _buildBarChart(_revenueTrend.map((r) => _BarData(r['month'] as String, (r['revenue'] as double).toInt())).toList(), Colors.green),
+                    const SizedBox(height: 24),
+
+                    // Users by Academic Path
+                    const Text('Users by Academic Path', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    const SizedBox(height: 12),
+                    ..._usersByPath.take(6).map((u) => _buildHorizontalBar(u['path'] as String, u['count'] as int, _totalUsers, AppColors.primary)),
+                    const SizedBox(height: 24),
+
+                    // Revenue by Package
+                    const Text('Revenue by Package', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    const SizedBox(height: 12),
+                    ..._revenueByPackage.take(6).map((r) => _buildHorizontalBar(r['package'] as String, (r['revenue'] as double).toInt(), _totalRevenue.toInt(), Colors.green)),
+                    const SizedBox(height: 24),
+
+                    // Payment Method Distribution
+                    const Text('Payment Method Distribution', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    const SizedBox(height: 12),
+                    ..._paymentMethodDistribution.map((p) {
+                      final total = _paymentMethodDistribution.fold<int>(0, (sum, m) => sum + (m['count'] as int));
+                      return _buildHorizontalBar(p['method'] as String, p['count'] as int, total, Colors.orange);
+                    }),
+                    const SizedBox(height: 24),
+
+                    // User Growth
+                    const Text('User Growth', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: (_userGrowthPercentage >= 0 ? Colors.green : Colors.red).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                    )),
-                  const SizedBox(height: 24),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('$_newUsersThisMonth new users', style: const TextStyle(fontSize: 14)),
+                          Row(
+                            children: [
+                              Icon(
+                                _userGrowthPercentage >= 0 ? Icons.trending_up : Icons.trending_down,
+                                color: _userGrowthPercentage >= 0 ? Colors.green : Colors.red,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${_userGrowthPercentage >= 0 ? '+' : ''}$_userGrowthPercentage%',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: _userGrowthPercentage >= 0 ? Colors.green : Colors.red,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
 
-                  // Content by Type
-                  _buildSectionTitle('Content by Type'),
-                  const SizedBox(height: 12),
-                  ..._contentByType.map((c) => _buildHorizontalBar(
-                    (c['type'] as String).replaceAll('_', ' ').toUpperCase(),
-                    c['count'] as int,
-                    _totalContent,
-                    _getTypeColor(c['type'] as String),
-                  )),
-                  const SizedBox(height: 24),
-                ]),
+                    // Content by Academic Path
+                    const Text('Content by Academic Path', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    const SizedBox(height: 12),
+                    if (_mostViewedContent.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.all(32),
+                        child: Center(child: Text('Content will be uploaded soon', style: TextStyle(color: Colors.grey))),
+                      )
+                    else
+                      ..._mostViewedContent.take(6).map((c) => Card(
+                        margin: const EdgeInsets.only(bottom: 6),
+                        child: ListTile(
+                          dense: true,
+                          leading: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: const Icon(Icons.menu_book_outlined, color: AppColors.primary, size: 18),
+                          ),
+                          title: Text(c['title'] as String, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                          subtitle: const Text('GitHub metadata', style: TextStyle(fontSize: 12)),
+                          trailing: Text('${c['count']}', style: TextStyle(color: Colors.grey[600], fontSize: 12, fontWeight: FontWeight.bold)),
+                        ),
+                      )),
+                    const SizedBox(height: 24),
+
+                    // Content by Type
+                    const Text('Content by Type', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    const SizedBox(height: 12),
+                    if (_contentByType.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.all(32),
+                        child: Center(child: Text('Content will be uploaded soon', style: TextStyle(color: Colors.grey))),
+                      )
+                    else
+                      ..._contentByType.take(10).map((c) => _buildHorizontalBar(
+                        c['type'] as String,
+                        c['count'] as int,
+                        _totalContent,
+                        _getTypeColor(c['type'] as String),
+                      )),
+                    const SizedBox(height: 24),
+                  ],
+                ),
               ),
             ),
     );
@@ -443,12 +717,11 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: color.withAlpha(((255 * 0.1)).toInt()),
+          color: color.withOpacity(0.1),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withAlpha(((255 * 0.2)).toInt())),
+          border: Border.all(color: color.withOpacity(0.2)),
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Icon(icon, color: color, size: 24),
             const SizedBox(height: 8),
@@ -466,7 +739,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
     if (data.isEmpty) return const SizedBox.shrink();
     final maxVal = data.map((d) => d.value).reduce((a, b) => a > b ? a : b);
     if (maxVal == 0) return const Padding(padding: EdgeInsets.all(32), child: Center(child: Text('No data', style: TextStyle(color: Colors.grey))));
-    
+
     return SizedBox(
       height: 180,
       child: Row(
@@ -486,7 +759,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
                   height: (d.value / maxVal) * 120,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [color, color.withAlpha(((255 * 0.5)).toInt())],
+                      colors: [color, color.withOpacity(0.5)],
                       begin: Alignment.bottomCenter,
                       end: Alignment.topCenter,
                     ),

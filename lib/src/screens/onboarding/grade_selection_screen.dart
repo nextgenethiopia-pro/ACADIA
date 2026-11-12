@@ -82,7 +82,7 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> {
         title: const Text('Select Your Grade'),
       ),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -90,10 +90,10 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> {
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withAlpha(((255 * 0.06)).toInt()),
+                  color: AppColors.primary.withOpacity(0.06),
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                    color: AppColors.primary.withAlpha(((255 * 0.12)).toInt()),
+                    color: AppColors.primary.withOpacity(0.12),
                   ),
                 ),
                 child: Row(
@@ -122,7 +122,8 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              Expanded(
+              SizedBox(
+                height: 400,
                 child: GridView.builder(
                   itemCount: _grades.length,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -145,7 +146,7 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> {
                         padding: const EdgeInsets.all(18),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? option.shade.withAlpha(((255 * 0.08)).toInt())
+                              ? option.shade.withOpacity(0.08)
                               : Colors.white,
                           borderRadius: BorderRadius.circular(22),
                           border: Border.all(
@@ -157,8 +158,8 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> {
                           boxShadow: [
                             BoxShadow(
                               color: isSelected
-                                  ? option.shade.withAlpha(((255 * 0.16)).toInt())
-                                  : Colors.black.withAlpha(((255 * 0.04)).toInt()),
+                                  ? option.shade.withOpacity(0.16)
+                                  : Colors.black.withOpacity(0.04),
                               blurRadius: isSelected ? 18 : 10,
                               offset: const Offset(0, 6),
                             ),
@@ -234,10 +235,10 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> {
                   padding: const EdgeInsets.all(14),
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withAlpha(((255 * 0.06)).toInt()),
+                    color: AppColors.primary.withOpacity(0.06),
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
-                      color: AppColors.primary.withAlpha(((255 * 0.12)).toInt()),
+                      color: AppColors.primary.withOpacity(0.12),
                     ),
                   ),
                   child: Row(

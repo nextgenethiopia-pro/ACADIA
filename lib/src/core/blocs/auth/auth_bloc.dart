@@ -2,10 +2,12 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../services/firebase_auth_service.dart';
+import '../../services/session_service.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';
@@ -28,33 +30,103 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     final prefs = await SharedPreferences.getInstance();
 
-    final academicPath = profile['academic_path']?.toString() ?? '';
-    final grade = profile['grade']?.toString() ?? '';
-    final stream = profile['stream']?.toString() ?? '';
-    final generation = profile['generation']?.toString() ?? '';
-    final university = profile['university']?.toString() ?? '';
-    final universityYear = profile['university_year']?.toString() ?? '';
-    final semester = profile['semester']?.toString() ?? '';
-    final track = profile['track']?.toString() ?? '';
-    final fullName = profile['full_name']?.toString() ?? '';
-    final email = profile['email']?.toString() ?? '';
+    final onboardingSelections = profile['onboarding_selections'] ?? profile['onboardingSelections'];
+    final onboardingMap = onboardingSelections is Map<String, dynamic>
+        ? onboardingSelections
+        : _parseMap(onboardingSelections);
 
-    await prefs.setString('academic_path', academicPath);
-    await prefs.setString('academic_level', academicPath);
-    await prefs.setString('selected_grade', grade);
-    await prefs.setString('grade', grade);
-    await prefs.setString('selected_stream', stream);
-    await prefs.setString('stream', stream);
-    await prefs.setString('selected_generation', generation);
-    await prefs.setString('generation', generation);
-    await prefs.setString('selected_university', university);
-    await prefs.setString('university', university);
-    await prefs.setString('selected_year', universityYear);
-    await prefs.setString('semester', semester);
-    await prefs.setString('selected_track', track);
-    await prefs.setString('user_name', fullName);
-    await prefs.setString('user_email', email);
+    final rawAcademicPath = (profile['academic_path'] ??
+            profile['academic_level'] ??
+            profile['academicLevel'] ??
+            onboardingMap?['academicPath'] ??
+            onboardingMap?['academicLevel'])
+        ?.toString();
+
+    final grade = (profile['grade'] ?? profile['selected_grade'] ?? onboardingMap?['grade'])?.toString();
+    final stream = (profile['stream'] ?? profile['selected_stream'] ?? onboardingMap?['stream'])?.toString();
+    final department = (profile['department'] ?? profile['selected_department'] ?? onboardingMap?['department'])?.toString();
+    final year = (profile['year'] ?? profile['selected_year'] ?? profile['university_year'] ?? onboardingMap?['year'])?.toString();
+    final semester = (profile['semester'] ?? onboardingMap?['semester'])?.toString();
+    final fullName = profile['full_name']?.toString() ?? profile['fullName']?.toString();
+    final email = profile['email']?.toString();
+
+    final generation = (profile['generation'] ?? profile['selected_generation'] ?? onboardingMap?['generation'])?.toString();
+    final university = (profile['university'] ?? profile['selected_university'] ?? onboardingMap?['university'])?.toString();
+    final universityName = (profile['university_name'] ?? profile['universityName'] ?? onboardingMap?['universityName'] ?? onboardingMap?['university_name'])?.toString();
+    final track = (profile['track'] ?? profile['selected_track'] ?? onboardingMap?['track'])?.toString();
+
+    if (rawAcademicPath != null && rawAcademicPath.trim().isNotEmpty) {
+      final normalizedPath = rawAcademicPath.trim().toUpperCase();
+      await prefs.setString('academic_path', normalizedPath);
+      await prefs.setString('academic_level', normalizedPath);
+    }
+
+    if (grade != null && grade.trim().isNotEmpty) {
+      await prefs.setString('selected_grade', grade.trim());
+      await prefs.setString('grade', grade.trim());
+    }
+
+    if (stream != null && stream.trim().isNotEmpty) {
+      await prefs.setString('selected_stream', stream.trim());
+      await prefs.setString('stream', stream.trim());
+    }
+
+    if (department != null && department.trim().isNotEmpty) {
+      await prefs.setString('selected_department', department.trim());
+      await prefs.setString('department', department.trim());
+    }
+
+    if (year != null && year.trim().isNotEmpty) {
+      await prefs.setString('selected_year', year.trim());
+      await prefs.setString('year', year.trim());
+      await prefs.setString('university_year', year.trim());
+    }
+
+    if (semester != null && semester.trim().isNotEmpty) {
+      await prefs.setString('semester', semester.trim());
+    }
+
+    if (generation != null && generation.trim().isNotEmpty) {
+      await prefs.setString('selected_generation', generation.trim());
+      await prefs.setString('generation', generation.trim());
+    }
+
+    if (university != null && university.trim().isNotEmpty) {
+      await prefs.setString('selected_university', university.trim());
+      await prefs.setString('university', university.trim());
+    }
+
+    if (universityName != null && universityName.trim().isNotEmpty) {
+      await prefs.setString('university_name', universityName.trim());
+    }
+
+    if (track != null && track.trim().isNotEmpty) {
+      await prefs.setString('selected_track', track.trim());
+      await prefs.setString('track', track.trim());
+    }
+
+    if (fullName != null && fullName.trim().isNotEmpty) {
+      await prefs.setString('user_name', fullName.trim());
+    }
+
+    if (email != null && email.trim().isNotEmpty) {
+      await prefs.setString('user_email', email.trim());
+    }
+
     await prefs.setBool('onboarding_complete', true);
+  }
+
+  Map<String, dynamic>? _parseMap(dynamic value) {
+    if (value == null) return null;
+    if (value is Map<String, dynamic>) return value;
+    if (value is Map) {
+      try {
+        return Map<String, dynamic>.from(value);
+      } catch (_) {
+        return null;
+      }
+    }
+    return null;
   }
 
   Future<void> _onAuthCheckRequested(
@@ -157,16 +229,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         email: event.email,
         password: event.password,
         fullName: event.fullName,
+        username: event.username,
         phoneNumber: event.phoneNumber,
+        academicLevel: event.academicLevel,
+        academicPath: event.academicPath,
         grade: event.grade,
         stream: event.stream,
-        academicPath: event.academicPath,
-        generation: event.generation,
-        university: event.university,
-        universityYear: event.universityYear,
+        department: event.department,
+        year: event.year,
         semester: event.semester,
-        track: event.track,
-        highSchoolName: event.highSchoolName,
+        onboardingSelections: event.onboardingSelections,
       );
 
       if (response['success'] == true) {
@@ -181,7 +253,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           return;
         }
 
-        emit(AuthEmailVerificationRequired(user: user));
+        final verificationEmailError =
+            response['verificationEmailError'] as String?;
+        if (verificationEmailError != null) {
+          debugPrint(
+            '[AuthBloc] signup succeeded but the verification email failed: '
+            '$verificationEmailError',
+          );
+        }
+
+        emit(
+          AuthEmailVerificationRequired(
+            user: user,
+            warning: verificationEmailError == null
+                ? null
+                : 'The verification email could not be sent '
+                    '($verificationEmailError). Tap "Resend Verification '
+                    'Email" once the timer ends, or check that the address is '
+                    'correct.',
+          ),
+        );
         return;
       }
 
@@ -205,22 +296,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await _authService.signOut();
 
       final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('academic_path');
-      await prefs.remove('academic_level');
-      await prefs.remove('selected_grade');
-      await prefs.remove('grade');
-      await prefs.remove('selected_stream');
-      await prefs.remove('stream');
-      await prefs.remove('selected_generation');
-      await prefs.remove('generation');
-      await prefs.remove('selected_university');
-      await prefs.remove('university');
-      await prefs.remove('selected_year');
-      await prefs.remove('semester');
-      await prefs.remove('selected_track');
-      await prefs.remove('user_name');
-      await prefs.remove('user_email');
-      await prefs.setBool('onboarding_complete', false);
+      final deviceId = prefs.getString(SessionService.prefDeviceIdKey);
+      await prefs.clear();
+
+      // The device id must survive sign-out: it identifies this installation
+      // for the one-account-one-device check on the next sign-in.
+      if (deviceId != null && deviceId.isNotEmpty) {
+        await prefs.setString(SessionService.prefDeviceIdKey, deviceId);
+      }
 
       emit(Unauthenticated());
     } catch (e) {

@@ -17,20 +17,21 @@ class _AboutManagementScreenState extends State<AboutManagementScreen> {
   // Controllers
   final _developerNameController = TextEditingController();
   final _developerEmailController = TextEditingController();
-  final _telegramController = TextEditingController();
-  final _telegramUrlController = TextEditingController();
+  final _developerEmailSecondaryController = TextEditingController();
   final _websiteController = TextEditingController();
   final _websiteUrlController = TextEditingController();
-  final _facebookUrlController = TextEditingController();
-  final _instagramUrlController = TextEditingController();
-  final _twitterUrlController = TextEditingController();
+  final _telegramChannelController = TextEditingController();
+  final _telegramChannelUrlController = TextEditingController();
+  final _youtubeController = TextEditingController();
   final _youtubeUrlController = TextEditingController();
+  final _tiktokController = TextEditingController();
   final _tiktokUrlController = TextEditingController();
-  final _missionController = TextEditingController();
-  final _visionController = TextEditingController();
-  final _descriptionController = TextEditingController();
-  final _copyrightYearController = TextEditingController();
-  final _copyrightTextController = TextEditingController();
+  final _instagramController = TextEditingController();
+  final _instagramUrlController = TextEditingController();
+  final _twitterController = TextEditingController();
+  final _twitterUrlController = TextEditingController();
+  final _facebookController = TextEditingController();
+  final _facebookUrlController = TextEditingController();
 
   bool _isLoading = true;
   bool _isSaving = false;
@@ -45,20 +46,21 @@ class _AboutManagementScreenState extends State<AboutManagementScreen> {
   void dispose() {
     _developerNameController.dispose();
     _developerEmailController.dispose();
-    _telegramController.dispose();
-    _telegramUrlController.dispose();
+    _developerEmailSecondaryController.dispose();
     _websiteController.dispose();
     _websiteUrlController.dispose();
-    _facebookUrlController.dispose();
-    _instagramUrlController.dispose();
-    _twitterUrlController.dispose();
+    _telegramChannelController.dispose();
+    _telegramChannelUrlController.dispose();
+    _youtubeController.dispose();
     _youtubeUrlController.dispose();
+    _tiktokController.dispose();
     _tiktokUrlController.dispose();
-    _missionController.dispose();
-    _visionController.dispose();
-    _descriptionController.dispose();
-    _copyrightYearController.dispose();
-    _copyrightTextController.dispose();
+    _instagramController.dispose();
+    _instagramUrlController.dispose();
+    _twitterController.dispose();
+    _twitterUrlController.dispose();
+    _facebookController.dispose();
+    _facebookUrlController.dispose();
     super.dispose();
   }
 
@@ -74,31 +76,36 @@ class _AboutManagementScreenState extends State<AboutManagementScreen> {
             about['developer_name']?.toString() ?? 'NextGen Ethiopia PLC';
         _developerEmailController.text =
             about['developer_email']?.toString() ?? 'nextgenethiopia@gmail.com';
-        _telegramController.text =
-            about['telegram']?.toString() ?? '@acadia_support';
-        _telegramUrlController.text =
-            about['telegram_url']?.toString() ?? 'https://t.me/acadia_support';
+        _developerEmailSecondaryController.text =
+            about['developer_email_secondary']?.toString() ?? 'dev@nextgenethiopia.com';
         _websiteController.text =
-            about['website']?.toString() ?? 'www.acadia.app';
-        _websiteUrlController.text =
-            about['website_url']?.toString() ?? 'https://www.acadia.app';
-        _facebookUrlController.text = about['facebook_url']?.toString() ??
-            'https://facebook.com/acadia.app';
-        _instagramUrlController.text = about['instagram_url']?.toString() ??
-            'https://instagram.com/acadia.app';
-        _twitterUrlController.text = about['twitter_url']?.toString() ??
-            'https://twitter.com/acadia_app';
-        _youtubeUrlController.text = about['youtube_url']?.toString() ??
-            'https://youtube.com/@acadia-app';
+            about['website']?.toString() ?? 'nextgen-ethiopia.web.app';
+        _websiteUrlController.text = about['website_url']?.toString() ??
+            'https://nextgen-ethiopia.web.app';
+        _telegramChannelController.text =
+            about['telegram_channel']?.toString() ?? '@next_gen_ethiopia';
+        _telegramChannelUrlController.text =
+            about['telegram_channel_url']?.toString() ?? 'https://t.me/next_gen_ethiopia';
+        _youtubeController.text =
+            about['youtube']?.toString() ?? '@acadia-app';
+        _youtubeUrlController.text =
+            about['youtube_url']?.toString() ?? 'https://www.youtube.com/@acadia-app';
+        _tiktokController.text =
+            about['tiktok']?.toString() ?? '@acadia.app';
         _tiktokUrlController.text =
-            about['tiktok_url']?.toString() ?? 'https://tiktok.com/@acadia_app';
-        _missionController.text = settings['mission']?.toString() ?? '';
-        _visionController.text = settings['vision']?.toString() ?? '';
-        _descriptionController.text = about['description']?.toString() ?? '';
-        _copyrightYearController.text =
-            about['copyright_year']?.toString() ?? '2026';
-        _copyrightTextController.text =
-            about['copyright_text']?.toString() ?? 'All rights reserved.';
+            about['tiktok_url']?.toString() ?? 'https://www.tiktok.com/@acadia.app';
+        _instagramController.text =
+            about['instagram']?.toString() ?? '@acadi_aapp';
+        _instagramUrlController.text =
+            about['instagram_url']?.toString() ?? 'https://www.instagram.com/acadi_aapp';
+        _twitterController.text =
+            about['twitter']?.toString() ?? '@acadia_app';
+        _twitterUrlController.text =
+            about['twitter_url']?.toString() ?? 'https://twitter.com/acadia_app';
+        _facebookController.text =
+            about['facebook']?.toString() ?? 'https://www.facebook.com/profile.php?id=61589113088662';
+        _facebookUrlController.text =
+            about['facebook_url']?.toString() ?? 'https://www.facebook.com/profile.php?id=61589113088662';
       }
 
       setState(() => _isLoading = false);
@@ -115,25 +122,26 @@ class _AboutManagementScreenState extends State<AboutManagementScreen> {
       final aboutContent = {
         'developer_name': _developerNameController.text.trim(),
         'developer_email': _developerEmailController.text.trim(),
-        'telegram': _telegramController.text.trim(),
-        'telegram_url': _telegramUrlController.text.trim(),
+        'developer_email_secondary': _developerEmailSecondaryController.text.trim(),
         'website': _websiteController.text.trim(),
         'website_url': _websiteUrlController.text.trim(),
-        'facebook_url': _facebookUrlController.text.trim(),
-        'instagram_url': _instagramUrlController.text.trim(),
-        'twitter_url': _twitterUrlController.text.trim(),
+        'telegram_channel': _telegramChannelController.text.trim(),
+        'telegram_channel_url': _telegramChannelUrlController.text.trim(),
+        'youtube': _youtubeController.text.trim(),
         'youtube_url': _youtubeUrlController.text.trim(),
+        'tiktok': _tiktokController.text.trim(),
         'tiktok_url': _tiktokUrlController.text.trim(),
-        'description': _descriptionController.text.trim(),
-        'copyright_year': _copyrightYearController.text.trim(),
-        'copyright_text': _copyrightTextController.text.trim(),
+        'instagram': _instagramController.text.trim(),
+        'instagram_url': _instagramUrlController.text.trim(),
+        'twitter': _twitterController.text.trim(),
+        'twitter_url': _twitterUrlController.text.trim(),
+        'facebook': _facebookController.text.trim(),
+        'facebook_url': _facebookUrlController.text.trim(),
         'last_updated': DateTime.now().toIso8601String(),
       };
 
       final currentSettings = await _firebaseService.getAppSettings() ?? {};
       currentSettings['about_content'] = aboutContent;
-      currentSettings['mission'] = _missionController.text.trim();
-      currentSettings['vision'] = _visionController.text.trim();
 
       await _firebaseService.updateAppSettings(currentSettings);
 
@@ -186,58 +194,51 @@ class _AboutManagementScreenState extends State<AboutManagementScreen> {
               _buildTextField(_developerEmailController, 'Developer Email',
                   'nextgenethiopia@gmail.com',
                   isEmail: true),
+              _buildTextField(_developerEmailSecondaryController, 'Secondary Email',
+                  'dev@nextgenethiopia.com',
+                  isEmail: true),
               _buildTextField(
-                  _telegramController, 'Telegram Username', '@acadia_support'),
-              _buildTextField(_telegramUrlController, 'Telegram URL',
-                  'https://t.me/acadia_support',
+                  _telegramChannelController, 'Telegram Channel', '@next_gen_ethiopia'),
+              _buildTextField(_telegramChannelUrlController, 'Telegram Channel URL',
+                  'https://t.me/next_gen_ethiopia',
                   isUrl: true),
-              _buildTextField(
-                  _websiteController, 'Website Name', 'www.acadia.app'),
+              _buildTextField(_websiteController, 'Website Name',
+                  'nextgen-ethiopia.web.app'),
               _buildTextField(_websiteUrlController, 'Website URL',
-                  'https://www.acadia.app',
+                  'https://nextgen-ethiopia.web.app',
                   isUrl: true),
-            ]),
-            const SizedBox(height: 24),
-            _buildSection('Mission & Vision', [
-              _buildMultilineTextField(
-                  _missionController, 'Mission Statement', 'Enter mission...'),
-              const SizedBox(height: 12),
-              _buildMultilineTextField(
-                  _visionController, 'Vision Statement', 'Enter vision...'),
-            ]),
-            const SizedBox(height: 24),
-            _buildSection('App Description', [
-              _buildMultilineTextField(_descriptionController, 'Description',
-                  'Enter app description...'),
             ]),
             const SizedBox(height: 24),
             _buildSection('Social Media Links', [
+              _buildTextField(_facebookController, 'Facebook',
+                  'https://www.facebook.com/'),
               _buildTextField(_facebookUrlController, 'Facebook URL',
-                  'https://facebook.com/',
+                  'https://www.facebook.com/',
                   isUrl: true),
               const SizedBox(height: 12),
+              _buildTextField(_instagramController, 'Instagram',
+                  '@acadi_aapp'),
               _buildTextField(_instagramUrlController, 'Instagram URL',
-                  'https://instagram.com/',
+                  'https://www.instagram.com/',
                   isUrl: true),
               const SizedBox(height: 12),
+              _buildTextField(_twitterController, 'Twitter/X',
+                  '@acadia_app'),
               _buildTextField(_twitterUrlController, 'Twitter/X URL',
                   'https://twitter.com/',
                   isUrl: true),
               const SizedBox(height: 12),
               _buildTextField(
+                  _youtubeController, 'YouTube', '@acadia-app'),
+              _buildTextField(
                   _youtubeUrlController, 'YouTube URL', 'https://youtube.com/',
                   isUrl: true),
               const SizedBox(height: 12),
               _buildTextField(
+                  _tiktokController, 'TikTok', '@acadia.app'),
+              _buildTextField(
                   _tiktokUrlController, 'TikTok URL', 'https://tiktok.com/',
                   isUrl: true),
-            ]),
-            const SizedBox(height: 24),
-            _buildSection('Copyright', [
-              _buildTextField(
-                  _copyrightYearController, 'Copyright Year', '2026'),
-              _buildTextField(_copyrightTextController, 'Copyright Text',
-                  'All rights reserved.'),
             ]),
             const SizedBox(height: 32),
             GradientButton(
@@ -290,30 +291,10 @@ class _AboutManagementScreenState extends State<AboutManagementScreen> {
           labelText: label,
           hintText: hint,
           border: const OutlineInputBorder(),
-          suffixIcon: (isEmail || isUrl) && controller.text.isNotEmpty
-              ? IconButton(
-                  icon: const Icon(Icons.open_in_new, size: 18),
-                  onPressed: () {},
-                )
-              : null,
         ),
         keyboardType: isEmail
             ? TextInputType.emailAddress
             : (isUrl ? TextInputType.url : TextInputType.text),
-      ),
-    );
-  }
-
-  Widget _buildMultilineTextField(
-      TextEditingController controller, String label, String hint) {
-    return TextField(
-      controller: controller,
-      maxLines: 4,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
-        border: const OutlineInputBorder(),
-        alignLabelWithHint: true,
       ),
     );
   }

@@ -86,18 +86,21 @@ class _SemesterSelectionScreenState extends State<SemesterSelectionScreen> {
         title: const Text('Select Semester'),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(
+            parent: BouncingScrollPhysics(),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withAlpha(((255 * 0.06)).toInt()),
+                  color: AppColors.primary.withOpacity(0.06),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: AppColors.primary.withAlpha(((255 * 0.12)).toInt()),
+                    color: AppColors.primary.withOpacity(0.12),
                   ),
                 ),
                 child: Row(
@@ -106,7 +109,7 @@ class _SemesterSelectionScreenState extends State<SemesterSelectionScreen> {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withAlpha(((255 * 0.10)).toInt()),
+                        color: AppColors.primary.withOpacity(0.10),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(
@@ -148,20 +151,17 @@ class _SemesterSelectionScreenState extends State<SemesterSelectionScreen> {
                   child: _buildSemesterCard(semester),
                 ),
               ),
-
-              const SizedBox(height: 24),
-
-              // Info text based on selection
+              const SizedBox(height: 16),
               if (_selectedSemester != null)
                 Container(
                   width: double.infinity,
                   margin: const EdgeInsets.only(bottom: 16),
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: Colors.amber.withAlpha(((255 * 0.12)).toInt()),
+                    color: Colors.amber.withOpacity(0.12),
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
-                      color: Colors.amber.withAlpha(((255 * 0.30)).toInt()),
+                      color: Colors.amber.withOpacity(0.30),
                     ),
                   ),
                   child: Row(
@@ -189,6 +189,7 @@ class _SemesterSelectionScreenState extends State<SemesterSelectionScreen> {
                     ],
                   ),
                 ),
+              const SizedBox(height: 24),
               GradientButton(
                 text: 'CONTINUE',
                 onPressed: _selectedSemester != null && !_isNavigating
@@ -197,7 +198,7 @@ class _SemesterSelectionScreenState extends State<SemesterSelectionScreen> {
                 isDisabled: _selectedSemester == null || _isNavigating,
                 isLoading: _isNavigating,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 24),
             ],
           ),
         ),
@@ -218,7 +219,7 @@ class _SemesterSelectionScreenState extends State<SemesterSelectionScreen> {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color:
-              isSelected ? AppColors.primary.withAlpha(((255 * 0.06)).toInt()) : Colors.white,
+              isSelected ? AppColors.primary.withOpacity(0.06) : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected ? AppColors.primary : Colors.grey.shade300,
@@ -227,8 +228,8 @@ class _SemesterSelectionScreenState extends State<SemesterSelectionScreen> {
           boxShadow: [
             BoxShadow(
               color: isSelected
-                  ? AppColors.primary.withAlpha(((255 * 0.12)).toInt())
-                  : Colors.black.withAlpha(((255 * 0.04)).toInt()),
+                  ? AppColors.primary.withOpacity(0.12)
+                  : Colors.black.withOpacity(0.04),
               blurRadius: isSelected ? 18 : 10,
               offset: const Offset(0, 6),
             ),
@@ -241,7 +242,9 @@ class _SemesterSelectionScreenState extends State<SemesterSelectionScreen> {
               width: 58,
               height: 58,
               decoration: BoxDecoration(
-                color: AppColors.primary.withAlpha((255 * (isSelected ? 0.16 : 0.08)).toInt()),
+                color: AppColors.primary.withOpacity(
+                  isSelected ? 0.16 : 0.08,
+                ),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Icon(
@@ -316,10 +319,10 @@ class _SemesterSelectionScreenState extends State<SemesterSelectionScreen> {
                               vertical: 6,
                             ),
                             decoration: BoxDecoration(
-                              color: AppColors.primary.withAlpha(((255 * 0.08)).toInt()),
+                              color: AppColors.primary.withOpacity(0.08),
                               borderRadius: BorderRadius.circular(999),
                               border: Border.all(
-                                color: AppColors.primary.withAlpha(((255 * 0.12)).toInt()),
+                                color: AppColors.primary.withOpacity(0.12),
                               ),
                             ),
                             child: Text(

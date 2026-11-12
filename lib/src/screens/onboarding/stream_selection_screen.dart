@@ -141,10 +141,10 @@ class _StreamSelectionScreenState extends State<StreamSelectionScreen> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withAlpha(((255 * 0.08)).toInt()),
+                      color: AppColors.primary.withOpacity(0.08),
                       borderRadius: BorderRadius.circular(999),
                       border: Border.all(
-                        color: AppColors.primary.withAlpha(((255 * 0.14)).toInt()),
+                        color: AppColors.primary.withOpacity(0.14),
                       ),
                     ),
                     child: Row(
@@ -182,10 +182,10 @@ class _StreamSelectionScreenState extends State<StreamSelectionScreen> {
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: Colors.amber.withAlpha(((255 * 0.12)).toInt()),
+                  color: Colors.amber.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                    color: Colors.amber.withAlpha(((255 * 0.28)).toInt()),
+                    color: Colors.amber.withOpacity(0.28),
                   ),
                 ),
                 child: Row(
@@ -218,17 +218,17 @@ class _StreamSelectionScreenState extends State<StreamSelectionScreen> {
                   child: _buildStreamCard(stream),
                 ),
               ),
-              const Spacer(),
+              const SizedBox(height: 20),
               if (_selectedStream != null)
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(14),
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withAlpha(((255 * 0.06)).toInt()),
+                    color: AppColors.primary.withOpacity(0.06),
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
-                      color: AppColors.primary.withAlpha(((255 * 0.14)).toInt()),
+                      color: AppColors.primary.withOpacity(0.14),
                     ),
                   ),
                   child: Row(
@@ -284,7 +284,7 @@ class _StreamSelectionScreenState extends State<StreamSelectionScreen> {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color:
-              isSelected ? AppColors.primary.withAlpha(((255 * 0.06)).toInt()) : Colors.white,
+              isSelected ? AppColors.primary.withOpacity(0.06) : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected ? AppColors.primary : Colors.grey.shade300,
@@ -293,8 +293,8 @@ class _StreamSelectionScreenState extends State<StreamSelectionScreen> {
           boxShadow: [
             BoxShadow(
               color: isSelected
-                  ? AppColors.primary.withAlpha(((255 * 0.14)).toInt())
-                  : Colors.black.withAlpha(((255 * 0.04)).toInt()),
+                  ? AppColors.primary.withOpacity(0.14)
+                  : Colors.black.withOpacity(0.04),
               blurRadius: isSelected ? 18 : 10,
               offset: const Offset(0, 6),
             ),
@@ -309,7 +309,7 @@ class _StreamSelectionScreenState extends State<StreamSelectionScreen> {
                   width: 54,
                   height: 54,
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withAlpha(((255 * 0.10)).toInt()),
+                    color: AppColors.primary.withOpacity(0.10),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Icon(
@@ -370,10 +370,10 @@ class _StreamSelectionScreenState extends State<StreamSelectionScreen> {
                         vertical: 7,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withAlpha(((255 * 0.08)).toInt()),
+                        color: AppColors.primary.withOpacity(0.08),
                         borderRadius: BorderRadius.circular(999),
                         border: Border.all(
-                          color: AppColors.primary.withAlpha(((255 * 0.12)).toInt()),
+                          color: AppColors.primary.withOpacity(0.12),
                         ),
                       ),
                       child: Text(

@@ -11,7 +11,7 @@ part of 'question_answer.dart';
 
 const QuestionAnswerSchema = Schema(
   name: r'QuestionAnswer',
-  id: -960202347892622,
+  id: -6466208862556138916,
   properties: {
     r'explanation': PropertySchema(
       id: 0,

@@ -23,22 +23,34 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Result<User>> signUp({
+    String? academicPath,
     required String email,
     required String password,
     required String fullName,
+    String? username,
     String? phoneNumber,
+    String? academicLevel,
     String? grade,
     String? stream,
-    String? academicPath,
+    String? department,
+    String? year,
+    String? semester,
+    Map<String, dynamic>? onboardingSelections,
   }) async {
     final res = await _service.signUp(
       email: email,
       password: password,
       fullName: fullName,
+      username: username,
       phoneNumber: phoneNumber,
+      academicLevel: academicLevel ?? academicPath,
+      academicPath: academicPath,
       grade: grade,
       stream: stream,
-      academicPath: academicPath,
+      department: department,
+      year: year,
+      semester: semester,
+      onboardingSelections: onboardingSelections,
     );
     return _toUserResult(res);
   }
@@ -79,7 +91,10 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<bool> isAdmin() => _service.isAdmin();
 
   @override
-  Future<Map<String, dynamic>?> getUserProfile() => _service.getUserProfile();
+  Future<Map<String, dynamic>?> getUserProfile() async {
+    final model = await _service.getUserProfile();
+    return model;
+  }
 
   // --- mapping helpers -------------------------------------------------
 

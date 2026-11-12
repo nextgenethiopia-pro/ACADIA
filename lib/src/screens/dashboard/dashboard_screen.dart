@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:acadia/src/core/constants/colors.dart';
 import 'package:acadia/src/core/services/firebase_service.dart';
+import 'package:acadia/src/core/blocs/theme/theme_bloc.dart';
 import 'package:acadia/src/widgets/onboarding/how_to_popup.dart';
 import 'home_tab.dart';
 import 'subjects_tab.dart';
@@ -19,6 +21,7 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   int _currentIndex = 0;
+  int _entranceRefreshSignal = 0;
   String? _userGrade;
   String? _userStream;
   String? _userPath;
@@ -214,7 +217,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ];
 
     if (_hasEntranceTab) {
-      tabs.add(const EntranceTab());
+      tabs.add(EntranceTab(refreshSignal: _entranceRefreshSignal));
     }
 
     tabs.addAll([
@@ -241,6 +244,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   // Tab indices
+  int get _entranceIndex => _hasEntranceTab ? 3 : -1;
   int get _notificationsIndex => _hasEntranceTab ? 4 : 3;
   int get _profileIndex => _hasEntranceTab ? 5 : 4;
 
@@ -254,20 +258,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
         centerTitle: false,
         actions: [
+          // Dark Theme toggle
+          BlocBuilder<ThemeBloc, ThemeState>(
+            builder: (context, themeState) {
+              final isDark = themeState is ThemeDark;
+              return IconButton(
+                icon: Icon(isDark ? Icons.dark_mode : Icons.light_mode),
+                onPressed: () {
+                  context.read<ThemeBloc>().add(const ThemeToggled());
+                },
+                tooltip: isDark ? 'Light Mode' : 'Dark Mode',
+              );
+            },
+          ),
+
           // Help icon - reopens How-To popup
           IconButton(
             icon: const Icon(Icons.help_outline),
             onPressed: _showHowToPopup,
             tooltip: 'How to use ACADIA',
           ),
-
-          // Search for Home tab
-          if (_currentIndex == 0)
-            IconButton(
-              icon: const Icon(Icons.search),
-              onPressed: _showSearchDialog,
-              tooltip: 'Search content',
-            ),
 
           // Notification bell on Home tab
           if (_currentIndex == 0)
@@ -296,7 +306,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withAlpha(((255 * 0.05)).toInt()),
+              color: Colors.black.withOpacity(0.05),
               blurRadius: 8,
               offset: const Offset(0, -2),
             ),
@@ -305,7 +315,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: BottomNavigationBar(
           currentIndex: _currentIndex,
           onTap: (index) {
-            setState(() => _currentIndex = index);
+            setState(() {
+              _currentIndex = index;
+              // Re-check the Entrance pack whenever the tab is opened so a
+              // freshly approved package unlocks without an app restart.
+              if (_hasEntranceTab && index == _entranceIndex) {
+                _entranceRefreshSignal++;
+              }
+            });
             // Track tab change
             _trackTabChange(index);
           },

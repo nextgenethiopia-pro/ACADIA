@@ -15,7 +15,7 @@ extension GetDownloadedContentCollection on Isar {
 
 const DownloadedContentSchema = CollectionSchema(
   name: r'DownloadedContent',
-  id: -1540392539281168,
+  id: -7303298203055662533,
   properties: {
     r'chapter': PropertySchema(
       id: 0,
@@ -57,23 +57,48 @@ const DownloadedContentSchema = CollectionSchema(
       name: r'grade',
       type: IsarType.string,
     ),
-    r'isDownloaded': PropertySchema(
+    r'isCompleted': PropertySchema(
       id: 8,
+      name: r'isCompleted',
+      type: IsarType.bool,
+    ),
+    r'isDownloaded': PropertySchema(
+      id: 9,
       name: r'isDownloaded',
       type: IsarType.bool,
     ),
     r'lastAccessed': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'lastAccessed',
       type: IsarType.dateTime,
     ),
+    r'pageCount': PropertySchema(
+      id: 11,
+      name: r'pageCount',
+      type: IsarType.long,
+    ),
     r'subject': PropertySchema(
-      id: 10,
+      id: 12,
       name: r'subject',
       type: IsarType.string,
     ),
+    r'title': PropertySchema(
+      id: 13,
+      name: r'title',
+      type: IsarType.string,
+    ),
+    r'totalCards': PropertySchema(
+      id: 14,
+      name: r'totalCards',
+      type: IsarType.long,
+    ),
+    r'totalQuestions': PropertySchema(
+      id: 15,
+      name: r'totalQuestions',
+      type: IsarType.long,
+    ),
     r'userId': PropertySchema(
-      id: 11,
+      id: 16,
       name: r'userId',
       type: IsarType.string,
     )
@@ -135,6 +160,12 @@ int _downloadedContentEstimateSize(
     }
   }
   {
+    final value = object.title;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
     final value = object.userId;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
@@ -157,10 +188,15 @@ void _downloadedContentSerialize(
   writer.writeDateTime(offsets[5], object.downloadedAt);
   writer.writeLong(offsets[6], object.fileSize);
   writer.writeString(offsets[7], object.grade);
-  writer.writeBool(offsets[8], object.isDownloaded);
-  writer.writeDateTime(offsets[9], object.lastAccessed);
-  writer.writeString(offsets[10], object.subject);
-  writer.writeString(offsets[11], object.userId);
+  writer.writeBool(offsets[8], object.isCompleted);
+  writer.writeBool(offsets[9], object.isDownloaded);
+  writer.writeDateTime(offsets[10], object.lastAccessed);
+  writer.writeLong(offsets[11], object.pageCount);
+  writer.writeString(offsets[12], object.subject);
+  writer.writeString(offsets[13], object.title);
+  writer.writeLong(offsets[14], object.totalCards);
+  writer.writeLong(offsets[15], object.totalQuestions);
+  writer.writeString(offsets[16], object.userId);
 }
 
 DownloadedContent _downloadedContentDeserialize(
@@ -179,10 +215,15 @@ DownloadedContent _downloadedContentDeserialize(
   object.fileSize = reader.readLong(offsets[6]);
   object.grade = reader.readStringOrNull(offsets[7]);
   object.id = id;
-  object.isDownloaded = reader.readBool(offsets[8]);
-  object.lastAccessed = reader.readDateTimeOrNull(offsets[9]);
-  object.subject = reader.readStringOrNull(offsets[10]);
-  object.userId = reader.readStringOrNull(offsets[11]);
+  object.isCompleted = reader.readBool(offsets[8]);
+  object.isDownloaded = reader.readBool(offsets[9]);
+  object.lastAccessed = reader.readDateTimeOrNull(offsets[10]);
+  object.pageCount = reader.readLongOrNull(offsets[11]);
+  object.subject = reader.readStringOrNull(offsets[12]);
+  object.title = reader.readStringOrNull(offsets[13]);
+  object.totalCards = reader.readLongOrNull(offsets[14]);
+  object.totalQuestions = reader.readLongOrNull(offsets[15]);
+  object.userId = reader.readStringOrNull(offsets[16]);
   return object;
 }
 
@@ -212,10 +253,20 @@ P _downloadedContentDeserializeProp<P>(
     case 8:
       return (reader.readBool(offset)) as P;
     case 9:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 10:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 11:
+      return (reader.readLongOrNull(offset)) as P;
+    case 12:
+      return (reader.readStringOrNull(offset)) as P;
+    case 13:
+      return (reader.readStringOrNull(offset)) as P;
+    case 14:
+      return (reader.readLongOrNull(offset)) as P;
+    case 15:
+      return (reader.readLongOrNull(offset)) as P;
+    case 16:
       return (reader.readStringOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -1341,6 +1392,16 @@ extension DownloadedContentQueryFilter
   }
 
   QueryBuilder<DownloadedContent, DownloadedContent, QAfterFilterCondition>
+      isCompletedEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isCompleted',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterFilterCondition>
       isDownloadedEqualTo(bool value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -1416,6 +1477,80 @@ extension DownloadedContentQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'lastAccessed',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterFilterCondition>
+      pageCountIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'pageCount',
+      ));
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterFilterCondition>
+      pageCountIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'pageCount',
+      ));
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterFilterCondition>
+      pageCountEqualTo(int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'pageCount',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterFilterCondition>
+      pageCountGreaterThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'pageCount',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterFilterCondition>
+      pageCountLessThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'pageCount',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterFilterCondition>
+      pageCountBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'pageCount',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -1574,6 +1709,308 @@ extension DownloadedContentQueryFilter
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'subject',
         value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterFilterCondition>
+      titleIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'title',
+      ));
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterFilterCondition>
+      titleIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'title',
+      ));
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterFilterCondition>
+      titleEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'title',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterFilterCondition>
+      titleGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'title',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterFilterCondition>
+      titleLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'title',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterFilterCondition>
+      titleBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'title',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterFilterCondition>
+      titleStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'title',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterFilterCondition>
+      titleEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'title',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterFilterCondition>
+      titleContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'title',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterFilterCondition>
+      titleMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'title',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterFilterCondition>
+      titleIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'title',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterFilterCondition>
+      titleIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'title',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterFilterCondition>
+      totalCardsIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'totalCards',
+      ));
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterFilterCondition>
+      totalCardsIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'totalCards',
+      ));
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterFilterCondition>
+      totalCardsEqualTo(int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'totalCards',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterFilterCondition>
+      totalCardsGreaterThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'totalCards',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterFilterCondition>
+      totalCardsLessThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'totalCards',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterFilterCondition>
+      totalCardsBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'totalCards',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterFilterCondition>
+      totalQuestionsIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'totalQuestions',
+      ));
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterFilterCondition>
+      totalQuestionsIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'totalQuestions',
+      ));
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterFilterCondition>
+      totalQuestionsEqualTo(int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'totalQuestions',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterFilterCondition>
+      totalQuestionsGreaterThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'totalQuestions',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterFilterCondition>
+      totalQuestionsLessThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'totalQuestions',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterFilterCondition>
+      totalQuestionsBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'totalQuestions',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
       ));
     });
   }
@@ -1854,6 +2291,20 @@ extension DownloadedContentQuerySortBy
   }
 
   QueryBuilder<DownloadedContent, DownloadedContent, QAfterSortBy>
+      sortByIsCompleted() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isCompleted', Sort.asc);
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterSortBy>
+      sortByIsCompletedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isCompleted', Sort.desc);
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterSortBy>
       sortByIsDownloaded() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isDownloaded', Sort.asc);
@@ -1882,6 +2333,20 @@ extension DownloadedContentQuerySortBy
   }
 
   QueryBuilder<DownloadedContent, DownloadedContent, QAfterSortBy>
+      sortByPageCount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'pageCount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterSortBy>
+      sortByPageCountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'pageCount', Sort.desc);
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterSortBy>
       sortBySubject() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'subject', Sort.asc);
@@ -1892,6 +2357,48 @@ extension DownloadedContentQuerySortBy
       sortBySubjectDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'subject', Sort.desc);
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterSortBy>
+      sortByTitle() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'title', Sort.asc);
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterSortBy>
+      sortByTitleDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'title', Sort.desc);
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterSortBy>
+      sortByTotalCards() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'totalCards', Sort.asc);
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterSortBy>
+      sortByTotalCardsDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'totalCards', Sort.desc);
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterSortBy>
+      sortByTotalQuestions() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'totalQuestions', Sort.asc);
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterSortBy>
+      sortByTotalQuestionsDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'totalQuestions', Sort.desc);
     });
   }
 
@@ -2038,6 +2545,20 @@ extension DownloadedContentQuerySortThenBy
   }
 
   QueryBuilder<DownloadedContent, DownloadedContent, QAfterSortBy>
+      thenByIsCompleted() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isCompleted', Sort.asc);
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterSortBy>
+      thenByIsCompletedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isCompleted', Sort.desc);
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterSortBy>
       thenByIsDownloaded() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isDownloaded', Sort.asc);
@@ -2066,6 +2587,20 @@ extension DownloadedContentQuerySortThenBy
   }
 
   QueryBuilder<DownloadedContent, DownloadedContent, QAfterSortBy>
+      thenByPageCount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'pageCount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterSortBy>
+      thenByPageCountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'pageCount', Sort.desc);
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterSortBy>
       thenBySubject() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'subject', Sort.asc);
@@ -2076,6 +2611,48 @@ extension DownloadedContentQuerySortThenBy
       thenBySubjectDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'subject', Sort.desc);
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterSortBy>
+      thenByTitle() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'title', Sort.asc);
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterSortBy>
+      thenByTitleDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'title', Sort.desc);
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterSortBy>
+      thenByTotalCards() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'totalCards', Sort.asc);
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterSortBy>
+      thenByTotalCardsDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'totalCards', Sort.desc);
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterSortBy>
+      thenByTotalQuestions() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'totalQuestions', Sort.asc);
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QAfterSortBy>
+      thenByTotalQuestionsDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'totalQuestions', Sort.desc);
     });
   }
 
@@ -2153,6 +2730,13 @@ extension DownloadedContentQueryWhereDistinct
   }
 
   QueryBuilder<DownloadedContent, DownloadedContent, QDistinct>
+      distinctByIsCompleted() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isCompleted');
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QDistinct>
       distinctByIsDownloaded() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'isDownloaded');
@@ -2167,9 +2751,37 @@ extension DownloadedContentQueryWhereDistinct
   }
 
   QueryBuilder<DownloadedContent, DownloadedContent, QDistinct>
+      distinctByPageCount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'pageCount');
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QDistinct>
       distinctBySubject({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'subject', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QDistinct> distinctByTitle(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'title', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QDistinct>
+      distinctByTotalCards() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'totalCards');
+    });
+  }
+
+  QueryBuilder<DownloadedContent, DownloadedContent, QDistinct>
+      distinctByTotalQuestions() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'totalQuestions');
     });
   }
 
@@ -2243,6 +2855,13 @@ extension DownloadedContentQueryProperty
   }
 
   QueryBuilder<DownloadedContent, bool, QQueryOperations>
+      isCompletedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isCompleted');
+    });
+  }
+
+  QueryBuilder<DownloadedContent, bool, QQueryOperations>
       isDownloadedProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'isDownloaded');
@@ -2256,9 +2875,34 @@ extension DownloadedContentQueryProperty
     });
   }
 
+  QueryBuilder<DownloadedContent, int?, QQueryOperations> pageCountProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'pageCount');
+    });
+  }
+
   QueryBuilder<DownloadedContent, String?, QQueryOperations> subjectProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'subject');
+    });
+  }
+
+  QueryBuilder<DownloadedContent, String?, QQueryOperations> titleProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'title');
+    });
+  }
+
+  QueryBuilder<DownloadedContent, int?, QQueryOperations> totalCardsProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'totalCards');
+    });
+  }
+
+  QueryBuilder<DownloadedContent, int?, QQueryOperations>
+      totalQuestionsProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'totalQuestions');
     });
   }
 

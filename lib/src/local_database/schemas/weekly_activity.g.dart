@@ -15,7 +15,7 @@ extension GetWeeklyActivityCollection on Isar {
 
 const WeeklyActivitySchema = CollectionSchema(
   name: r'WeeklyActivity',
-  id: 1263675641198149,
+  id: 7909584621303788247,
   properties: {
     r'date': PropertySchema(
       id: 0,

@@ -224,7 +224,7 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
                 children: [
                   _buildStatCard('Total', '$_totalPayments', 'payments', AppColors.primary),
                   const SizedBox(width: 8),
-                  _buildStatCard('Spent', '${_totalSpent.toStringAsFixed(0)}', 'ETB', Colors.green),
+                  _buildStatCard('Spent', _totalSpent.toStringAsFixed(0), 'ETB', Colors.green),
                   const SizedBox(width: 8),
                   _buildStatCard('Approved', '$_approvedCount', '', Colors.green),
                   const SizedBox(width: 8),
@@ -328,7 +328,7 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
                                     Container(
                                       padding: const EdgeInsets.all(8),
                                       decoration: BoxDecoration(
-                                        color: statusColor.withAlpha(((255 * 0.1)).toInt()),
+                                        color: statusColor.withOpacity(0.1),
                                         shape: BoxShape.circle,
                                       ),
                                       child: Icon(_getStatusIcon(status), color: statusColor, size: 20),
@@ -365,7 +365,7 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
                                         Container(
                                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                           decoration: BoxDecoration(
-                                            color: statusColor.withAlpha(((255 * 0.1)).toInt()),
+                                            color: statusColor.withOpacity(0.1),
                                             borderRadius: BorderRadius.circular(12),
                                           ),
                                           child: Text(
@@ -425,9 +425,9 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
                                     margin: const EdgeInsets.only(top: 12),
                                     padding: const EdgeInsets.all(10),
                                     decoration: BoxDecoration(
-                                      color: Colors.red.withAlpha(((255 * 0.05)).toInt()),
+                                      color: Colors.red.withOpacity(0.05),
                                       borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(color: Colors.red.withAlpha(((255 * 0.15)).toInt())),
+                                      border: Border.all(color: Colors.red.withOpacity(0.15)),
                                     ),
                                     child: Row(
                                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -461,7 +461,7 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
-          color: color.withAlpha(((255 * 0.1)).toInt()),
+          color: color.withOpacity(0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Column(
@@ -477,7 +477,7 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
             if (sublabel.isNotEmpty)
               Text(
                 sublabel,
-                style: TextStyle(fontSize: 9, color: color.withAlpha(((255 * 0.7)).toInt())),
+                style: TextStyle(fontSize: 9, color: color.withOpacity(0.7)),
               ),
           ],
         ),
@@ -493,7 +493,7 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
         label: Text('$label ($count)', style: const TextStyle(fontSize: 12)),
         selected: isSelected,
         onSelected: (_) => setState(() => _selectedFilter = label),
-        selectedColor: AppColors.primary.withAlpha(((255 * 0.2)).toInt()),
+        selectedColor: AppColors.primary.withOpacity(0.2),
         backgroundColor: Colors.grey[100],
       ),
     );

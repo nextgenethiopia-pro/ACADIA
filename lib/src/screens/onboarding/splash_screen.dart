@@ -64,7 +64,6 @@ class _SplashScreenState extends State<SplashScreen>
       }
     } catch (e) {
       debugPrint('Error loading splash images: $e');
-      // Continue with local assets if Firestore fails
       if (mounted) setState(() => _isLoadingImages = false);
     }
   }
@@ -130,7 +129,7 @@ class _SplashScreenState extends State<SplashScreen>
             errorBuilder: (context, error, stackTrace) {
               // Fallback to gradient if image not found
               return Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -185,11 +184,11 @@ class _SplashScreenState extends State<SplashScreen>
                     height: 120,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.white.withAlpha(((255 * 0.1)).toInt()),
+                      color: Colors.white.withOpacity(0.1),
                       border: Border.all(color: AppColors.primary, width: 3),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.primary.withAlpha(((255 * 0.3)).toInt()),
+                          color: AppColors.primary.withOpacity(0.3),
                           blurRadius: 20,
                         ),
                       ],
@@ -277,7 +276,7 @@ class _SplashScreenState extends State<SplashScreen>
 
                 // Version info
                 const SizedBox(height: 16),
-                Text(
+                const Text(
                   'Version 1.0.0',
                   style: TextStyle(
                     fontSize: 11,

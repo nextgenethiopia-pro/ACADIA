@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:acadia/src/widgets/common/gradient_button.dart';
-import 'package:acadia/src/core/constants/colors.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -143,9 +142,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.blue.withAlpha((255 * 0.05).toInt()),
+                  color: Colors.blue.withOpacity(0.05),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.blue.withAlpha((255 * 0.2).toInt())),
+                  border: Border.all(color: Colors.blue.withOpacity(0.2)),
                 ),
                 child: Row(
                   children: [

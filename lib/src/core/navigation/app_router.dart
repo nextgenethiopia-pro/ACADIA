@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 // ============================================================
@@ -88,12 +89,16 @@ import '../../screens/admin/app_settings_screen.dart' as admin_settings;
 import '../../screens/admin/entrance_management_screen.dart';
 import '../../screens/admin/about_management_screen.dart';
 
+final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
+final GoRouter appRouter = AppRouter.router;
+
 class AppRouter {
   static final GoRouter router = GoRouter(
+    navigatorKey: rootNavigatorKey,
     initialLocation: '/splash',
     routes: [
       // ============================================================
-      // ONBOARDING (13 screens)
+      // ONBOARDING (12 screens)
       // ============================================================
       GoRoute(
           path: '/splash',
@@ -194,14 +199,42 @@ class AppRouter {
       // CONTENT (8 screens)
       // ============================================================
       GoRoute(
+        path: '/chapter/:chapterName',
+        name: 'chapter',
+        builder: (context, state) {
+          final rawParam = state.pathParameters['chapterName'] ?? '';
+          final chapterName = Uri.decodeComponent(rawParam);
+          final extra = state.extra as Map<String, dynamic>?;
+          return ChapterContentScreen(
+            chapterId: extra?['chapterId'] ?? extra?['unit'] ?? rawParam,
+            subjectName: extra?['subjectName'] ?? extra?['subjectId'] ?? '',
+            chapterName: chapterName.isNotEmpty ? chapterName : (extra?['chapterName'] ?? extra?['unit'] ?? ''),
+            offlineOnly: extra?['offlineOnly'] == true,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/chapter',
+        name: 'chapter-direct',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return ChapterContentScreen(
+            chapterId: extra?['chapterId'] ?? extra?['unit'] ?? '',
+            subjectName: extra?['subjectName'] ?? extra?['subjectId'] ?? '',
+            chapterName: extra?['chapterName'] ?? extra?['unit'] ?? '',
+            offlineOnly: extra?['offlineOnly'] == true,
+          );
+        },
+      ),
+      GoRoute(
         path: '/chapter-content',
         name: 'chapter-content',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
           return ChapterContentScreen(
-            chapterId: extra?['chapterId'] ?? '',
-            subjectName: extra?['subjectName'] ?? '',
-            chapterName: extra?['chapterName'] ?? '',
+            chapterId: extra?['chapterId'] ?? extra?['unit'] ?? '',
+            subjectName: extra?['subjectName'] ?? extra?['subjectId'] ?? '',
+            chapterName: extra?['chapterName'] ?? extra?['unit'] ?? '',
           );
         },
       ),
@@ -213,6 +246,7 @@ class AppRouter {
           return VideoPlayerScreen(
             contentId: extra?['contentId'] ?? '',
             title: extra?['title'] ?? 'Video',
+            videoUrl: extra?['videoUrl'] as String?,
           );
         },
       ),
@@ -224,6 +258,8 @@ class AppRouter {
           return PdfViewerScreen(
             contentId: extra?['contentId'] ?? '',
             title: extra?['title'] ?? 'Document',
+            downloadUrl: extra?['downloadUrl'] as String?,
+            remoteUrl: extra?['remoteUrl'] as String?,
           );
         },
       ),
@@ -235,6 +271,11 @@ class AppRouter {
           return QuizScreen(
             contentId: extra?['contentId'] ?? '',
             title: extra?['title'] ?? 'Quiz',
+            downloadUrl: extra?['downloadUrl'] as String?,
+            expectedQuestionCount:
+                (extra?['totalQuestions'] as num?)?.toInt(),
+            expectedTimeLimitMinutes:
+                (extra?['timeLimitMinutes'] as num?)?.toInt(),
           );
         },
       ),
@@ -252,6 +293,11 @@ class AppRouter {
           return ExamScreen(
             contentId: extra?['contentId'] ?? '',
             title: extra?['title'] ?? 'Exam',
+            downloadUrl: extra?['downloadUrl'] as String?,
+            expectedQuestionCount:
+                (extra?['totalQuestions'] as num?)?.toInt(),
+            expectedTimeLimitMinutes:
+                (extra?['timeLimitMinutes'] as num?)?.toInt(),
           );
         },
       ),
@@ -269,141 +315,158 @@ class AppRouter {
           return FlashcardScreen(
             contentId: extra?['contentId'] ?? '',
             title: extra?['title'] ?? 'Flashcards',
+            downloadUrl: extra?['downloadUrl'] as String?,
+            expectedCardCount: (extra?['totalCards'] as num?)?.toInt(),
           );
         },
       ),
 
       // ============================================================
       // ENTRANCE (5 screens)
+      // ✅ FIXED: Using pageBuilder with MaterialPage
       // ============================================================
       GoRoute(
-          path: '/entrance/past-papers',
-          name: 'entrance-past-papers',
-          builder: (context, state) => const EntrancePastPapersScreen()),
+        path: '/entrance/past-papers',
+        name: 'entrance-past-papers',
+        pageBuilder: (context, state) => MaterialPage(
+          child: const EntrancePastPapersScreen(),
+        ),
+      ),
+      // ✅ FIXED: Using pageBuilder to avoid NoSuchMethodError
       GoRoute(
         path: '/entrance/exam',
         name: 'entrance-exam',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
-          return EntranceExamScreen(
-            subject: extra?['subject']?.toString(),
-            stream: extra?['stream']?.toString(),
-            grade: extra?['grade']?.toString(),
+          return MaterialPage(
+            child: EntranceExamScreen(
+              initialSubject: extra?['subject'] as String?,
+              initialGrade: extra?['grade'] as String?,
+              initialStream: extra?['stream'] as String?,
+            ),
           );
         },
       ),
       GoRoute(
         path: '/entrance/subject',
         name: 'entrance-subject',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
-          return EntranceSubjectScreen(
-            subject: extra?['subject'] ?? '',
-            stream: extra?['stream'] ?? '',
+          return MaterialPage(
+            child: EntranceSubjectScreen(
+              subject: extra?['subject'] ?? '',
+              stream: extra?['stream'] ?? '',
+            ),
           );
         },
       ),
       GoRoute(
-          path: '/entrance/schedule',
-          name: 'entrance-schedule',
-          builder: (context, state) => const EntranceScheduleScreen()),
+        path: '/entrance/schedule',
+        name: 'entrance-schedule',
+        pageBuilder: (context, state) => MaterialPage(
+          child: const EntranceScheduleScreen(),
+        ),
+      ),
       GoRoute(
-          path: '/entrance/tips',
-          name: 'entrance-tips',
-          builder: (context, state) => const EntranceTipsScreen()),
+        path: '/entrance/tips',
+        name: 'entrance-tips',
+        pageBuilder: (context, state) => MaterialPage(
+          child: const EntranceTipsScreen(),
+        ),
+      ),
 
       // ============================================================
       // PAYMENT (2 screens)
       // ============================================================
       GoRoute(
-          path: '/payment',
-          name: 'payment',
-          builder: (context, state) => const PaymentScreen()),
+        path: '/payment',
+        name: 'payment',
+        builder: (context, state) => const PaymentScreen()),
       GoRoute(
-          path: '/payment-history',
-          name: 'payment-history',
-          builder: (context, state) => const PaymentHistoryScreen()),
+        path: '/payment-history',
+        name: 'payment-history',
+        builder: (context, state) => const PaymentHistoryScreen()),
 
       // ============================================================
       // SETTINGS (9 screens)
       // ============================================================
       GoRoute(
-          path: '/settings',
-          name: 'settings',
-          builder: (context, state) => const AppSettingsScreen()),
+        path: '/settings',
+        name: 'settings',
+        builder: (context, state) => const AppSettingsScreen()),
       GoRoute(
-          path: '/settings/edit-profile',
-          name: 'edit-profile',
-          builder: (context, state) => const EditProfileScreen()),
+        path: '/settings/edit-profile',
+        name: 'edit-profile',
+        builder: (context, state) => const EditProfileScreen()),
       GoRoute(
-          path: '/settings/change-password',
-          name: 'change-password',
-          builder: (context, state) => const ChangePasswordScreen()),
+        path: '/settings/change-password',
+        name: 'change-password',
+        builder: (context, state) => const ChangePasswordScreen()),
       GoRoute(
-          path: '/settings/downloads',
-          name: 'downloads',
-          builder: (context, state) => const DownloadsManagerScreen()),
+        path: '/settings/downloads',
+        name: 'downloads',
+        builder: (context, state) => const DownloadsManagerScreen()),
       GoRoute(
-          path: '/settings/help',
-          name: 'help',
-          builder: (context, state) => const HelpCenterScreen()),
+        path: '/settings/help',
+        name: 'help',
+        builder: (context, state) => const HelpCenterScreen()),
       GoRoute(
-          path: '/tutorial-video',
-          name: 'tutorial-video',
-          builder: (context, state) => const TutorialVideoScreen()),
+        path: '/tutorial-video',
+        name: 'tutorial-video',
+        builder: (context, state) => const TutorialVideoScreen()),
       GoRoute(
-          path: '/settings/about',
-          name: 'about',
-          builder: (context, state) => const AboutScreen()),
+        path: '/settings/about',
+        name: 'about',
+        builder: (context, state) => const AboutScreen()),
       GoRoute(
-          path: '/settings/privacy',
-          name: 'privacy',
-          builder: (context, state) => const PrivacyPolicyScreen()),
+        path: '/settings/privacy',
+        name: 'privacy',
+        builder: (context, state) => const PrivacyPolicyScreen()),
       GoRoute(
-          path: '/settings/terms',
-          name: 'terms',
-          builder: (context, state) => const TermsOfServiceScreen()),
+        path: '/settings/terms',
+        name: 'terms',
+        builder: (context, state) => const TermsOfServiceScreen()),
 
       // ============================================================
       // ADMIN (9 screens)
       // ============================================================
       GoRoute(
-          path: '/admin/dashboard',
-          name: 'admin-dashboard',
-          builder: (context, state) => const AdminDashboardScreen()),
+        path: '/admin/dashboard',
+        name: 'admin-dashboard',
+        builder: (context, state) => const AdminDashboardScreen()),
       GoRoute(
-          path: '/admin/content-management',
-          name: 'content-management',
-          builder: (context, state) => const ContentManagementScreen()),
+        path: '/admin/content-management',
+        name: 'content-management',
+        builder: (context, state) => const ContentManagementScreen()),
       GoRoute(
-          path: '/admin/user-management',
-          name: 'user-management',
-          builder: (context, state) => const UserManagementScreen()),
+        path: '/admin/user-management',
+        name: 'user-management',
+        builder: (context, state) => const UserManagementScreen()),
       GoRoute(
-          path: '/admin/payment-approval',
-          name: 'payment-approval',
-          builder: (context, state) => const PaymentApprovalScreen()),
+        path: '/admin/payment-approval',
+        name: 'payment-approval',
+        builder: (context, state) => const PaymentApprovalScreen()),
       GoRoute(
-          path: '/admin/create-notification',
-          name: 'create-notification',
-          builder: (context, state) => const NotificationCreationScreen()),
+        path: '/admin/create-notification',
+        name: 'create-notification',
+        builder: (context, state) => const NotificationCreationScreen()),
       GoRoute(
-          path: '/admin/analytics',
-          name: 'analytics',
-          builder: (context, state) => const AnalyticsDashboardScreen()),
+        path: '/admin/analytics',
+        name: 'analytics',
+        builder: (context, state) => const AnalyticsDashboardScreen()),
       GoRoute(
-          path: '/admin/app-settings',
-          name: 'admin-app-settings',
-          builder: (context, state) =>
-              const admin_settings.AdminAppSettingsScreen()),
+        path: '/admin/app-settings',
+        name: 'admin-app-settings',
+        builder: (context, state) =>
+            const admin_settings.AdminAppSettingsScreen()),
       GoRoute(
-          path: '/admin/entrance-management',
-          name: 'entrance-management',
-          builder: (context, state) => const EntranceManagementScreen()),
+        path: '/admin/entrance-management',
+        name: 'entrance-management',
+        builder: (context, state) => const EntranceManagementScreen()),
       GoRoute(
-          path: '/admin/about-management',
-          name: 'about-management',
-          builder: (context, state) => const AboutManagementScreen()),
+        path: '/admin/about-management',
+        name: 'about-management',
+        builder: (context, state) => const AboutManagementScreen()),
     ],
   );
 }

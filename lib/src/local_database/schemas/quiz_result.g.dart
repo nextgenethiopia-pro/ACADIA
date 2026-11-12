@@ -15,7 +15,7 @@ extension GetQuizResultCollection on Isar {
 
 const QuizResultSchema = CollectionSchema(
   name: r'QuizResult',
-  id: -7573423290371247,
+  id: -9107712222507511645,
   properties: {
     r'answers': PropertySchema(
       id: 0,

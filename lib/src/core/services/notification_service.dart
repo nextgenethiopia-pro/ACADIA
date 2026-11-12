@@ -1,35 +1,33 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
+
   factory NotificationService() => _instance;
+
   NotificationService._internal();
 
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
 
-  // Notification channels
   static const String _paymentChannelId = 'payment_channel';
   static const String _contentChannelId = 'content_channel';
   static const String _generalChannelId = 'general_channel';
 
   Future<void> initialize() async {
-    // Initialize Android settings
-    const AndroidInitializationSettings androidSettings =
+    const androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
-
-    // Initialize iOS settings
-    const DarwinInitializationSettings iosSettings =
-        DarwinInitializationSettings(
+    const iosSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
       requestSoundPermission: true,
     );
-
-    const InitializationSettings settings = InitializationSettings(
+    const settings = InitializationSettings(
       android: androidSettings,
       iOS: iosSettings,
     );
@@ -39,65 +37,55 @@ class NotificationService {
       onDidReceiveNotificationResponse: _onNotificationTap,
     );
 
-    // Create notification channels
     await _createNotificationChannels();
-
-    // Request permissions
     await _firebaseMessaging.requestPermission();
 
-    // Get FCM token
     final token = await _firebaseMessaging.getToken();
-    debugPrint('FCM Token: $token');
+    debugPrint('FCM token available: ${token != null}');
 
-    // Handle messages when app is in foreground
     FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
-
-    // Handle messages when app is in background/terminated
     FirebaseMessaging.onMessageOpenedApp.listen(_handleMessageOpen);
   }
 
   Future<void> _createNotificationChannels() async {
-    if (Theme.of(flutterGlobalKey.currentContext!).platform == TargetPlatform.android) {
-      // Payment channel
-      const AndroidNotificationChannel paymentChannel = AndroidNotificationChannel(
-        _paymentChannelId,
-        'Payment Notifications',
-        description: 'Notifications about payment approval and rejection',
-        importance: Importance.high,
-        enableLights: true,
-        enableVibration: true,
-        ledColor: Colors.green,
-      );
-      await _flutterLocalNotificationsPlugin
-          .resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>()
-          ?.createNotificationChannel(paymentChannel);
+    if (defaultTargetPlatform != TargetPlatform.android) return;
 
-      // Content channel
-      const AndroidNotificationChannel contentChannel = AndroidNotificationChannel(
-        _contentChannelId,
-        'Content Notifications',
-        description: 'Notifications about new content and updates',
-        importance: Importance.defaultImportance,
-        enableLights: true,
-      );
-      await _flutterLocalNotificationsPlugin
-          .resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>()
-          ?.createNotificationChannel(contentChannel);
+    const paymentChannel = AndroidNotificationChannel(
+      _paymentChannelId,
+      'Payment Notifications',
+      description: 'Notifications about payment approval and rejection',
+      importance: Importance.high,
+      enableLights: true,
+      enableVibration: true,
+      ledColor: Colors.green,
+    );
+    await _flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(paymentChannel);
 
-      // General channel
-      const AndroidNotificationChannel generalChannel = AndroidNotificationChannel(
-        _generalChannelId,
-        'General Notifications',
-        description: 'General app notifications',
-        importance: Importance.low,
-      );
-      await _flutterLocalNotificationsPlugin
-          .resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>()
-          ?.createNotificationChannel(generalChannel);
-    }
+    const contentChannel = AndroidNotificationChannel(
+      _contentChannelId,
+      'Content Notifications',
+      description: 'Notifications about new content and updates',
+      importance: Importance.defaultImportance,
+      enableLights: true,
+    );
+    await _flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(contentChannel);
+
+    const generalChannel = AndroidNotificationChannel(
+      _generalChannelId,
+      'General Notifications',
+      description: 'General app notifications',
+      importance: Importance.low,
+    );
+    await _flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(generalChannel);
   }
 
   Future<void> showPaymentNotification({
@@ -105,7 +93,7 @@ class NotificationService {
     required String body,
     required bool isApproved,
   }) async {
-    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+    const androidDetails = AndroidNotificationDetails(
       _paymentChannelId,
       'Payment Notifications',
       channelDescription: 'Notifications about payment approval and rejection',
@@ -114,12 +102,9 @@ class NotificationService {
       color: Colors.green,
       icon: '@mipmap/ic_launcher',
     );
-
-    const DarwinNotificationDetails iosDetails = DarwinNotificationDetails();
-
-    const NotificationDetails details = NotificationDetails(
+    const details = NotificationDetails(
       android: androidDetails,
-      iOS: iosDetails,
+      iOS: DarwinNotificationDetails(),
     );
 
     await _flutterLocalNotificationsPlugin.show(
@@ -134,19 +119,16 @@ class NotificationService {
     required String title,
     required String body,
   }) async {
-    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+    const androidDetails = AndroidNotificationDetails(
       _contentChannelId,
       'Content Notifications',
       channelDescription: 'Notifications about new content and updates',
       importance: Importance.defaultImportance,
       priority: Priority.defaultPriority,
     );
-
-    const DarwinNotificationDetails iosDetails = DarwinNotificationDetails();
-
-    const NotificationDetails details = NotificationDetails(
+    const details = NotificationDetails(
       android: androidDetails,
-      iOS: iosDetails,
+      iOS: DarwinNotificationDetails(),
     );
 
     await _flutterLocalNotificationsPlugin.show(
@@ -161,19 +143,16 @@ class NotificationService {
     required String title,
     required String body,
   }) async {
-    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+    const androidDetails = AndroidNotificationDetails(
       _generalChannelId,
       'General Notifications',
       channelDescription: 'General app notifications',
       importance: Importance.low,
       priority: Priority.low,
     );
-
-    const DarwinNotificationDetails iosDetails = DarwinNotificationDetails();
-
-    const NotificationDetails details = NotificationDetails(
+    const details = NotificationDetails(
       android: androidDetails,
-      iOS: iosDetails,
+      iOS: DarwinNotificationDetails(),
     );
 
     await _flutterLocalNotificationsPlugin.show(
@@ -185,29 +164,74 @@ class NotificationService {
   }
 
   void _handleForegroundMessage(RemoteMessage message) {
+    final type = (message.data['type'] as String? ?? '').toLowerCase();
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+
+    // Payment notifications are private: fail closed if the recipient
+    // is missing, no user is signed in, or the recipient does not match.
+    if (type == 'payment') {
+      final targetUserId =
+          (message.data['target_user_id'] as String? ?? '').trim();
+      if (currentUserId == null ||
+          targetUserId.isEmpty ||
+          targetUserId != currentUserId) {
+        debugPrint(
+          'NotificationService: suppressed payment notification; '
+          'recipient could not be verified.',
+        );
+        return;
+      }
+    }
+
     final title = message.notification?.title ?? 'ACADIA';
-    final body = message.notification?.body ?? 'You have a new notification';
-    
-    showGeneralNotification(title: title, body: body);
+    final body =
+        message.notification?.body ?? 'You have a new notification';
+    final status = (message.data['status'] as String? ?? '').toLowerCase();
+
+    switch (type) {
+      case 'payment':
+        showPaymentNotification(
+          title: title,
+          body: body,
+          isApproved: status == 'approved',
+        );
+        break;
+      case 'content':
+        showContentNotification(title: title, body: body);
+        break;
+      default:
+        showGeneralNotification(title: title, body: body);
+        break;
+    }
   }
 
   void _handleMessageOpen(RemoteMessage message) {
-    // Handle navigation based on notification type
-    final type = message.data['type'];
+    final type = (message.data['type'] as String? ?? '').toLowerCase();
+
     if (type == 'payment') {
-      // Navigate to payment history
+      final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+      final targetUserId =
+          (message.data['target_user_id'] as String? ?? '').trim();
+
+      if (currentUserId == null ||
+          targetUserId.isEmpty ||
+          targetUserId != currentUserId) {
+        debugPrint(
+          'NotificationService: ignored payment tap; '
+          'recipient could not be verified.',
+        );
+        return;
+      }
       flutterGlobalKey.currentState?.pushNamed('/payment-history');
     } else if (type == 'content') {
-      // Navigate to content
       flutterGlobalKey.currentState?.pushNamed('/subjects');
     }
   }
 
   void _onNotificationTap(NotificationResponse response) {
-    // Handle notification tap when app is in background
     debugPrint('Notification tapped: ${response.payload}');
   }
 }
 
-// Global key for navigation
-final GlobalKey<NavigatorState> flutterGlobalKey = GlobalKey<NavigatorState>();
+final GlobalKey<NavigatorState> flutterGlobalKey =
+    GlobalKey<NavigatorState>();

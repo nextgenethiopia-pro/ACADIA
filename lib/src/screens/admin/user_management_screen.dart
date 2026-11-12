@@ -2,11 +2,16 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:acadia/src/core/services/firebase_service.dart';
+import 'package:acadia/src/core/services/package_service.dart';
 import 'package:acadia/src/core/constants/colors.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:acadia/src/models/user_model.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:http/http.dart' as http;
+import 'dart:typed_data';
 
 class UserManagementScreen extends StatefulWidget {
   const UserManagementScreen({super.key});
@@ -17,32 +22,26 @@ class UserManagementScreen extends StatefulWidget {
 
 class _UserManagementScreenState extends State<UserManagementScreen> {
   String _searchQuery = '';
-  String _statusFilter = 'All'; // All, Active, Banned
-  String _subscriptionFilter = 'All'; // All, Pro, Free
-  String _pathFilter = 'All'; // All academic paths
+  String _statusFilter = 'All';
+  String _subscriptionFilter = 'All';
+  String _pathFilter = 'All';
 
-  List<Map<String, dynamic>> _users = [];
-  List<Map<String, dynamic>> _filteredUsers = [];
+  List<UserModel> _users = [];
+  List<UserModel> _filteredUsers = [];
   bool _isLoading = true;
   bool _isProcessing = false;
+  bool _exportingAll = false;
 
-  // Stats
   int _totalUsers = 0;
   int _activeUsers = 0;
   int _proUsers = 0;
   int _freeUsers = 0;
   int _bannedUsers = 0;
-
-  // Admin emails
   List<String> _adminEmails = [];
 
-  // Status options
   final List<String> _statusOptions = ['All', 'Active', 'Banned'];
-
-  // Subscription options
   final List<String> _subscriptionOptions = ['All', 'Pro', 'Free'];
 
-  // Academic path options
   final List<_PathFilterOption> _pathOptions = [
     _PathFilterOption('All', 'All Paths'),
     _PathFilterOption('grade_9', 'Grade 9'),
@@ -67,11 +66,10 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     setState(() => _isLoading = true);
     try {
       final firebase = FirebaseService();
+      final usersData =
+          await firebase.getDocuments('users', orderBy: 'full_name');
+      final users = usersData.map((data) => UserModel.fromJson(data)).toList();
 
-      // Load users
-      final users = await firebase.getDocuments('users', orderBy: 'full_name');
-
-      // Load admin emails
       final adminData = await firebase.getAppSettings();
       final admins = adminData?['admin_emails'];
 
@@ -79,15 +77,13 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
         _users = users;
         _filteredUsers = List.from(users);
         _totalUsers = users.length;
-        _activeUsers = users.where((u) => u['status'] != 'banned').length;
-        _bannedUsers = users.where((u) => u['status'] == 'banned').length;
-        _proUsers = users.where((u) => u['is_pro'] == true).length;
-        _freeUsers = users.where((u) => u['is_pro'] != true).length;
-
+        _activeUsers = users.where((u) => u.accountStatus != 'banned').length;
+        _bannedUsers = users.where((u) => u.accountStatus == 'banned').length;
+        _proUsers = users.where((u) => u.selectedPackage != 'free').length;
+        _freeUsers = users.where((u) => u.selectedPackage == 'free').length;
         if (admins is List) {
           _adminEmails = List<String>.from(admins);
         }
-
         _isLoading = false;
       });
     } catch (e) {
@@ -106,80 +102,543 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
   void _applyFilters() {
     setState(() {
       _filteredUsers = _users.where((user) {
-        // Status filter
-        if (_statusFilter == 'Active' && user['status'] == 'banned')
+        if (_statusFilter == 'Active' && user.accountStatus == 'banned')
           return false;
-        if (_statusFilter == 'Banned' && user['status'] != 'banned')
+        if (_statusFilter == 'Banned' && user.accountStatus != 'banned')
           return false;
-
-        // Subscription filter
-        if (_subscriptionFilter == 'Pro' && user['is_pro'] != true)
+        if (_subscriptionFilter == 'Pro' && user.selectedPackage == 'free')
           return false;
-        if (_subscriptionFilter == 'Free' && user['is_pro'] == true)
+        if (_subscriptionFilter == 'Free' && user.selectedPackage != 'free')
           return false;
-
-        // Path filter
         if (_pathFilter != 'All') {
           final userPath = _getUserPath(user);
           if (userPath != _pathFilter) return false;
         }
-
-        // Search filter
         if (_searchQuery.isNotEmpty) {
           final query = _searchQuery.toLowerCase();
-          final name = user['full_name']?.toString().toLowerCase() ?? '';
-          final email = user['email']?.toString().toLowerCase() ?? '';
-          final phone = user['phone']?.toString().toLowerCase() ?? '';
-
+          final name = user.fullName.toLowerCase();
+          final email = user.email.toLowerCase();
+          final phone = user.phoneNumber.toLowerCase();
           if (!name.contains(query) &&
               !email.contains(query) &&
               !phone.contains(query)) {
             return false;
           }
         }
-
         return true;
       }).toList();
     });
   }
 
-  String _getUserPath(Map<String, dynamic> user) {
-    final level = user['school_level']?.toString() ?? '';
-    final grade = user['grade']?.toString() ?? '';
-    final stream = user['stream']?.toString() ?? '';
-    final semester = user['semester']?.toString() ?? '';
-    final track = user['track']?.toString() ?? '';
-
-    if (level == 'high-school') {
-      if (grade == '11' || grade == '12') {
-        return 'grade_${grade}_$stream';
+  String _getUserPath(UserModel user) {
+    if (user.academicLevel == 'high_school') {
+      if (user.grade == '11' || user.grade == '12') {
+        return 'grade_${user.grade}_${user.stream}';
       }
-      return 'grade_$grade';
-    } else if (level == 'university') {
-      if (semester == '2') {
-        return 'freshman_sem2_$track';
+      return 'grade_${user.grade}';
+    } else if (user.academicLevel == 'university') {
+      if (user.semester == '2') {
+        return 'freshman_sem2_${user.onboardingSelections?['track']}';
       }
-      return 'freshman_sem1_$stream';
+      return 'freshman_sem1_${user.stream}';
     }
     return 'unknown';
   }
 
-  // ============================================================
-  // USER DETAIL VIEW (Displays user's uploaded profile photo)
-  // ============================================================
+  // ============================================
+  // FIXED: Added import for Uint8List
+  // ============================================
+  Future<Uint8List?> _fetchImageBytes(String? imageUrl) async {
+    if (imageUrl == null || imageUrl.isEmpty) return null;
+    try {
+      final response = await http.get(Uri.parse(imageUrl));
+      if (response.statusCode == 200) {
+        return response.bodyBytes;
+      }
+      return null;
+    } catch (e) {
+      debugPrint('Error fetching image: $e');
+      return null;
+    }
+  }
 
-  void _showUserDetails(Map<String, dynamic> user) {
-    final profilePhotoUrl = user['profile_photo_url']?.toString();
-    final universityName =
-        user['university_name']?.toString() ?? user['university']?.toString();
-    final generation = user['generation']?.toString();
+  Future<void> _exportSingleUserPDF(UserModel user) async {
+    setState(() => _isProcessing = true);
+    try {
+      final pdf = await _generateUserPDF(user, includeProfilePic: true);
+      await _saveAndSharePDF(pdf, 'user_${user.fullName.replaceAll(' ', '_')}');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('User PDF generated and shared!'),
+              backgroundColor: Colors.green),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('PDF export failed: $e'),
+              backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      setState(() => _isProcessing = false);
+    }
+  }
 
+  Future<void> _exportAllUsersPDF() async {
+    setState(() {
+      _isProcessing = true;
+      _exportingAll = true;
+    });
+    try {
+      final users = _filteredUsers.isNotEmpty ? _filteredUsers : _users;
+      final pdf = await _generateAllUsersPDF(users);
+      await _saveAndSharePDF(pdf,
+          'all_users_${DateTime.now().day}_${DateTime.now().month}_${DateTime.now().year}');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('${users.length} users exported to PDF!'),
+              backgroundColor: Colors.green),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('PDF export failed: $e'),
+              backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      setState(() {
+        _isProcessing = false;
+        _exportingAll = false;
+      });
+    }
+  }
+
+  // ============================================
+  // FIXED: Proper PDF generation with correct types
+  // ============================================
+  Future<pw.Document> _generateUserPDF(UserModel user,
+      {bool includeProfilePic = true}) async {
+    final pdf = pw.Document();
+    Uint8List? profileImage;
+    if (includeProfilePic &&
+        user.avatarUrl != null &&
+        user.avatarUrl!.isNotEmpty) {
+      profileImage = await _fetchImageBytes(user.avatarUrl);
+    }
+
+    pdf.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat.a4,
+        build: (pw.Context context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Text('ACADIA - User Profile',
+                      style: pw.TextStyle(
+                          fontSize: 22,
+                          fontWeight: pw.FontWeight.bold,
+                          color: PdfColors.blue)),
+                  pw.Text(
+                      'Generated: ${DateTime.now().toString().split(' ')[0]}',
+                      style: pw.TextStyle(fontSize: 10, color: PdfColors.grey)),
+                ],
+              ),
+              pw.Divider(),
+              pw.SizedBox(height: 16),
+              pw.Row(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  if (profileImage != null)
+                    pw.Container(
+                      width: 80,
+                      height: 80,
+                      decoration: pw.BoxDecoration(
+                        shape: pw.BoxShape.circle,
+                        border: pw.Border.all(color: PdfColors.blue, width: 2),
+                      ),
+                      child: pw.ClipOval(
+                          child: pw.Image(pw.MemoryImage(profileImage))),
+                    )
+                  else
+                    pw.Container(
+                      width: 80,
+                      height: 80,
+                      decoration: pw.BoxDecoration(
+                        shape: pw.BoxShape.circle,
+                        color: PdfColors.grey300,
+                      ),
+                      child: pw.Center(
+                        child: pw.Text(
+                          user.fullName.isNotEmpty
+                              ? user.fullName[0].toUpperCase()
+                              : 'U',
+                          style: pw.TextStyle(
+                              fontSize: 32,
+                              fontWeight: pw.FontWeight.bold,
+                              color: PdfColors.grey600),
+                        ),
+                      ),
+                    ),
+                  pw.SizedBox(width: 16),
+                  pw.Expanded(
+                    child: pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
+                        pw.Text(user.fullName,
+                            style: pw.TextStyle(
+                                fontSize: 18, fontWeight: pw.FontWeight.bold)),
+                        pw.SizedBox(height: 4),
+                        pw.Text(user.email,
+                            style: pw.TextStyle(
+                                fontSize: 12, color: PdfColors.grey)),
+                        pw.SizedBox(height: 4),
+                        pw.Row(
+                          children: [
+                            _buildStatusBadge(
+                                user.selectedPackage != 'free' ? 'PRO' : 'FREE',
+                                user.selectedPackage != 'free'
+                                    ? PdfColors.green
+                                    : PdfColors.grey),
+                            pw.SizedBox(width: 8),
+                            if (user.accountStatus == 'banned')
+                              _buildStatusBadge('BANNED', PdfColors.red),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              pw.SizedBox(height: 20),
+              pw.Text('PERSONAL INFORMATION',
+                  style: pw.TextStyle(
+                      fontWeight: pw.FontWeight.bold,
+                      fontSize: 14,
+                      color: PdfColors.blue)),
+              pw.Divider(),
+              pw.SizedBox(height: 8),
+              _buildInfoRowPdf('Full Name', user.fullName),
+              _buildInfoRowPdf('Username', user.username),
+              _buildInfoRowPdf('Email', user.email),
+              _buildInfoRowPdf('Phone', user.phoneNumber),
+              _buildInfoRowPdf(
+                  'Registration Date', _formatDate(user.registrationDate)),
+              _buildInfoRowPdf('Last Login', _formatDate(user.lastLogin)),
+              _buildInfoRowPdf('Notification Preferences',
+                  user.notificationPreferences.toString()),
+              pw.SizedBox(height: 16),
+              pw.Text('ACADEMIC PATH',
+                  style: pw.TextStyle(
+                      fontWeight: pw.FontWeight.bold,
+                      fontSize: 14,
+                      color: PdfColors.blue)),
+              pw.Divider(),
+              pw.SizedBox(height: 8),
+              _buildInfoRowPdf('Academic Level', user.academicLevel),
+              _buildInfoRowPdf('Grade', user.grade ?? ''),
+              _buildInfoRowPdf('Stream', user.stream ?? ''),
+              _buildInfoRowPdf('Department', user.department ?? ''),
+              _buildInfoRowPdf('Year', user.year ?? ''),
+              _buildInfoRowPdf('Semester', user.semester ?? ''),
+              _buildInfoRowPdf('Track',
+                  user.onboardingSelections?['track']?.toString() ?? ''),
+              _buildInfoRowPdf('Generation',
+                  user.onboardingSelections?['generation']?.toString() ?? ''),
+              _buildInfoRowPdf(
+                  'University',
+                  user.onboardingSelections?['universityName']?.toString() ??
+                      user.onboardingSelections?['university']?.toString() ??
+                      ''),
+              _buildInfoRowPdf(
+                  'High School',
+                  user.onboardingSelections?['highSchoolName']?.toString() ??
+                      ''),
+              pw.SizedBox(height: 16),
+              pw.Text('SUBSCRIPTION',
+                  style: pw.TextStyle(
+                      fontWeight: pw.FontWeight.bold,
+                      fontSize: 14,
+                      color: PdfColors.blue)),
+              pw.Divider(),
+              pw.SizedBox(height: 8),
+              _buildInfoRowPdf(
+                  'Selected Package', user.selectedPackage ?? 'free'),
+              _buildInfoRowPdf('Payment Status', user.paymentStatus ?? ''),
+              _buildInfoRowPdf(
+                  'Account Status', user.accountStatus ?? 'active'),
+              pw.SizedBox(height: 16),
+              pw.Divider(),
+              pw.Center(
+                child: pw.Text(
+                  'ACADIA - Digital Education Platform',
+                  style: pw.TextStyle(fontSize: 10, color: PdfColors.grey),
+                ),
+              ),
+              pw.Center(
+                child: pw.Text(
+                  'Powered by NextGen Ethiopia',
+                  style: pw.TextStyle(fontSize: 8, color: PdfColors.grey),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+    return pdf;
+  }
+
+  // ============================================
+  // FIXED: Removed withOpacity, use direct colors
+  // ============================================
+  pw.Widget _buildStatusBadge(String text, PdfColor color) {
+    return pw.Container(
+      padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: pw.BoxDecoration(
+        color: color == PdfColors.green
+            ? PdfColors.green100
+            : color == PdfColors.red
+                ? PdfColors.red100
+                : PdfColors.grey200,
+        borderRadius: pw.BorderRadius.circular(10),
+        border: pw.Border.all(color: color),
+      ),
+      child: pw.Text(
+        text,
+        style: pw.TextStyle(
+            fontSize: 9, fontWeight: pw.FontWeight.bold, color: color),
+      ),
+    );
+  }
+
+  // ============================================
+  // FIXED: Correct fontWeight (bold not w500)
+  // ============================================
+  pw.Widget _buildInfoRowPdf(String label, String value) {
+    if (value.isEmpty ||
+        value.toLowerCase() == 'null' ||
+        value.toLowerCase() == 'n/a') {
+      return pw.SizedBox.shrink();
+    }
+    return pw.Padding(
+      padding: const pw.EdgeInsets.symmetric(vertical: 3),
+      child: pw.Row(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.SizedBox(
+            width: 150,
+            child: pw.Text(
+              '$label:',
+              style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10),
+            ),
+          ),
+          pw.Expanded(child: pw.Text(value, style: pw.TextStyle(fontSize: 10))),
+        ],
+      ),
+    );
+  }
+
+  Future<pw.Document> _generateAllUsersPDF(List<UserModel> users) async {
+    final pdf = pw.Document();
+
+    pdf.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat.a4,
+        build: (pw.Context context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Text('ACADIA - User Management Report',
+                  style: pw.TextStyle(
+                      fontSize: 24,
+                      fontWeight: pw.FontWeight.bold,
+                      color: PdfColors.blue)),
+              pw.SizedBox(height: 4),
+              pw.Text(
+                  'Generated: ${DateTime.now().toString().split(' ')[0]} at ${DateTime.now().toString().split(' ')[1]}',
+                  style: pw.TextStyle(fontSize: 12, color: PdfColors.grey)),
+              pw.Divider(),
+              pw.SizedBox(height: 20),
+              pw.Text('SUMMARY STATISTICS',
+                  style: pw.TextStyle(
+                      fontWeight: pw.FontWeight.bold, fontSize: 16)),
+              pw.SizedBox(height: 12),
+              pw.TableHelper.fromTextArray(
+                context: context,
+                data: <List<String>>[
+                  <String>['Metric', 'Count'],
+                  <String>['Total Users', users.length.toString()],
+                  <String>[
+                    'Active Users',
+                    users
+                        .where((u) => u.accountStatus != 'banned')
+                        .length
+                        .toString()
+                  ],
+                  <String>[
+                    'Banned Users',
+                    users
+                        .where((u) => u.accountStatus == 'banned')
+                        .length
+                        .toString()
+                  ],
+                  <String>[
+                    'Pro Users',
+                    users
+                        .where((u) => u.selectedPackage != 'free')
+                        .length
+                        .toString()
+                  ],
+                  <String>[
+                    'Free Users',
+                    users
+                        .where((u) => u.selectedPackage == 'free')
+                        .length
+                        .toString()
+                  ],
+                ],
+              ),
+              pw.SizedBox(height: 24),
+              pw.Text('USERS BY ACADEMIC PATH',
+                  style: pw.TextStyle(
+                      fontWeight: pw.FontWeight.bold, fontSize: 16)),
+              pw.SizedBox(height: 12),
+              pw.TableHelper.fromTextArray(
+                context: context,
+                data: <List<String>>[
+                  <String>['Path', 'Count'],
+                  ..._getPathCounts(users)
+                      .entries
+                      .map((e) => <String>[e.key, e.value.toString()]),
+                ],
+              ),
+              pw.SizedBox(height: 24),
+              pw.Text('TOTAL: ${users.length} users',
+                  style: pw.TextStyle(
+                      fontWeight: pw.FontWeight.bold, fontSize: 14)),
+              pw.SizedBox(height: 20),
+              pw.Divider(),
+              pw.Center(
+                child: pw.Text('ACADIA - Digital Education Platform',
+                    style: pw.TextStyle(fontSize: 10, color: PdfColors.grey)),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+
+    for (final user in users) {
+      pdf.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          build: (pw.Context context) {
+            return pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text(user.fullName,
+                    style: pw.TextStyle(
+                        fontSize: 18, fontWeight: pw.FontWeight.bold)),
+                pw.SizedBox(height: 4),
+                pw.Text(user.email,
+                    style: pw.TextStyle(fontSize: 12, color: PdfColors.grey)),
+                pw.Divider(),
+                pw.SizedBox(height: 12),
+                pw.Row(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Expanded(
+                      child: pw.Column(
+                        crossAxisAlignment: pw.CrossAxisAlignment.start,
+                        children: [
+                          pw.Text('PERSONAL',
+                              style: pw.TextStyle(
+                                  fontWeight: pw.FontWeight.bold,
+                                  fontSize: 12,
+                                  color: PdfColors.blue)),
+                          pw.SizedBox(height: 4),
+                          _buildInfoRowPdf('Name', user.fullName),
+                          _buildInfoRowPdf('Username', user.username),
+                          _buildInfoRowPdf('Email', user.email),
+                          _buildInfoRowPdf('Phone', user.phoneNumber),
+                          _buildInfoRowPdf(
+                              'Registered', _formatDate(user.registrationDate)),
+                        ],
+                      ),
+                    ),
+                    pw.SizedBox(width: 16),
+                    pw.Expanded(
+                      child: pw.Column(
+                        crossAxisAlignment: pw.CrossAxisAlignment.start,
+                        children: [
+                          pw.Text('ACADEMIC',
+                              style: pw.TextStyle(
+                                  fontWeight: pw.FontWeight.bold,
+                                  fontSize: 12,
+                                  color: PdfColors.blue)),
+                          pw.SizedBox(height: 4),
+                          _buildInfoRowPdf('Level', user.academicLevel),
+                          _buildInfoRowPdf('Grade', user.grade ?? ''),
+                          _buildInfoRowPdf('Stream', user.stream ?? ''),
+                          _buildInfoRowPdf(
+                              'Package', user.selectedPackage ?? 'free'),
+                          _buildInfoRowPdf(
+                              'Status', user.accountStatus ?? 'active'),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                pw.SizedBox(height: 16),
+                pw.Divider(),
+                pw.Center(
+                  child: pw.Text('ACADIA - Digital Education Platform',
+                      style: pw.TextStyle(fontSize: 8, color: PdfColors.grey)),
+                ),
+              ],
+            );
+          },
+        ),
+      );
+    }
+
+    return pdf;
+  }
+
+  Map<String, int> _getPathCounts(List<UserModel> users) {
+    final counts = <String, int>{};
+    for (final user in users) {
+      final path = _getUserPathDisplay(user);
+      counts[path] = (counts[path] ?? 0) + 1;
+    }
+    return counts;
+  }
+
+  Future<void> _saveAndSharePDF(pw.Document pdf, String fileName) async {
+    final directory = await getApplicationDocumentsDirectory();
+    final fullFileName =
+        '${fileName}_${DateTime.now().millisecondsSinceEpoch}.pdf';
+    final file = File('${directory.path}/$fullFileName');
+    await file.writeAsBytes(await pdf.save());
+    await Share.shareXFiles([XFile(file.path)], text: 'ACADIA User Report');
+  }
+
+  void _showUserDetails(UserModel user) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (context) => DraggableScrollableSheet(
         initialChildSize: 0.85,
         maxChildSize: 0.95,
@@ -191,34 +650,28 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Handle
               Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(2)),
-                ),
-              ),
+                  child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(2)))),
               const SizedBox(height: 20),
-
-              // User Profile Photo (from user's upload)
               Center(
                 child: GestureDetector(
-                  onTap: profilePhotoUrl != null
-                      ? () => _viewFullPhoto(profilePhotoUrl)
+                  onTap: user.avatarUrl != null
+                      ? () => _viewFullPhoto(user.avatarUrl!)
                       : null,
                   child: Container(
                     decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.primary, width: 3),
-                    ),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AppColors.primary, width: 3)),
                     child: ClipOval(
-                      child: profilePhotoUrl != null &&
-                              profilePhotoUrl.isNotEmpty
+                      child: user.avatarUrl != null &&
+                              user.avatarUrl!.isNotEmpty
                           ? Image.network(
-                              profilePhotoUrl,
+                              user.avatarUrl!,
                               width: 100,
                               height: 100,
                               fit: BoxFit.cover,
@@ -226,18 +679,15 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                   (context, child, loadingProgress) {
                                 if (loadingProgress == null) return child;
                                 return Container(
-                                  width: 100,
-                                  height: 100,
-                                  color: Colors.grey[200],
-                                  child: const Center(
-                                    child: SizedBox(
-                                      width: 30,
-                                      height: 30,
-                                      child: CircularProgressIndicator(
-                                          strokeWidth: 2),
-                                    ),
-                                  ),
-                                );
+                                    width: 100,
+                                    height: 100,
+                                    color: Colors.grey[200],
+                                    child: const Center(
+                                        child: SizedBox(
+                                            width: 30,
+                                            height: 30,
+                                            child: CircularProgressIndicator(
+                                                strokeWidth: 2))));
                               },
                               errorBuilder: (context, error, stackTrace) {
                                 return Container(
@@ -246,8 +696,9 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                   color: Colors.grey[200],
                                   child: Center(
                                     child: Text(
-                                      (user['full_name']?.toString() ?? 'U')[0]
-                                          .toUpperCase(),
+                                      (user.fullName).isNotEmpty
+                                          ? user.fullName[0].toUpperCase()
+                                          : 'U',
                                       style: const TextStyle(
                                           fontSize: 36,
                                           fontWeight: FontWeight.bold,
@@ -260,11 +711,12 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                           : CircleAvatar(
                               radius: 50,
                               backgroundColor:
-                                  AppColors.primary.withAlpha((255 * 0.1).toInt()),
+                                  AppColors.primary.withOpacity(0.1),
                               child: Text(
-                                (user['full_name']?.toString() ?? 'U')[0]
-                                    .toUpperCase(),
-                                style: TextStyle(
+                                (user.fullName).isNotEmpty
+                                    ? user.fullName[0].toUpperCase()
+                                    : 'U',
+                                style: const TextStyle(
                                     fontSize: 36,
                                     fontWeight: FontWeight.bold,
                                     color: AppColors.primary),
@@ -276,275 +728,170 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
               ),
               const SizedBox(height: 12),
               Center(
-                child: Text(
-                  user['full_name']?.toString() ?? 'Unknown',
-                  style: const TextStyle(
-                      fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-              ),
+                  child: Text(user.fullName,
+                      style: const TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.bold))),
               const SizedBox(height: 4),
               Center(child: _buildUserStatusBadge(user)),
               const SizedBox(height: 24),
-
-              // Personal Information
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () => _exportSingleUserPDF(user),
+                  icon: const Icon(Icons.picture_as_pdf),
+                  label: const Text('Export User as PDF'),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white),
+                ),
+              ),
+              const SizedBox(height: 16),
               const Text('PERSONAL INFORMATION',
                   style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
                       color: Colors.grey)),
               const Divider(),
-              _buildInfoRow('Full Name', user['full_name']?.toString()),
-              _buildInfoRow('Email', user['email']?.toString()),
-              _buildInfoRow('Phone', user['phone']?.toString()),
-              _buildInfoRow('Joined', _formatDate(user['created_at'])),
-              _buildInfoRow('Last Active', _formatDate(user['last_active'])),
+              _buildInfoRow('Full Name', user.fullName),
+              _buildInfoRow('Username', user.username),
+              _buildInfoRow('Email', user.email),
+              _buildInfoRow('Phone', user.phoneNumber),
+              _buildInfoRow(
+                  'Registration Date', _formatDate(user.registrationDate)),
+              _buildInfoRow('Last Login', _formatDate(user.lastLogin)),
+              _buildInfoRow('Notification Preferences',
+                  user.notificationPreferences.toString()),
               const SizedBox(height: 16),
-
-              // Academic Path (Complete with University)
               const Text('ACADEMIC PATH',
                   style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
                       color: Colors.grey)),
               const Divider(),
+              _buildInfoRow('Academic Level', user.academicLevel),
+              _buildInfoRow('Grade', user.grade),
+              _buildInfoRow('Stream', user.stream),
+              _buildInfoRow('Department', user.department),
+              _buildInfoRow('Year', user.year),
+              _buildInfoRow('Semester', user.semester),
               _buildInfoRow(
-                  'School Level',
-                  user['school_level'] == 'high-school'
-                      ? 'High School'
-                      : 'University'),
-              if (user['school_level'] == 'high-school') ...[
-                _buildInfoRow('Grade', user['grade']?.toString()),
-                if (user['grade'] == '11' || user['grade'] == '12')
-                  _buildInfoRow(
-                      'Stream',
-                      user['stream'] == 'natural_science'
-                          ? 'Natural Science'
-                          : 'Social Science'),
-              ] else if (user['school_level'] == 'university') ...[
-                _buildInfoRow('Generation', generation),
-                _buildInfoRow('University', universityName),
-                _buildInfoRow(
-                    'Year',
-                    user['university_year'] == 'freshman'
-                        ? 'Freshman'
-                        : 'Senior'),
-                if (user['university_year'] == 'freshman') ...[
-                  _buildInfoRow('Semester', 'Semester ${user['semester']}'),
-                  if (user['semester'] == '1')
-                    _buildInfoRow(
-                        'Stream',
-                        user['stream'] == 'natural_science'
-                            ? 'Natural Science'
-                            : 'Social Science'),
-                  if (user['semester'] == '2')
-                    _buildInfoRow(
-                        'Track',
-                        user['track'] == 'pre_engineering'
-                            ? 'Pre-Engineering'
-                            : 'Other Natural Science'),
-                ],
-              ],
-              _buildInfoRow('Path Status', 'Permanently Locked'),
+                  'Track', user.onboardingSelections?['track']?.toString()),
+              _buildInfoRow('Generation',
+                  user.onboardingSelections?['generation']?.toString()),
+              _buildInfoRow(
+                  'University',
+                  user.onboardingSelections?['universityName']?.toString() ??
+                      user.onboardingSelections?['university']?.toString()),
+              _buildInfoRow('High School',
+                  user.onboardingSelections?['highSchoolName']?.toString()),
               const SizedBox(height: 16),
-
-              // Subscription
               const Text('SUBSCRIPTION',
                   style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
                       color: Colors.grey)),
               const Divider(),
-              _buildInfoRow('Status', user['is_pro'] == true ? 'PRO' : 'FREE'),
-              if (user['is_pro'] == true) ...[
-                _buildInfoRow('Package', user['pro_package']?.toString()),
-                _buildInfoRow(
-                    'Amount Paid', '${user['pro_amount'] ?? '300'} ETB'),
-                _buildInfoRow(
-                    'Payment Method', user['pro_payment_method']?.toString()),
-                _buildInfoRow(
-                    'Valid From', _formatDate(user['pro_valid_from'])),
-                _buildInfoRow(
-                    'Valid Until', _formatDate(user['pro_valid_until'])),
-                _buildInfoRow('Days Remaining',
-                    _getDaysRemaining(user['pro_valid_until'])),
-              ],
-              const SizedBox(height: 16),
-
-              // Study Statistics
-              const Text('STUDY STATISTICS',
+              _buildInfoRow('Selected Package', user.selectedPackage),
+              _buildInfoRow('Payment Status', user.paymentStatus),
+              _buildInfoRow('Account Status', user.accountStatus),
+              const SizedBox(height: 20),
+              const Text('ADMIN ACTIONS',
                   style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
                       color: Colors.grey)),
               const Divider(),
-              _buildInfoRow('Total Study Time',
-                  '${user['total_study_hours'] ?? 0} hours'),
-              _buildInfoRow('Lessons Completed',
-                  '${user['lessons_completed'] ?? 0} of ${user['total_lessons'] ?? 0}'),
-              _buildInfoRow('Quizzes Passed',
-                  '${user['quizzes_passed'] ?? 0} of ${user['total_quizzes'] ?? 0}'),
-              _buildInfoRow('Average Score', '${user['average_score'] ?? 0}%'),
-              _buildInfoRow(
-                  'Current Streak', '${user['current_streak'] ?? 0} days'),
-              _buildInfoRow('Downloads',
-                  '${user['download_count'] ?? 0} items (${user['download_size'] ?? '0 GB'})'),
-              const SizedBox(height: 16),
-
-              // Payment History
-              if (user['payment_history'] != null &&
-                  (user['payment_history'] as List).isNotEmpty) ...[
-                const Text('PAYMENT HISTORY',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                        color: Colors.grey)),
-                const Divider(),
-                ...(user['payment_history'] as List).map((p) => Padding(
-                      padding: const EdgeInsets.only(bottom: 4),
-                      child: Text(
-                          '${_formatDate(p['date'])} | ${p['amount']} ETB | ${p['method']} | ${p['status']?.toString().toUpperCase()}',
-                          style: const TextStyle(fontSize: 13)),
-                    )),
-                const SizedBox(height: 16),
-              ],
-
-              // Recent Activity
-              if (user['recent_activity'] != null &&
-                  (user['recent_activity'] as List).isNotEmpty) ...[
-                const Text('RECENT ACTIVITY',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                        color: Colors.grey)),
-                const Divider(),
-                ...(user['recent_activity'] as List).take(5).map((a) => Padding(
-                      padding: const EdgeInsets.only(bottom: 4),
-                      child: Text('${_formatDate(a['date'])} | ${a['action']}',
-                          style: const TextStyle(fontSize: 13)),
-                    )),
-                const SizedBox(height: 16),
-              ],
-
-              // Notifications sent to user
-              const Text('NOTIFICATIONS SENT',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                      color: Colors.grey)),
-              const Divider(),
-              if (user['notifications'] != null &&
-                  (user['notifications'] as List).isNotEmpty)
-                ...(user['notifications'] as List).take(5).map((n) => ListTile(
-                      dense: true,
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(n['title']?.toString() ?? '',
-                          style: const TextStyle(fontSize: 13)),
-                      subtitle: Text(
-                          '${_formatDate(n['date'])} • ${n['read'] == true ? 'Read' : 'Unread'}',
-                          style: const TextStyle(fontSize: 11)),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                              icon: const Icon(Icons.edit, size: 16),
-                              onPressed: () => _editUserNotification(user, n)),
-                          IconButton(
-                              icon: const Icon(Icons.delete,
-                                  size: 16, color: Colors.red),
-                              onPressed: () =>
-                                  _deleteUserNotification(user, n)),
-                        ],
-                      ),
-                    ))
-              else
-                const Text('No notifications sent',
-                    style: TextStyle(color: Colors.grey)),
-              const SizedBox(height: 24),
-
-              // Action Buttons
-              Row(
+              const SizedBox(height: 8),
+              GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: 2,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 8,
+                childAspectRatio: 2.6,
                 children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
+                  _buildActionButton(
+                      icon: user.selectedPackage != 'free'
+                          ? Icons.block
+                          : Icons.verified_user,
+                      label: user.selectedPackage != 'free'
+                          ? 'Revoke PRO'
+                          : 'Grant PRO',
+                      color: user.selectedPackage != 'free'
+                          ? Colors.orange
+                          : Colors.green,
+                      onTap: () {
                         Navigator.pop(context);
                         _toggleProStatus(user);
-                      },
-                      icon: Icon(user['is_pro'] == true
-                          ? Icons.remove_circle
-                          : Icons.add_circle),
-                      label: Text(
-                          user['is_pro'] == true ? 'REVOKE PRO' : 'MAKE PRO'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: user['is_pro'] == true
-                            ? Colors.orange
-                            : Colors.green,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
+                      }),
+                  _buildActionButton(
+                      icon: user.accountStatus == 'banned'
+                          ? Icons.check_circle
+                          : Icons.cancel,
+                      label: user.accountStatus == 'banned'
+                          ? 'Unban User'
+                          : 'Ban User',
+                      color: user.accountStatus == 'banned'
+                          ? Colors.green
+                          : Colors.red,
+                      onTap: () {
                         Navigator.pop(context);
                         _toggleBanStatus(user);
-                      },
-                      icon: Icon(user['status'] == 'banned'
-                          ? Icons.lock_open
-                          : Icons.block),
-                      label: Text(user['status'] == 'banned' ? 'UNBAN' : 'BAN'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: user['status'] == 'banned'
-                            ? Colors.green
-                            : Colors.red,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
+                      }),
+                  _buildActionButton(
+                      icon: Icons.notifications_active,
+                      label: 'Send Notification',
+                      color: AppColors.primary,
+                      onTap: () {
                         Navigator.pop(context);
                         _showSendNotificationDialog(user);
-                      },
-                      icon: const Icon(Icons.notifications),
-                      label: const Text('SEND NOTIFICATION'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
+                      }),
+                  _buildActionButton(
+                      icon: Icons.delete_forever,
+                      label: 'Delete User',
+                      color: Colors.red,
+                      onTap: () {
                         Navigator.pop(context);
                         _deleteUser(user);
-                      },
-                      icon: const Icon(Icons.delete_forever),
-                      label: const Text('DELETE'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red.shade700,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                    ),
-                  ),
+                      }),
                 ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionButton(
+      {required IconData icon,
+      required String label,
+      required Color color,
+      required VoidCallback onTap}) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: color.withOpacity(0.3)),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 18, color: color),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                    fontSize: 11, fontWeight: FontWeight.w600, color: color),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -570,9 +917,8 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                   },
                   errorBuilder: (context, error, stackTrace) {
                     return const Center(
-                      child: Icon(Icons.broken_image,
-                          size: 64, color: Colors.grey),
-                    );
+                        child: Icon(Icons.broken_image,
+                            size: 64, color: Colors.grey));
                   },
                 ),
               ),
@@ -594,294 +940,152 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     );
   }
 
-  // ============================================================
-  // ACTIONS
-  // ============================================================
-
-  Future<void> _toggleProStatus(Map<String, dynamic> user) async {
-    final isPro = user['is_pro'] == true;
-    final message = isPro
-        ? 'Revoke PRO status from ${user['full_name']}?'
-        : 'Make ${user['full_name']} a PRO user?';
-
-    Map<String, dynamic>? proSelectionResult;
-
-    if (!isPro) {
-      proSelectionResult = await showDialog<Map<String, dynamic>>(
-        context: context,
-        builder: (context) {
-          String selectedPackage = 'Grade 11 Natural Science';
-          return AlertDialog(
-            title: const Text('Make PRO'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(message),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  value: selectedPackage,
-                  decoration: const InputDecoration(
-                      labelText: 'Select Package',
-                      border: OutlineInputBorder()),
-                  items: [
-                    'Grade 9',
-                    'Grade 10',
-                    'Grade 11 Natural Science',
-                    'Grade 11 Social Science',
-                    'Grade 12 Natural Science',
-                    'Grade 12 Social Science',
-                    'Freshman Sem 1 Natural',
-                    'Freshman Sem 1 Social',
-                    'Freshman Sem 2 Pre-Eng',
-                    'Freshman Sem 2 Other Natural',
-                  ]
-                      .map((p) => DropdownMenuItem(value: p, child: Text(p)))
-                      .toList(),
-                  onChanged: (v) => selectedPackage = v!,
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancel')),
-              ElevatedButton(
-                onPressed: () =>
-                    Navigator.pop(context, {'package': selectedPackage}),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                child: const Text('CONFIRM',
-                    style: TextStyle(color: Colors.white)),
-              ),
-            ],
-          );
-        },
-      );
-      if (proSelectionResult == null) return;
-    } else {
-      final confirmed = await _showConfirmDialog('Revoke PRO', message);
-      if (confirmed != true) return;
-    }
-
-    setState(() => _isProcessing = true);
-    try {
-      final firebase = FirebaseService();
-      final now = DateTime.now();
-
-      if (isPro) {
-        await firebase.updateDocument('users', user['id'], {
-          'is_pro': false,
-          'pro_revoked_at': now.toIso8601String(),
-        });
-      } else {
-        await firebase.updateDocument('users', user['id'], {
-          'is_pro': true,
-          'pro_package': proSelectionResult?['package'],
-          'pro_valid_from': now.toIso8601String(),
-          'pro_valid_until':
-              DateTime(now.year + 1, now.month, now.day).toIso8601String(),
-        });
-      }
-
-      await _loadData();
-      _applyFilters();
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(isPro ? 'PRO status revoked' : 'User is now PRO'),
-              backgroundColor: isPro ? Colors.orange : Colors.green),
-        );
-      }
-    } catch (e) {
-      if (mounted) _showError('Error: $e');
-    } finally {
-      setState(() => _isProcessing = false);
-    }
-  }
-
-  Future<void> _toggleBanStatus(Map<String, dynamic> user) async {
-    final isBanned = user['status'] == 'banned';
-    final message =
-        isBanned ? 'Unban ${user['full_name']}?' : 'Ban ${user['full_name']}?';
-
-    String? reason;
-    if (!isBanned) {
-      final reasonController = TextEditingController();
-      final result = await showDialog<Map<String, String>>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Ban User'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(message),
-              const SizedBox(height: 8),
-              const Text(
-                  'This will log the user out and prevent future login.'),
-              const SizedBox(height: 16),
-              TextField(
-                controller: reasonController,
-                decoration: const InputDecoration(
-                  labelText: 'Reason (optional)',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel')),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(
-                  context, {'reason': reasonController.text.trim()}),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              child:
-                  const Text('BAN USER', style: TextStyle(color: Colors.white)),
-            ),
-          ],
-        ),
-      );
-      if (result == null) return;
-      reason = result['reason'];
-    } else {
-      final confirmed = await _showConfirmDialog('Unban User', message);
-      if (confirmed != true) return;
-    }
-
-    setState(() => _isProcessing = true);
-    try {
-      final firebase = FirebaseService();
-
-      await firebase.updateDocument('users', user['id'], {
-        'status': isBanned ? 'active' : 'banned',
-        'banned_at': isBanned ? null : DateTime.now().toIso8601String(),
-        'ban_reason': isBanned ? null : reason,
-        'banned_by': isBanned ? null : 'admin',
-      });
-
-      await _loadData();
-      _applyFilters();
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(isBanned ? 'User unbanned' : 'User banned'),
-              backgroundColor: isBanned ? Colors.green : Colors.orange),
-        );
-      }
-    } catch (e) {
-      if (mounted) _showError('Error: $e');
-    } finally {
-      setState(() => _isProcessing = false);
-    }
-  }
-
-  Future<void> _deleteUser(Map<String, dynamic> user) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('DELETE USER'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Permanently delete ${user['full_name']}?'),
-            const SizedBox(height: 8),
-            const Text('This will remove:',
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            const Text('• Account and login credentials'),
-            const Text('• All personal information'),
-            const Text('• Payment history'),
-            const Text('• Study progress and statistics'),
-            const SizedBox(height: 8),
-            const Text('This action CANNOT be undone.',
-                style:
-                    TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-          ],
-        ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel')),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('DELETE USER',
-                style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
+  Future<void> _toggleProStatus(UserModel user) async {
+    final isCurrentlyPro = user.selectedPackage != 'free';
+    final confirmed = await _showConfirmDialog(
+      '${isCurrentlyPro ? 'Revoke PRO' : 'Grant PRO'} for ${user.fullName}?',
+      isCurrentlyPro
+          ? 'This will remove the user\'s PRO access and revert to FREE package.'
+          : 'This will unlock all premium content for the user immediately.',
     );
-
     if (confirmed != true) return;
 
     setState(() => _isProcessing = true);
     try {
       final firebase = FirebaseService();
-      await firebase.deleteDocument('users', user['id']);
+      if (isCurrentlyPro) {
+        await firebase.updateDocument('users', user.id, {
+          'selected_package': 'free',
+          'payment_status': 'pending',
+          'updated_at': DateTime.now().toIso8601String(),
+        });
+      } else {
+        final packageService = PackageService();
+        await packageService.activatePackage(
+          user.id,
+          packageName:
+              user.grade != null ? 'Grade ${user.grade}' : 'University',
+          packageAmount: 0,
+          paymentMethod: 'manual_admin',
+        );
+      }
       await _loadData();
       _applyFilters();
-
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('User deleted'), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text(
+                  '${user.fullName}: ${isCurrentlyPro ? 'PRO revoked' : 'PRO activated!'}'),
+              backgroundColor: isCurrentlyPro ? Colors.orange : Colors.green),
         );
       }
     } catch (e) {
-      if (mounted) _showError('Error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
+      }
     } finally {
-      setState(() => _isProcessing = false);
+      if (mounted) setState(() => _isProcessing = false);
     }
   }
 
-  // ============================================================
-  // NOTIFICATION MANAGEMENT
-  // ============================================================
+  Future<void> _toggleBanStatus(UserModel user) async {
+    final isCurrentlyBanned = user.accountStatus == 'banned';
+    final confirmed = await _showConfirmDialog(
+      '${isCurrentlyBanned ? 'Unban' : 'Ban'} ${user.fullName}?',
+      isCurrentlyBanned
+          ? 'This will restore the user\'s account access.'
+          : 'This will prevent the user from logging in and accessing the app.',
+    );
+    if (confirmed != true) return;
 
-  Future<void> _showSendNotificationDialog(Map<String, dynamic> user) async {
+    setState(() => _isProcessing = true);
+    try {
+      final firebase = FirebaseService();
+      await firebase.updateDocument('users', user.id, {
+        'account_status': isCurrentlyBanned ? 'active' : 'banned',
+        'updated_at': DateTime.now().toIso8601String(),
+      });
+      await _loadData();
+      _applyFilters();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(
+                  '${user.fullName}: ${isCurrentlyBanned ? 'Unbanned' : 'Banned!'}'),
+              backgroundColor: isCurrentlyBanned ? Colors.green : Colors.red),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
+      }
+    } finally {
+      if (mounted) setState(() => _isProcessing = false);
+    }
+  }
+
+  Future<void> _deleteUser(UserModel user) async {
+    final confirmed = await _showConfirmDialog(
+      'Delete ${user.fullName}?',
+      'This action is PERMANENT and CANNOT be undone. All user data (profile, payments, progress) will be lost.',
+    );
+    if (confirmed != true) return;
+
+    setState(() => _isProcessing = true);
+    try {
+      final firebase = FirebaseService();
+      await firebase.deleteDocument('users', user.id);
+      await _loadData();
+      _applyFilters();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('${user.fullName} deleted'),
+              backgroundColor: Colors.orange),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
+      }
+    } finally {
+      if (mounted) setState(() => _isProcessing = false);
+    }
+  }
+
+  Future<void> _showSendNotificationDialog(UserModel user) async {
     final titleController = TextEditingController();
     final messageController = TextEditingController();
-    String type = 'content';
 
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Send Notification to ${user['full_name']}'),
+        title: Text('Send Notification to ${user.fullName}'),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              DropdownButtonFormField<String>(
-                value: type,
-                decoration: const InputDecoration(
-                    labelText: 'Type', border: OutlineInputBorder()),
-                items: [
-                  'payment',
-                  'content',
-                  'quiz',
-                  'exam',
-                  'achievement',
-                  'system'
-                ]
-                    .map((t) =>
-                        DropdownMenuItem(value: t, child: Text(t.capitalize())))
-                    .toList(),
-                onChanged: (v) => type = v!,
-              ),
-              const SizedBox(height: 12),
               TextField(
                 controller: titleController,
                 decoration: const InputDecoration(
-                    labelText: 'Title', border: OutlineInputBorder()),
+                  labelText: 'Title',
+                  border: OutlineInputBorder(),
+                  hintText: 'e.g., Important Update',
+                ),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: messageController,
                 maxLines: 4,
                 decoration: const InputDecoration(
-                    labelText: 'Message', border: OutlineInputBorder()),
+                  labelText: 'Message',
+                  border: OutlineInputBorder(),
+                  hintText: 'Type your notification message here...',
+                  alignLabelWithHint: true,
+                ),
               ),
             ],
           ),
@@ -892,10 +1096,16 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
               child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () {
-              if (titleController.text.isNotEmpty &&
-                  messageController.text.isNotEmpty) {
-                Navigator.pop(context, true);
+              if (titleController.text.trim().isEmpty ||
+                  messageController.text.trim().isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      content: Text('Please fill in both title and message'),
+                      backgroundColor: Colors.red),
+                );
+                return;
               }
+              Navigator.pop(context, true);
             },
             child: const Text('SEND'),
           ),
@@ -906,14 +1116,27 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     if (result == true) {
       try {
         final firebase = FirebaseService();
-        await firebase.addDocument('notifications', {
-          'user_id': user['id'],
-          'title': titleController.text.trim(),
-          'message': messageController.text.trim(),
-          'type': type,
-          'created_at': DateTime.now().toIso8601String(),
-          'read': false,
-        });
+        final title = titleController.text.trim();
+        final message = messageController.text.trim();
+        final targetUserId = (user.id ?? '').trim();
+        if (title.isEmpty || message.isEmpty || targetUserId.isEmpty) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                    'Notification could not be sent: missing title, message, or user.'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+          return;
+        }
+        await firebase.createNotification(
+          title: title,
+          message: message,
+          targetUserId: targetUserId,
+          type: 'system',
+        );
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -922,271 +1145,180 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
           );
         }
       } catch (e) {
-        if (mounted) _showError('Error: $e');
-      }
-    }
-  }
-
-  Future<void> _editUserNotification(
-      Map<String, dynamic> user, Map<String, dynamic> notification) async {
-    final titleController = TextEditingController(text: notification['title']);
-    final messageController =
-        TextEditingController(text: notification['message']);
-
-    final result = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Edit Notification'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-                controller: titleController,
-                decoration: const InputDecoration(
-                    labelText: 'Title', border: OutlineInputBorder())),
-            const SizedBox(height: 12),
-            TextField(
-                controller: messageController,
-                maxLines: 4,
-                decoration: const InputDecoration(
-                    labelText: 'Message', border: OutlineInputBorder())),
-          ],
-        ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel')),
-          ElevatedButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('SAVE')),
-        ],
-      ),
-    );
-
-    if (result == true) {
-      try {
-        final firebase = FirebaseService();
-        await firebase.updateDocument('notifications', notification['id'], {
-          'title': titleController.text.trim(),
-          'message': messageController.text.trim(),
-        });
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text('Notification updated!'),
-                backgroundColor: Colors.green),
-          );
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text('Error: $e'), backgroundColor: Colors.red));
         }
-      } catch (e) {
-        if (mounted) _showError('Error: $e');
+      } finally {
+        titleController.dispose();
+        messageController.dispose();
       }
+    } else {
+      titleController.dispose();
+      messageController.dispose();
     }
   }
-
-  Future<void> _deleteUserNotification(
-      Map<String, dynamic> user, Map<String, dynamic> notification) async {
-    final confirmed = await _showConfirmDialog(
-        'Delete Notification', 'Delete this notification?');
-    if (confirmed != true) return;
-
-    try {
-      final firebase = FirebaseService();
-      await firebase.deleteDocument('notifications', notification['id']);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Notification deleted!'),
-              backgroundColor: Colors.green),
-        );
-      }
-    } catch (e) {
-      if (mounted) _showError('Error: $e');
-    }
-  }
-
-  // ============================================================
-  // EXPORT PDF
-  // ============================================================
-
-  Future<void> _exportUsersAsPDF() async {
-    try {
-      final pdf = pw.Document();
-
-      pdf.addPage(
-        pw.MultiPage(
-          pageFormat: PdfPageFormat.a4,
-          build: (context) => [
-            pw.Header(
-                level: 0,
-                child: pw.Text('ACADIA - User Export',
-                    textAlign: pw.TextAlign.center)),
-            pw.Header(
-                level: 1,
-                child: pw.Text(
-                    'Generated: ${DateTime.now().toString().substring(0, 16)}')),
-            pw.Header(
-                level: 1,
-                child: pw.Text(
-                    'Filter: $_pathFilter | $_subscriptionFilter | $_statusFilter')),
-            pw.Header(
-                level: 1,
-                child: pw.Text('Total Users: ${_filteredUsers.length}')),
-            pw.SizedBox(height: 20),
-            pw.Table(
-              border: pw.TableBorder.all(),
-              children: [
-                pw.TableRow(
-                  children: [
-                    'Name',
-                    'Email',
-                    'Phone',
-                    'Path',
-                    'Status',
-                    'Joined'
-                  ]
-                      .map((h) => pw.Padding(
-                          padding: const pw.EdgeInsets.all(4),
-                          child: pw.Text(h,
-                              style: pw.TextStyle(
-                                  fontWeight: pw.FontWeight.bold))))
-                      .toList(),
-                ),
-                ..._filteredUsers.map((user) => pw.TableRow(
-                      children: [
-                        user['full_name']?.toString() ?? '',
-                        user['email']?.toString() ?? '',
-                        user['phone']?.toString() ?? '',
-                        _getUserPathDisplay(user),
-                        user['is_pro'] == true ? 'PRO' : 'FREE',
-                        _formatDate(user['created_at']),
-                      ]
-                          .map((t) => pw.Padding(
-                              padding: const pw.EdgeInsets.all(4),
-                              child: pw.Text(t)))
-                          .toList(),
-                    )),
-              ],
-            ),
-          ],
-        ),
-      );
-
-      final directory = await getApplicationDocumentsDirectory();
-      final path =
-          '${directory.path}/users_export_${DateTime.now().millisecondsSinceEpoch}.pdf';
-      final file = File(path);
-      await file.writeAsBytes(await pdf.save());
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Exported ${_filteredUsers.length} users to PDF'),
-              backgroundColor: Colors.green),
-        );
-      }
-    } catch (e) {
-      if (mounted) _showError('Export failed: $e');
-    }
-  }
-
-  // ============================================================
-  // MANAGE ADMINS
-  // ============================================================
 
   Future<void> _showManageAdminsDialog() async {
     final emailController = TextEditingController();
-
-    showDialog(
+    await showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Manage Admin Emails'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              ..._adminEmails.map((email) => ListTile(
-                    dense: true,
-                    leading: const Icon(Icons.email),
-                    title: Text(email),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.remove_circle, color: Colors.red),
-                      onPressed: () async {
-                        await _removeAdmin(email);
-                        setDialogState(() => _adminEmails.remove(email));
-                      },
+          title: const Text('Manage Administrators'),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Current Admins:',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  if (_adminEmails.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8),
+                      child: Text('No admins configured',
+                          style: TextStyle(color: Colors.grey)),
+                    )
+                  else
+                    ..._adminEmails.map((email) => Card(
+                          margin: const EdgeInsets.only(bottom: 4),
+                          child: ListTile(
+                            dense: true,
+                            leading: const Icon(Icons.admin_panel_settings,
+                                size: 18),
+                            title: Text(email,
+                                style: const TextStyle(fontSize: 13)),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.remove_circle,
+                                  color: Colors.red, size: 18),
+                              onPressed: () async {
+                                await _removeAdmin(email);
+                                setDialogState(() {});
+                              },
+                              tooltip: 'Remove admin',
+                            ),
+                          ),
+                        )),
+                  const SizedBox(height: 16),
+                  const Divider(),
+                  const SizedBox(height: 16),
+                  const Text('Add New Admin:',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      labelText: 'Admin Email',
+                      border: const OutlineInputBorder(),
+                      hintText: 'admin@example.com',
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.add_circle,
+                            color: AppColors.primary),
+                        onPressed: () async {
+                          final email = emailController.text.trim();
+                          if (email.isEmpty || !email.contains('@')) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text('Please enter a valid email'),
+                                  backgroundColor: Colors.red),
+                            );
+                            return;
+                          }
+                          await _addAdmin(email);
+                          emailController.clear();
+                          setDialogState(() {});
+                        },
+                      ),
                     ),
-                  )),
-              const Divider(),
-              const SizedBox(height: 8),
-              TextField(
-                controller: emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Add Admin Email',
-                  hintText: 'admin@example.com',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.emailAddress,
+                  ),
+                ],
               ),
-              const SizedBox(height: 8),
-              ElevatedButton.icon(
-                onPressed: () async {
-                  final email = emailController.text.trim();
-                  if (email.isNotEmpty) {
-                    await _addAdmin(email);
-                    setDialogState(() => _adminEmails.add(email));
-                    emailController.clear();
-                  }
-                },
-                icon: const Icon(Icons.add),
-                label: const Text('Add Admin'),
-              ),
-            ],
+            ),
           ),
           actions: [
             TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Close')),
+                child: const Text('Done')),
           ],
         ),
       ),
     );
+    emailController.dispose();
   }
 
   Future<void> _addAdmin(String email) async {
+    setState(() => _isProcessing = true);
     try {
       final firebase = FirebaseService();
-      final currentSettings = await firebase.getAppSettings();
-      final admins = List<String>.from(currentSettings?['admin_emails'] ?? []);
-      if (!admins.contains(email)) {
-        admins.add(email);
-        await firebase.updateAppSettings({'admin_emails': admins});
+      final settings = await firebase.getAppSettings() ?? {};
+      final existing = List<String>.from(settings['admin_emails'] ?? []);
+      final normalizedEmail = email.trim().toLowerCase();
+      if (existing.map((e) => e.toLowerCase()).contains(normalizedEmail)) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text('$email is already an admin'),
+                backgroundColor: Colors.orange),
+          );
+        }
+        return;
+      }
+      existing.add(email.trim());
+      await firebase.updateAppSettings({'admin_emails': existing});
+      await _loadData();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('$email added as admin'),
+              backgroundColor: Colors.green),
+        );
       }
     } catch (e) {
-      debugPrint('Error adding admin: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
+      }
+    } finally {
+      if (mounted) setState(() => _isProcessing = false);
     }
   }
 
   Future<void> _removeAdmin(String email) async {
+    setState(() => _isProcessing = true);
     try {
       final firebase = FirebaseService();
-      final currentSettings = await firebase.getAppSettings();
-      final admins = List<String>.from(currentSettings?['admin_emails'] ?? []);
-      admins.remove(email);
-      await firebase.updateAppSettings({'admin_emails': admins});
+      final settings = await firebase.getAppSettings() ?? {};
+      final existing = List<String>.from(settings['admin_emails'] ?? []);
+      final normalizedEmail = email.trim().toLowerCase();
+      final filtered = existing
+          .where((e) => e.trim().toLowerCase() != normalizedEmail)
+          .toList();
+      await firebase.updateAppSettings({'admin_emails': filtered});
+      await _loadData();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('$email removed from admins'),
+              backgroundColor: Colors.orange),
+        );
+      }
     } catch (e) {
-      debugPrint('Error removing admin: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
+      }
+    } finally {
+      if (mounted) setState(() => _isProcessing = false);
     }
   }
 
-  // ============================================================
-  // HELPERS
-  // ============================================================
-
-  Widget _buildUserStatusBadge(Map<String, dynamic> user) {
-    final isPro = user['is_pro'] == true;
-    final isBanned = user['status'] == 'banned';
-
+  Widget _buildUserStatusBadge(UserModel user) {
+    final isPro = user.selectedPackage != 'free';
+    final isBanned = user.accountStatus == 'banned';
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -1194,12 +1326,12 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(
             color: isPro
-                ? Colors.green.withAlpha((255 * 0.1).toInt())
-                : Colors.grey.withAlpha((255 * 0.1).toInt()),
+                ? Colors.green.withOpacity(0.1)
+                : Colors.grey.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: isPro ? Colors.green : Colors.grey),
           ),
-          child: Text(isPro ? 'PRO ●' : 'FREE ○',
+          child: Text(isPro ? 'PRO' : 'FREE',
               style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
@@ -1210,11 +1342,11 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.red.withAlpha((255 * 0.1).toInt()),
+              color: Colors.red.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: Colors.red),
             ),
-            child: const Text('BANNED 🔴',
+            child: const Text('BANNED',
                 style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
@@ -1226,6 +1358,12 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
   }
 
   Widget _buildInfoRow(String label, String? value) {
+    if (value == null ||
+        value.isEmpty ||
+        value.toLowerCase() == 'null' ||
+        value.toLowerCase() == 'n/a') {
+      return const SizedBox.shrink();
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -1236,70 +1374,32 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
               child: Text('$label:',
                   style: const TextStyle(fontWeight: FontWeight.w500))),
           Expanded(
-              child: Text(value ?? 'N/A',
-                  style: const TextStyle(color: Colors.black54))),
+              child:
+                  Text(value, style: const TextStyle(color: Colors.black54))),
         ],
       ),
     );
   }
 
-  String _getUserPathDisplay(Map<String, dynamic> user) {
-    final level = user['school_level']?.toString() ?? '';
-    if (level == 'high-school') {
-      final grade = user['grade']?.toString() ?? '';
-      final stream = user['stream']?.toString() ?? '';
-      if (grade == '11' || grade == '12') {
-        return 'Grade $grade ${stream == 'natural_science' ? 'Natural Science' : 'Social Science'}';
+  String _getUserPathDisplay(UserModel user) {
+    if (user.academicLevel == 'high_school') {
+      if (user.grade == '11' || user.grade == '12') {
+        return 'Grade ${user.grade} ${user.stream == 'natural' ? 'Natural Science' : 'Social Science'}';
       }
-      return 'Grade $grade';
-    } else if (level == 'university') {
-      final year = user['university_year']?.toString() ?? '';
-      final semester = user['semester']?.toString() ?? '';
-      final stream = user['stream']?.toString() ?? '';
-      final track = user['track']?.toString() ?? '';
-      final university = user['university_name']?.toString() ??
-          user['university']?.toString() ??
-          '';
-      final generation = user['generation']?.toString() ?? '';
-
-      if (year == 'freshman') {
-        if (semester == '2') {
-          return 'Freshman Sem 2 ${track == 'pre_engineering' ? 'Pre-Engineering' : 'Other Natural Science'}\n$university ($generation)';
-        }
-        return 'Freshman Sem 1 ${stream == 'natural_science' ? 'Natural Science' : 'Social Science'}\n$university ($generation)';
-      }
-      return 'Senior\n$university ($generation)';
+      return 'Grade ${user.grade}';
+    } else if (user.academicLevel == 'university') {
+      return 'Univ. ${user.department} - Year ${user.year}, Sem ${user.semester}';
     }
     return 'Unknown';
   }
 
-  String _formatDate(dynamic date) {
+  String _formatDate(DateTime? date) {
     if (date == null) return 'N/A';
     try {
-      DateTime d = date is DateTime ? date : DateTime.parse(date.toString());
-      return '${d.day}/${d.month}/${d.year}';
+      return '${date.day}/${date.month}/${date.year}';
     } catch (e) {
       return date.toString();
     }
-  }
-
-  String _getDaysRemaining(dynamic validUntil) {
-    if (validUntil == null) return 'N/A';
-    try {
-      DateTime d = validUntil is DateTime
-          ? validUntil
-          : DateTime.parse(validUntil.toString());
-      final remaining = d.difference(DateTime.now()).inDays;
-      return remaining > 0 ? '$remaining days' : 'Expired';
-    } catch (e) {
-      return 'N/A';
-    }
-  }
-
-  void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
-    );
   }
 
   Future<bool?> _showConfirmDialog(String title, String message) {
@@ -1319,10 +1419,6 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
       ),
     );
   }
-
-  // ============================================================
-  // BUILD
-  // ============================================================
 
   @override
   Widget build(BuildContext context) {
@@ -1344,11 +1440,31 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
               onPressed: _showManageAdminsDialog,
               icon: const Icon(Icons.admin_panel_settings),
               tooltip: 'Manage Admins'),
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.picture_as_pdf),
+            tooltip: 'Export Users',
+            onSelected: (value) {
+              if (value == 'export_all') {
+                _exportAllUsersPDF();
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'export_all',
+                child: Row(
+                  children: [
+                    Icon(Icons.picture_as_pdf, color: Colors.red, size: 18),
+                    SizedBox(width: 8),
+                    Text('Export All Users as PDF'),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ],
       ),
       body: Column(
         children: [
-          // Stats bar
           Container(
             padding: const EdgeInsets.all(16),
             child: Row(
@@ -1365,8 +1481,6 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
               ],
             ),
           ),
-
-          // Search
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TextField(
@@ -1379,7 +1493,8 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                         onPressed: () {
                           setState(() => _searchQuery = '');
                           _applyFilters();
-                        })
+                        },
+                      )
                     : null,
                 border:
                     OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
@@ -1390,57 +1505,57 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
               },
             ),
           ),
-
-          // Filters
           Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
                 Expanded(
                   child: _buildFilterDropdown(
-                      'Path',
-                      _pathFilter,
-                      _pathOptions
-                          .map((p) => DropdownMenuItem(
-                              value: p.value,
-                              child: Text(p.label,
-                                  overflow: TextOverflow.ellipsis)))
-                          .toList(), (v) {
-                    _pathFilter = v!;
-                    _applyFilters();
-                  }),
+                    'Path',
+                    _pathFilter,
+                    _pathOptions
+                        .map((p) => DropdownMenuItem(
+                            value: p.value,
+                            child:
+                                Text(p.label, overflow: TextOverflow.ellipsis)))
+                        .toList(),
+                    (v) {
+                      _pathFilter = v!;
+                      _applyFilters();
+                    },
+                  ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: _buildFilterDropdown(
-                      'Status',
-                      _statusFilter,
-                      _statusOptions
-                          .map(
-                              (s) => DropdownMenuItem(value: s, child: Text(s)))
-                          .toList(), (v) {
-                    _statusFilter = v!;
-                    _applyFilters();
-                  }),
+                    'Status',
+                    _statusFilter,
+                    _statusOptions
+                        .map((s) => DropdownMenuItem(value: s, child: Text(s)))
+                        .toList(),
+                    (v) {
+                      _statusFilter = v!;
+                      _applyFilters();
+                    },
+                  ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: _buildFilterDropdown(
-                      'Sub',
-                      _subscriptionFilter,
-                      _subscriptionOptions
-                          .map(
-                              (s) => DropdownMenuItem(value: s, child: Text(s)))
-                          .toList(), (v) {
-                    _subscriptionFilter = v!;
-                    _applyFilters();
-                  }),
+                    'Sub',
+                    _subscriptionFilter,
+                    _subscriptionOptions
+                        .map((s) => DropdownMenuItem(value: s, child: Text(s)))
+                        .toList(),
+                    (v) {
+                      _subscriptionFilter = v!;
+                      _applyFilters();
+                    },
+                  ),
                 ),
               ],
             ),
           ),
-
-          // Export buttons
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
@@ -1448,17 +1563,20 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                 Text('${_filteredUsers.length} users',
                     style: TextStyle(color: Colors.grey[600], fontSize: 13)),
                 const Spacer(),
+                if (_exportingAll)
+                  const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2)),
                 TextButton.icon(
-                  onPressed: _exportUsersAsPDF,
+                  onPressed: _exportAllUsersPDF,
                   icon: const Icon(Icons.picture_as_pdf, size: 18),
                   label:
-                      const Text('Export PDF', style: TextStyle(fontSize: 12)),
+                      const Text('Export All', style: TextStyle(fontSize: 12)),
                 ),
               ],
             ),
           ),
-
-          // User list - Shows profile photos uploaded by users
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
@@ -1472,11 +1590,8 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                         itemCount: _filteredUsers.length,
                         itemBuilder: (context, index) {
                           final user = _filteredUsers[index];
-                          final isPro = user['is_pro'] == true;
-                          final isBanned = user['status'] == 'banned';
-                          final profilePhotoUrl =
-                              user['profile_photo_url']?.toString();
-
+                          final isPro = user.selectedPackage != 'free';
+                          final isBanned = user.accountStatus == 'banned';
                           return Card(
                             margin: const EdgeInsets.only(bottom: 8),
                             shape: RoundedRectangleBorder(
@@ -1488,12 +1603,11 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                 padding: const EdgeInsets.all(12),
                                 child: Row(
                                   children: [
-                                    // User's profile photo (uploaded by user in their settings)
                                     ClipOval(
-                                      child: profilePhotoUrl != null &&
-                                              profilePhotoUrl.isNotEmpty
+                                      child: user.avatarUrl != null &&
+                                              user.avatarUrl!.isNotEmpty
                                           ? Image.network(
-                                              profilePhotoUrl,
+                                              user.avatarUrl!,
                                               width: 50,
                                               height: 50,
                                               fit: BoxFit.cover,
@@ -1507,12 +1621,12 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                                   color: Colors.grey[200],
                                                   child: const Center(
                                                     child: SizedBox(
-                                                      width: 20,
-                                                      height: 20,
-                                                      child:
-                                                          CircularProgressIndicator(
-                                                              strokeWidth: 2),
-                                                    ),
+                                                        width: 20,
+                                                        height: 20,
+                                                        child:
+                                                            CircularProgressIndicator(
+                                                                strokeWidth:
+                                                                    2)),
                                                   ),
                                                 );
                                               },
@@ -1522,14 +1636,14 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                                   width: 50,
                                                   height: 50,
                                                   color: AppColors.primary
-                                                      .withAlpha((255 * 0.1).toInt()),
+                                                      .withOpacity(0.1),
                                                   child: Center(
                                                     child: Text(
-                                                      (user['full_name']
-                                                                  ?.toString() ??
-                                                              'U')[0]
-                                                          .toUpperCase(),
-                                                      style: TextStyle(
+                                                      (user.fullName).isNotEmpty
+                                                          ? user.fullName[0]
+                                                              .toUpperCase()
+                                                          : 'U',
+                                                      style: const TextStyle(
                                                           fontWeight:
                                                               FontWeight.bold,
                                                           color:
@@ -1545,16 +1659,16 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                               height: 50,
                                               decoration: BoxDecoration(
                                                 color: AppColors.primary
-                                                    .withAlpha((255 * 0.1).toInt()),
+                                                    .withOpacity(0.1),
                                                 shape: BoxShape.circle,
                                               ),
                                               child: Center(
                                                 child: Text(
-                                                  (user['full_name']
-                                                              ?.toString() ??
-                                                          'U')[0]
-                                                      .toUpperCase(),
-                                                  style: TextStyle(
+                                                  (user.fullName).isNotEmpty
+                                                      ? user.fullName[0]
+                                                          .toUpperCase()
+                                                      : 'U',
+                                                  style: const TextStyle(
                                                       fontWeight:
                                                           FontWeight.bold,
                                                       color: AppColors.primary,
@@ -1569,22 +1683,20 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Text(
-                                              user['full_name']?.toString() ??
-                                                  'Unknown',
+                                          Text(user.fullName,
                                               style: const TextStyle(
                                                   fontWeight: FontWeight.w600,
                                                   fontSize: 15)),
-                                          Text(user['email']?.toString() ?? '',
+                                          Text(user.email,
                                               style: TextStyle(
                                                   color: Colors.grey[600],
                                                   fontSize: 13)),
-                                          Text(user['phone']?.toString() ?? '',
+                                          Text(user.phoneNumber,
                                               style: TextStyle(
                                                   color: Colors.grey[600],
                                                   fontSize: 12)),
                                           Text(_getUserPathDisplay(user),
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                   fontSize: 11,
                                                   color: AppColors.primary)),
                                         ],
@@ -1599,8 +1711,8 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                               horizontal: 8, vertical: 3),
                                           decoration: BoxDecoration(
                                             color: isPro
-                                                ? Colors.green.withAlpha((255 * 0.1).toInt())
-                                                : Colors.grey.withAlpha((255 * 0.1).toInt()),
+                                                ? Colors.green.withOpacity(0.1)
+                                                : Colors.grey.withOpacity(0.1),
                                             borderRadius:
                                                 BorderRadius.circular(10),
                                           ),
@@ -1619,7 +1731,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                                 horizontal: 8, vertical: 3),
                                             decoration: BoxDecoration(
                                               color:
-                                                  Colors.red.withAlpha((255 * 0.1).toInt()),
+                                                  Colors.red.withOpacity(0.1),
                                               borderRadius:
                                                   BorderRadius.circular(10),
                                             ),
@@ -1650,7 +1762,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
-          color: color.withAlpha((255 * 0.1).toInt()),
+          color: color.withOpacity(0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Column(
@@ -1667,34 +1779,26 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
 
   Widget _buildFilterDropdown(String label, String value,
       List<DropdownMenuItem<String>> items, Function(String?) onChanged) {
+    final colorScheme = Theme.of(context).colorScheme;
     return DropdownButtonFormField<String>(
-      value: value,
+      initialValue: value,
+      dropdownColor: colorScheme.surface,
       decoration: InputDecoration(
         labelText: label,
+        labelStyle: const TextStyle(color: AppColors.primary, fontSize: 12),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       ),
       isExpanded: true,
-      style: const TextStyle(fontSize: 13),
+      style: TextStyle(fontSize: 13, color: colorScheme.onSurface),
       items: items,
       onChanged: onChanged,
     );
   }
 }
 
-// ============================================================
-// HELPER CLASSES
-// ============================================================
-
 class _PathFilterOption {
   final String value;
   final String label;
   _PathFilterOption(this.value, this.label);
-}
-
-extension StringExtension on String {
-  String capitalize() {
-    if (isEmpty) return this;
-    return '${this[0].toUpperCase()}${substring(1)}';
-  }
 }

@@ -1,11 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 
 /// Firebase Service (Firestore + Auth)
-/// Uses external links for all files (Internet Archive, Cloudinary, Google Drive)
+/// Firestore stores: Users, Payments, Notifications, App Settings, Analytics.
+/// Progress is stored locally only (SharedPreferences).
+/// Educational content is served from GitHub (not Firestore).
 class FirebaseService {
   static final FirebaseService _instance = FirebaseService._internal();
   factory FirebaseService() => _instance;
@@ -18,8 +21,26 @@ class FirebaseService {
   User? get currentUser => _auth.currentUser;
 
   // ============================================
-  // GENERIC FIRESTORE OPERATIONS
+  // APPROVED FIRESTORE OPERATIONS
   // ============================================
+
+  static const Set<String> _allowedCollections = {
+    'users',
+    'payments',
+    'notifications',
+    'settings',
+    'analytics',
+  };
+
+  void _validateCollection(String collection) {
+    if (!_allowedCollections.contains(collection)) {
+      throw ArgumentError.value(
+        collection,
+        'collection',
+        'Firestore is restricted to users, payments, notifications, settings, and analytics.',
+      );
+    }
+  }
 
   Future<List<Map<String, dynamic>>> getDocuments(
     String collection, {
@@ -29,6 +50,7 @@ class FirebaseService {
     int? limit,
   }) async {
     try {
+      _validateCollection(collection);
       Query query = _firestore.collection(collection);
 
       if (where != null) {
@@ -55,8 +77,10 @@ class FirebaseService {
     }
   }
 
-  Future<Map<String, dynamic>?> getDocument(String collection, String docId) async {
+  Future<Map<String, dynamic>?> getDocument(
+      String collection, String docId) async {
     try {
+      _validateCollection(collection);
       final doc = await _firestore.collection(collection).doc(docId).get();
       return doc.exists ? doc.data() : null;
     } catch (e) {
@@ -65,8 +89,10 @@ class FirebaseService {
     }
   }
 
-  Future<String> addDocument(String collection, Map<String, dynamic> data) async {
+  Future<String> addDocument(
+      String collection, Map<String, dynamic> data) async {
     try {
+      _validateCollection(collection);
       final docRef = await _firestore.collection(collection).add({
         ...data,
         'created_at': FieldValue.serverTimestamp(),
@@ -79,8 +105,10 @@ class FirebaseService {
     }
   }
 
-  Future<void> updateDocument(String collection, String docId, Map<String, dynamic> data) async {
+  Future<void> updateDocument(
+      String collection, String docId, Map<String, dynamic> data) async {
     try {
+      _validateCollection(collection);
       await _firestore.collection(collection).doc(docId).update({
         ...data,
         'updated_at': FieldValue.serverTimestamp(),
@@ -93,6 +121,7 @@ class FirebaseService {
 
   Future<void> deleteDocument(String collection, String docId) async {
     try {
+      _validateCollection(collection);
       await _firestore.collection(collection).doc(docId).delete();
     } catch (e) {
       debugPrint('Error deleting document $collection/$docId: $e');
@@ -131,69 +160,7 @@ class FirebaseService {
   }
 
   // ============================================
-  // CONTENT MANAGEMENT
-  // ============================================
-
-  Future<void> addContent({
-    required String type,
-    required String grade,
-    required String? stream,
-    required String subject,
-    required String unit,
-    required String title,
-    required String externalUrl,
-    String? description,
-    String? thumbnailUrl,
-  }) async {
-    await _firestore.collection('content').add({
-      'type': type,
-      'grade': grade,
-      'stream': stream ?? 'all',
-      'subject': subject,
-      'unit': unit,
-      'title': title,
-      'external_url': externalUrl,
-      'thumbnail_url': thumbnailUrl ?? '',
-      'description': description ?? '',
-      'created_at': FieldValue.serverTimestamp(),
-      'created_by': currentUserId,
-    });
-  }
-
-  Future<List<Map<String, dynamic>>> getContentForUnit({
-    required String grade,
-    required String? stream,
-    required String subject,
-    required String unit,
-  }) async {
-    final query = await _firestore
-        .collection('content')
-        .where('grade', isEqualTo: grade)
-        .where('subject', isEqualTo: subject)
-        .where('unit', isEqualTo: unit)
-        .get();
-
-    final allContent = query.docs.map((doc) => {'id': doc.id, ...doc.data()}).toList();
-
-    return allContent.where((item) {
-      final itemStream = item['stream'] as String?;
-      return itemStream == 'all' || itemStream == stream;
-    }).toList();
-  }
-
-  Future<void> updateContent(String contentId, Map<String, dynamic> data) async {
-    await _firestore.collection('content').doc(contentId).update({
-      ...data,
-      'updated_at': FieldValue.serverTimestamp(),
-    });
-  }
-
-  Future<void> deleteContent(String contentId) async {
-    await _firestore.collection('content').doc(contentId).delete();
-  }
-
-  // ============================================
-  // USER PROGRESS
+  // USER PROGRESS (Local Only — never Firestore)
   // ============================================
 
   Future<void> saveUnitProgress({
@@ -202,49 +169,31 @@ class FirebaseService {
     required double progress,
     required bool isCompleted,
   }) async {
-    final userId = currentUserId;
-    if (userId == null) throw Exception('User not authenticated');
-
-    await _firestore
-        .collection('progress')
-        .doc(userId)
-        .collection('subjects')
-        .doc(subjectId)
-        .collection('units')
-        .doc(unitName)
-        .set({
+    final prefs = await SharedPreferences.getInstance();
+    final key = 'progress_${subjectId}_$unitName';
+    final encoded = json.encode({
+      'unit_name': unitName,
+      'subject_id': subjectId,
       'progress': progress,
       'is_completed': isCompleted,
-      'updated_at': FieldValue.serverTimestamp(),
+      'updated_at': DateTime.now().toIso8601String(),
     });
+    await prefs.setString(key, encoded);
   }
 
   Future<List<Map<String, dynamic>>> getUserProgress() async {
-    final userId = currentUserId;
-    if (userId == null) return [];
-
-    final snapshot = await _firestore
-        .collection('progress')
-        .doc(userId)
-        .collection('subjects')
-        .get();
-
-    List<Map<String, dynamic>> allProgress = [];
-
-    for (var subjectDoc in snapshot.docs) {
-      final subjectId = subjectDoc.id;
-      final unitsSnapshot = await subjectDoc.reference.collection('units').get();
-
-      for (var unitDoc in unitsSnapshot.docs) {
-        final data = unitDoc.data();
-        allProgress.add({
-          'id': unitDoc.id,
-          'subject_id': subjectId,
-          ...data,
-        });
+    final prefs = await SharedPreferences.getInstance();
+    final keys = prefs.getKeys().where((k) => k.startsWith('progress_'));
+    final List<Map<String, dynamic>> allProgress = [];
+    for (final key in keys) {
+      final str = prefs.getString(key);
+      if (str != null) {
+        try {
+          final map = json.decode(str) as Map<String, dynamic>;
+          allProgress.add(map);
+        } catch (_) {}
       }
     }
-
     return allProgress;
   }
 
@@ -260,7 +209,6 @@ class FirebaseService {
   }) async {
     final userId = currentUserId;
     if (userId == null) throw Exception('User not authenticated');
-
     await _firestore.collection('payments').add({
       'user_id': userId,
       'amount': amount,
@@ -275,7 +223,6 @@ class FirebaseService {
   Future<void> submitPaymentRaw(Map<String, dynamic> paymentData) async {
     final userId = currentUserId;
     if (userId == null) throw Exception('User not authenticated');
-
     await _firestore.collection('payments').add({
       ...paymentData,
       'user_id': userId,
@@ -293,7 +240,8 @@ class FirebaseService {
         .where('user_id', isEqualTo: userId)
         .get();
 
-    final payments = query.docs.map((doc) => {'id': doc.id, ...doc.data()}).toList();
+    final payments =
+        query.docs.map((doc) => {'id': doc.id, ...doc.data()}).toList();
 
     payments.sort((a, b) {
       final aTime = a['created_at'] ?? '';
@@ -352,11 +300,34 @@ class FirebaseService {
         .orderBy('created_at', descending: true)
         .get();
 
-    final allNotifications = query.docs.map((doc) => {'id': doc.id, ...doc.data()}).toList();
+    final allNotifications =
+        query.docs.map((doc) => {'id': doc.id, ...doc.data()}).toList();
 
     return allNotifications.where((n) {
+      final type = (n['type'] as String? ?? '').toLowerCase();
       final targetUserId = n['target_user_id'] as String?;
-      return targetUserId == null || targetUserId == userId;
+      final legacyUserId = n['user_id'] as String?;
+
+      // Strict-user-scoped types: require a resolved recipient match.
+      // Never broadcast payment or welcome notifications (even legacy).
+      const strictTypes = {'payment', 'welcome'};
+      if (strictTypes.contains(type)) {
+        final resolved = (targetUserId ?? legacyUserId ?? '').trim();
+        return resolved.isNotEmpty && resolved == userId;
+      }
+
+      // Single-user admin/system notifications: when a recipient is present,
+      // respect it; do not fall back to broadcasting.
+      final hasExplicitTarget = (targetUserId ?? '').trim().isNotEmpty ||
+          (legacyUserId ?? '').trim().isNotEmpty;
+      if (hasExplicitTarget) {
+        final resolved = (targetUserId ?? legacyUserId ?? '').trim();
+        return resolved == userId;
+      }
+
+      // Everything else without a target is treated as a broadcast
+      // (e.g. admin announcements, content updates, grade-level blasts).
+      return true;
     }).toList();
   }
 
@@ -385,128 +356,26 @@ class FirebaseService {
   // ============================================
   // USER ACTIVITY & ACHIEVEMENTS
   // ============================================
+  // Activity and achievements are now stored locally in Isar/OfflineDatabase
+  // These methods are deprecated and return empty data
 
+  @Deprecated('Use OfflineDatabase for activity tracking')
   Future<List<Map<String, dynamic>>> getUserActivity() async {
-    final userId = currentUserId;
-    if (userId == null) return [];
-
-    final query = await _firestore
-        .collection('users')
-        .doc(userId)
-        .collection('activity')
-        .orderBy('created_at', descending: true)
-        .limit(50)
-        .get();
-
-    return query.docs.map((doc) => {'id': doc.id, ...doc.data()}).toList();
+    return [];
   }
 
+  @Deprecated('Use OfflineDatabase for activity logging')
   Future<void> logActivity(String action, String details) async {
-    final userId = currentUserId;
-    if (userId == null) return;
-
-    await _firestore
-        .collection('users')
-        .doc(userId)
-        .collection('activity')
-        .add({
-      'action': action,
-      'details': details,
-      'created_at': FieldValue.serverTimestamp(),
-    });
+    // No-op - activity is tracked locally
   }
 
+  @Deprecated('Use OfflineDatabase for achievements')
   Future<List<Map<String, dynamic>>> getUserAchievements() async {
-    final userId = currentUserId;
-    if (userId == null) return [];
-
-    final query = await _firestore
-        .collection('users')
-        .doc(userId)
-        .collection('achievements')
-        .get();
-
-    return query.docs.map((doc) => {'id': doc.id, ...doc.data()}).toList();
+    return [];
   }
 
-  // ============================================
-  // REMOTE CONTENT FETCHING
-  // ============================================
-
-  Future<dynamic> fetchRemoteJson(String url) async {
-    try {
-      final directUrl = _getDirectDownloadLink(url);
-      final dio = Dio();
-      final response = await dio.get(directUrl);
-
-      if (response.data is String) {
-        return json.decode(response.data);
-      }
-      return response.data;
-    } catch (e) {
-      debugPrint('Error fetching remote JSON: $e');
-      return null;
-    }
-  }
-
-  String _getDirectDownloadLink(String url) {
-    if (url.contains('drive.google.com')) {
-      final fileId = _getGoogleDriveFileId(url);
-      if (fileId != null) {
-        return 'https://docs.google.com/uc?id=$fileId&export=download';
-      }
-    }
-    return url;
-  }
-
-  String? _getGoogleDriveFileId(String url) {
-    if (url.contains('/file/d/')) {
-      final startIndex = url.indexOf('/file/d/') + 8;
-      final endIndex = url.indexOf('/', startIndex);
-      if (endIndex != -1) {
-        return url.substring(startIndex, endIndex);
-      }
-      return url.substring(startIndex);
-    }
-    if (url.contains('id=')) {
-      final startIndex = url.indexOf('id=') + 3;
-      final endIndex = url.indexOf('&', startIndex);
-      if (endIndex != -1) {
-        return url.substring(startIndex, endIndex);
-      }
-      return url.substring(startIndex);
-    }
-    return null;
-  }
-
+  @Deprecated('Use OfflineDatabase for weekly activity')
   Future<Map<String, int>> getWeeklyActivity() async {
-    try {
-      final userId = currentUserId;
-      if (userId == null) return {};
-
-      final now = DateTime.now();
-      final weekAgo = now.subtract(const Duration(days: 7));
-
-      final activitySnapshot = await _firestore
-          .collection('user_activity')
-          .where('user_id', isEqualTo: userId)
-          .where('timestamp', isGreaterThanOrEqualTo: weekAgo)
-          .get();
-
-      final Map<String, int> activityData = {};
-      for (var doc in activitySnapshot.docs) {
-        final data = doc.data();
-        final date = data['timestamp'] as DateTime?;
-        if (date != null) {
-          final dateKey = '${date.year}-${date.month}-${date.day}';
-          activityData[dateKey] = (activityData[dateKey] ?? 0) + 1;
-        }
-      }
-
-      return activityData;
-    } catch (e) {
-      debugPrint('Error getting weekly activity: $e');
-      return {};
-    }
+    return {};
   }
 }

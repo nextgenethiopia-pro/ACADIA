@@ -31,10 +31,14 @@ class Unauthenticated extends AuthState {}
 class AuthEmailVerificationRequired extends AuthState {
   final User user;
 
-  const AuthEmailVerificationRequired({required this.user});
+  /// Set when the signup verification email could not be sent, so the screen
+  /// can show the real reason instead of a silent failure.
+  final String? warning;
+
+  const AuthEmailVerificationRequired({required this.user, this.warning});
 
   @override
-  List<Object?> get props => [user];
+  List<Object?> get props => [user, warning];
 }
 
 class AuthPasswordResetEmailSent extends AuthState {}

@@ -1,12 +1,13 @@
-import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:acadia/src/core/services/firebase_service.dart';
-import 'package:acadia/src/core/services/offline_database.dart';
-import 'package:acadia/src/core/services/download_manager.dart';
 import 'package:acadia/src/core/constants/colors.dart';
+import 'package:acadia/src/core/di/injection.dart';
+import 'package:acadia/src/domain/repositories/github_content_repository.dart';
+import 'package:acadia/src/core/services/download_manager.dart';
+import 'package:acadia/src/core/services/github_content_service.dart';
+import 'package:acadia/src/local_database/isar_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class EntrancePastPapersScreen extends StatefulWidget {
   const EntrancePastPapersScreen({super.key});
@@ -17,23 +18,34 @@ class EntrancePastPapersScreen extends StatefulWidget {
 }
 
 class _EntrancePastPapersScreenState extends State<EntrancePastPapersScreen> {
+  final IsarService _isarService = IsarService.instance;
+  final DownloadManager _downloadManager = DownloadManager();
+  
   String? _userStream;
-  List<Map<String, dynamic>> _allPapers = [];
-  Map<String, List<Map<String, dynamic>>> _papersBySubject = {};
-  Set<String> _downloadedContentIds = {};
-  Map<String, double> _downloadProgress = {};
-  bool _isLoading = true;
-  bool _isRefreshing = false;
+  String? _selectedYear;
+  String? _selectedSubject;
+  List<Map<String, dynamic>> _subjects = [];
+  List<Map<String, dynamic>> _fetchedContent = [];
+  bool _isFetchingContent = false;
 
-  // 6 subjects per stream (from ACADIA spec)
+  // ============================================
+  // DYNAMIC YEARS — Replaced by repository metadata when it loads.
+  // The fallback lists the years currently published in the repository.
+  // ============================================
+  List<int> _years = List.generate(9, (index) => 2018 - index);
+
+  // ============================================
+  // HARDCODED SUBJECTS PER STREAM
+  // ============================================
   final List<String> _naturalSubjects = [
     'Mathematics',
     'English',
-    'Biology',
-    'Chemistry',
     'Physics',
+    'Chemistry',
+    'Biology',
     'Aptitude'
   ];
+  
   final List<String> _socialSubjects = [
     'Mathematics',
     'English',
@@ -43,10 +55,33 @@ class _EntrancePastPapersScreenState extends State<EntrancePastPapersScreen> {
     'History'
   ];
 
-  final DownloadManager _downloadManager = DownloadManager();
-  final OfflineDatabase _offlineDb = OfflineDatabase.instance;
+  // ============================================
+  // SUBJECT ICONS & COLORS
+  // ============================================
+  static const Map<String, IconData> _subjectIcons = {
+    'Mathematics': Icons.calculate,
+    'English': Icons.menu_book,
+    'Physics': Icons.science,
+    'Chemistry': Icons.biotech,
+    'Biology': Icons.pest_control,
+    'Aptitude': Icons.psychology,
+    'Geography': Icons.public,
+    'History': Icons.history_edu,
+    'Economics': Icons.trending_up,
+  };
 
-  // Subject icons
+  static const Map<String, Color> _subjectColors = {
+    'Mathematics': Color(0xFF9C27B0),
+    'English': Color(0xFF2196F3),
+    'Physics': Color(0xFFFF9800),
+    'Chemistry': Color(0xFF4CAF50),
+    'Biology': Color(0xFFE91E63),
+    'Aptitude': Color(0xFF708090),
+    'Geography': Color(0xFF009688),
+    'History': Color(0xFF795548),
+    'Economics': Color(0xFFFF5722),
+  };
+
   static const Map<String, String> _subjectIconAssets = {
     'Mathematics': 'assets/icons/subjects_icon/Math_icon.jpg',
     'English': 'assets/icons/subjects_icon/English_icon.jpg',
@@ -59,18 +94,6 @@ class _EntrancePastPapersScreenState extends State<EntrancePastPapersScreen> {
     'Economics': 'assets/icons/subjects_icon/Economics_icon.jpg',
   };
 
-  static const Map<String, Color> _subjectColors = {
-    'Mathematics': Color(0xFF093C5D),
-    'English': Color(0xFF093C5D),
-    'Physics': Color(0xFF093C5D),
-    'Chemistry': Color(0xFF093C5D),
-    'Biology': Color(0xFF093C5D),
-    'Aptitude': Color(0xFF093C5D),
-    'Geography': Color(0xFF093C5D),
-    'History': Color(0xFF093C5D),
-    'Economics': Color(0xFF093C5D),
-  };
-
   @override
   void initState() {
     super.initState();
@@ -78,424 +101,606 @@ class _EntrancePastPapersScreenState extends State<EntrancePastPapersScreen> {
   }
 
   Future<void> _loadData() async {
-    if (mounted) {
-      setState(() {
-        if (!_isLoading) _isRefreshing = true;
-      });
-    }
-
     try {
       final prefs = await SharedPreferences.getInstance();
-      _userStream = prefs.getString('stream') ??
-          prefs.getString('selected_stream') ??
-          'natural';
+      _userStream = prefs.getString('stream') ?? prefs.getString('selected_stream') ?? 'natural';
 
-      final firebase = FirebaseService();
-      final papers = await firebase.getDocuments('entrance_materials', where: {
-        'type': 'past_paper',
-        'status': 'active',
-      });
-
-      // Filter by user's stream
-      final filteredPapers = papers.where((paper) {
-        final paperStream = paper['stream']?.toString() ?? '';
-        return paperStream == _userStream || paperStream.isEmpty;
-      }).toList();
-
-      // Group by subject
-      final grouped = <String, List<Map<String, dynamic>>>{};
-      for (final paper in filteredPapers) {
-        final subject = paper['subject']?.toString() ?? 'Unknown';
-        grouped.putIfAbsent(subject, () => []);
-        grouped[subject]!.add(paper);
+      // Discover available past paper years from entrance metadata
+      final stream = _normalizeStream(_userStream);
+      final meta = await getIt<GithubContentRepository>().getEntranceMetadata(stream: stream);
+      if (meta != null) {
+        final pastPapers = meta['pastPapers'];
+        if (pastPapers != null && pastPapers['years'] is List) {
+          final discoveredYears = (pastPapers['years'] as List)
+              .map((y) => int.tryParse(y.toString()) ?? 0)
+              .where((y) => y > 0)
+              .toSet()
+              .toList()
+            ..sort((a, b) => b.compareTo(a));
+          if (discoveredYears.isNotEmpty && mounted) {
+            setState(() {
+              _years = discoveredYears;
+            });
+          }
+        }
       }
+    } catch (e) {
+      debugPrint('Error loading data: $e');
+    }
+  }
 
-      // Sort papers by year (newest first) within each subject
-      for (final subject in grouped.keys) {
-        grouped[subject]!.sort((a, b) {
-          final yearA = int.tryParse(a['year']?.toString() ?? '0') ?? 0;
-          final yearB = int.tryParse(b['year']?.toString() ?? '0') ?? 0;
-          return yearB.compareTo(yearA);
-        });
-      }
+  // ============================================
+  // GET SUBJECTS BASED ON STREAM (HARDCODED)
+  // ============================================
+  List<String> get _availableSubjects {
+    return _normalizeStream(_userStream) == 'social_science'
+        ? _socialSubjects
+        : _naturalSubjects;
+  }
 
-      // Check which are downloaded
-      final downloaded = <String>{};
-      for (final paper in filteredPapers) {
-        final contentId = paper['id']?.toString() ?? '';
-        if (contentId.isNotEmpty &&
-            await _offlineDb.isContentDownloaded(contentId)) {
-          downloaded.add(contentId);
+  String get _yearRangeLabel {
+    if (_years.isEmpty) return 'Choose a year to view available subjects';
+    if (_years.length == 1) {
+      return 'Past papers are available for ${_years.first}';
+    }
+    final newest = _years.reduce((a, b) => a > b ? a : b);
+    final oldest = _years.reduce((a, b) => a < b ? a : b);
+    return 'Past papers are available from $oldest to $newest';
+  }
+
+  // ============================================
+  // FETCH CONTENT FROM GITHUB (ONLY AFTER SUBJECT CLICK)
+  // ============================================
+  Future<void> _fetchSubjectContent(String subject, int year) async {
+    setState(() {
+      _isFetchingContent = true;
+      _selectedSubject = subject;
+      _fetchedContent.clear();
+    });
+    try {
+      // 1. Check local Isar database first
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final local = await _isarService.getDownloadedContentByContext(
+          userId: user.uid,
+          subject: subject,
+          grade: 'entrance',
+          chapter: 'Past Paper $year',
+        );
+        final matching = local.map((r) => <String, dynamic>{
+          'id': r.contentId,
+          'title': r.title ?? '$subject - $year',
+          'content_type': r.contentType ?? 'past_paper',
+          'download_url': r.contentPath ?? '',
+          'total_questions': r.totalQuestions ?? 40,
+          'time_limit_minutes': 60,
+        }).toList();
+        if (matching.isNotEmpty) {
+          setState(() { _fetchedContent = matching; _isFetchingContent = false; });
+          return;
         }
       }
 
+      // 2. Query GitHub repository for this year and subject
+      final stream = _normalizeStream(_userStream);
+      final repository = getIt<GithubContentRepository>();
+      final remoteItems = await repository.getEntranceContent(
+        stream: stream,
+        type: 'past_paper',
+        subject: subject,
+        year: year.toString(),
+      );
+
+      if (remoteItems.isNotEmpty) {
+        if (mounted) {
+          setState(() {
+            _fetchedContent = remoteItems;
+            _isFetchingContent = false;
+          });
+        }
+        return;
+      }
+
+      // 3. Fallback: check the canonical repository path directly. Some
+      // papers (for example Aptitude) exist on disk but are missing from the
+      // compact `pastPapers.subjects` list in the stream metadata.
+      final streamFolder = stream.contains('social') ? 'Social_Science' : 'Natural_Science';
+      final conventionalUrl =
+          'https://raw.githubusercontent.com/Acadia-et/ACADIA-CONTENT/main/entrance/$streamFolder/past_papers/$year/$subject.json';
+      final directService = getIt<GithubContentService>();
+      final directData = await directService.fetchJsonFromUrl(conventionalUrl);
+      if (directData != null) {
+        final item = {
+          'id': 'entrance_${stream}_${subject.toLowerCase()}_$year',
+          'subject': subject,
+          'title': '$subject - $year',
+          'year': year,
+          'content_type': 'past_paper',
+          'total_questions': (directData['questions'] as List?)?.length ?? 40,
+          'time_limit_minutes': 60,
+          'download_url': conventionalUrl,
+        };
+        if (mounted) {
+          setState(() {
+            _fetchedContent = [item];
+            _isFetchingContent = false;
+          });
+        }
+        return;
+      }
+
       if (mounted) {
-        setState(() {
-          _allPapers = filteredPapers;
-          _papersBySubject = grouped;
-          _downloadedContentIds = downloaded;
-          _isLoading = false;
-          _isRefreshing = false;
-        });
+        setState(() => _isFetchingContent = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('No past papers available for $subject ($year).')),
+        );
       }
     } catch (e) {
       if (mounted) {
-        setState(() {
-          _isLoading = false;
-          _isRefreshing = false;
-        });
-      }
-      debugPrint('Error loading past papers: $e');
-      if (mounted) {
+        setState(() => _isFetchingContent = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error loading past papers: $e'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text('Unable to load past paper: $e'), backgroundColor: Colors.red),
         );
       }
     }
   }
 
-  List<String> get _subjects {
-    return _userStream == 'social' ? _socialSubjects : _naturalSubjects;
+  String _normalizeStream(String? stream) {
+    switch (stream?.trim().toLowerCase()) {
+      case 'natural':
+      case 'natural science':
+      case 'natural_science':
+        return 'natural_science';
+      case 'social':
+      case 'social science':
+      case 'social_science':
+        return 'social_science';
+      default:
+        return stream?.trim().toLowerCase().replaceAll(' ', '_') ?? '';
+    }
   }
 
-  Widget _getSubjectIcon(String subject, {double size = 24}) {
+  void _openContent(Map<String, dynamic> content) {
+    final contentId = content['id']?.toString() ?? '';
+    final title = content['title']?.toString() ?? 'Past Paper';
+    final downloadUrl = content['download_url']?.toString() ?? '';
+    final totalQuestions = content['total_questions'] ?? 40;
+    final timeLimitMinutes = content['time_limit_minutes'] ?? 60;
+
+    context.push('/exam', extra: {
+      'contentId': contentId,
+      'title': title,
+      'downloadUrl': downloadUrl,
+      'totalQuestions': totalQuestions,
+      'timeLimitMinutes': timeLimitMinutes,
+    });
+  }
+
+  Widget _getSubjectIcon(String subject, {double size = 32}) {
     final assetPath = _subjectIconAssets[subject];
     if (assetPath != null) {
       return ClipRRect(
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(8),
         child: Image.asset(
           assetPath,
           width: size,
           height: size,
           fit: BoxFit.contain,
-          errorBuilder: (_, __, ___) => Icon(Icons.description, size: size),
+          errorBuilder: (_, __, ___) => Icon(
+            _subjectIcons[subject] ?? Icons.article,
+            size: size,
+            color: _subjectColors[subject] ?? Colors.grey,
+          ),
         ),
       );
     }
-    return Icon(Icons.description, size: size);
-  }
-
-  Color _getSubjectColor(String subject) {
-    return _subjectColors[subject] ?? Colors.grey;
-  }
-
-  Future<void> _downloadPaper(Map<String, dynamic> paper) async {
-    final contentId = paper['id']?.toString() ?? '';
-    if (contentId.isEmpty) return;
-
-    setState(() => _downloadProgress[contentId] = 0);
-
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final userGrade =
-          prefs.getString('grade') ?? prefs.getString('selected_grade') ?? '';
-
-      await _downloadManager.downloadContent(
-        contentId: contentId,
-        title: paper['title']?.toString() ?? 'Past Paper',
-        downloadUrl:
-            paper['download_url']?.toString() ?? paper['url']?.toString() ?? '',
-        contentType: 'exam',
-        fileFormat: 'json',
-        subject: paper['subject']?.toString() ?? '',
-        chapter: 'Past Paper ${paper['year'] ?? ''}',
-        grade: userGrade,
-        onProgress: (progress) {
-          if (mounted) setState(() => _downloadProgress[contentId] = progress);
-        },
-      );
-
-      if (mounted) {
-        setState(() {
-          _downloadedContentIds.add(contentId);
-          _downloadProgress.remove(contentId);
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Past paper downloaded!'),
-            backgroundColor: Colors.green,
-            duration: Duration(seconds: 2),
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _downloadProgress.remove(contentId));
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-                'Download failed: ${e.toString().replaceFirst('Exception: ', '')}'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
-
-  void _openPaper(Map<String, dynamic> paper) {
-    final contentId = paper['id']?.toString() ?? '';
-    final title = paper['title']?.toString() ?? 'Past Paper';
-    final year = paper['year']?.toString() ?? '';
-
-    context.push('/exam', extra: {
-      'contentId': contentId,
-      'title': '$title ($year)',
-    });
-  }
-
-  Future<void> _deleteDownload(String contentId) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Past Paper'),
-        content: const Text(
-            'Remove this past paper from your device? You can download it again later.'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel')),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
+    return Icon(
+      _subjectIcons[subject] ?? Icons.article,
+      size: size,
+      color: _subjectColors[subject] ?? Colors.grey,
     );
-
-    if (confirmed == true) {
-      await _offlineDb.deleteDownload(contentId);
-      setState(() => _downloadedContentIds.remove(contentId));
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Past paper deleted'),
-            backgroundColor: Colors.orange),
-      );
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Past Papers'),
-          leading: IconButton(
-              onPressed: () => context.pop(),
-              icon: const Icon(Icons.arrow_back)),
-        ),
-        body: const Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    final subjects = _subjects;
-    final totalPapers = _allPapers.length;
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Past Papers'),
+        title: Text(_selectedYear == null 
+            ? 'Past Papers' 
+            : _selectedSubject == null 
+                ? 'Year $_selectedYear' 
+                : '$_selectedSubject - $_selectedYear'),
         leading: IconButton(
-            onPressed: () => context.pop(), icon: const Icon(Icons.arrow_back)),
-        actions: [
-          if (_isRefreshing)
-            const Padding(
-              padding: EdgeInsets.only(right: 16),
-              child: SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2)),
+          onPressed: () {
+            if (_selectedSubject != null) {
+              setState(() {
+                _selectedSubject = null;
+                _fetchedContent.clear();
+              });
+            } else if (_selectedYear != null) {
+              setState(() {
+                _selectedYear = null;
+                _subjects.clear();
+              });
+            } else {
+              context.pop();
+            }
+          },
+          icon: const Icon(Icons.arrow_back),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        foregroundColor: Colors.black87,
+      ),
+      body: _isFetchingContent
+          ? const Center(child: CircularProgressIndicator())
+          : _selectedYear == null
+              ? _buildYearGrid()
+              : _selectedSubject == null
+                  ? _buildSubjectGrid()
+                  : _buildContentList(),
+    );
+  }
+
+  // ============================================
+  // YEAR GRID (3x3)
+  // ============================================
+  Widget _buildYearGrid() {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Select Year',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            _yearRangeLabel,
+            style: TextStyle(color: Colors.grey[600], fontSize: 14),
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 1.1,
+              ),
+              itemCount: _years.length,
+              itemBuilder: (context, index) {
+                final year = _years[index];
+                return _buildYearCard(year);
+              },
             ),
+          ),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: _loadData,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          physics: const AlwaysScrollableScrollPhysics(),
+    );
+  }
+
+  Future<void> _downloadYear(int year) async {
+    setState(() {
+      _isFetchingContent = true;
+      _selectedYear = year.toString();
+      _selectedSubject = null;
+      _fetchedContent.clear();
+      _subjects = _availableSubjects.map((s) => {'subject': s, 'year': year}).toList();
+    });
+    try {
+      final stream = _normalizeStream(_userStream);
+      final repository = getIt<GithubContentRepository>();
+      for (final subject in _availableSubjects) {
+        final content = await repository.getEntranceContent(
+          stream: stream,
+          type: 'past_paper',
+          subject: subject,
+          year: year.toString(),
+        );
+        final downloadable = content.where((item) {
+          final url = item['download_url']?.toString() ?? '';
+          return url.isNotEmpty && !url.contains('youtube.com') && !url.contains('youtu.be');
+        }).toList();
+        if (downloadable.isNotEmpty) {
+          await _downloadManager.downloadContentBatch(
+            contents: downloadable,
+            subject: subject,
+            chapter: 'Past Paper $year',
+            grade: 'entrance',
+          );
+        }
+      }
+      if (!mounted) return;
+      setState(() => _isFetchingContent = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('All available $year past papers downloaded for offline use'), backgroundColor: Colors.green),
+      );
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isFetchingContent = false);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Download failed: $e'), backgroundColor: Colors.red));
+      }
+    }
+  }
+
+  Widget _buildYearCard(int year) {
+    return InkWell(
+      onTap: () => _downloadYear(year),
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+          border: Border.all(color: Colors.grey[200]!, width: 1),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Header
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [AppColors.primary, Color(0xFF1A237E)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Icon(Icons.description, color: Colors.white, size: 36),
-                  const SizedBox(height: 12),
-                  const Text('Past Papers',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22)),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Complete national exams from 2014 onwards',
-                    style: TextStyle(
-                        color: Colors.white.withAlpha(((255 * 0.8)).toInt()), fontSize: 14),
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.white24,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      '$totalPapers papers available',
-                      style: const TextStyle(color: Colors.white, fontSize: 12),
-                    ),
-                  ),
-                ],
+            Text(
+              year.toString(),
+              style: const TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: AppColors.primary,
               ),
             ),
-            const SizedBox(height: 24),
-
-            // Subjects
-            ...subjects.map((subject) {
-              final papers = _papersBySubject[subject] ?? [];
-              return _buildSubjectSection(subject, papers);
-            }),
+            const SizedBox(height: 4),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                'Download offline',
+                style: TextStyle(
+                  fontSize: 11,
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildSubjectSection(
-      String subject, List<Map<String, dynamic>> papers) {
-    final color = _getSubjectColor(subject);
-    final hasPapers = papers.isNotEmpty;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Subject header
-        Padding(
-          padding: const EdgeInsets.only(top: 8, bottom: 12),
-          child: Row(
+  // ============================================
+  // SUBJECT GRID (HARDCODED, 2 columns)
+  // ============================================
+  Widget _buildSubjectGrid() {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: color.withAlpha(((255 * 0.1)).toInt()),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: _getSubjectIcon(subject, size: 22),
-              ),
-              const SizedBox(width: 12),
               Text(
-                subject,
-                style: TextStyle(
-                    fontWeight: FontWeight.bold, fontSize: 18, color: color),
+                'Year $_selectedYear',
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: color.withAlpha(((255 * 0.1)).toInt()),
-                  borderRadius: BorderRadius.circular(12),
+                  color: AppColors.primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  '${papers.length} papers',
+                  '${_availableSubjects.length} subjects',
                   style: TextStyle(
-                      color: color, fontSize: 12, fontWeight: FontWeight.bold),
+                    color: AppColors.primary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ],
           ),
-        ),
-
-        // Papers list
-        if (!hasPapers)
-          Card(
-            margin: const EdgeInsets.only(bottom: 16),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            child: const Padding(
-              padding: EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Icon(Icons.hourglass_empty, color: Colors.grey),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'Content will be uploaded soon by NextGen team',
-                      style: TextStyle(
-                          color: Colors.grey, fontStyle: FontStyle.italic),
-                    ),
-                  ),
-                ],
+          const SizedBox(height: 8),
+          Text(
+            'Select a subject to start practicing',
+            style: TextStyle(color: Colors.grey[600], fontSize: 14),
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 1.2,
               ),
+              itemCount: _availableSubjects.length,
+              itemBuilder: (context, index) {
+                final subject = _availableSubjects[index];
+                return _buildSubjectCard(subject);
+              },
             ),
-          )
-        else
-          ...papers.map((paper) => _buildPaperCard(paper, color)),
-
-        const SizedBox(height: 8),
-      ],
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildPaperCard(Map<String, dynamic> paper, Color color) {
-    final contentId = paper['id']?.toString() ?? '';
-    final title = paper['title']?.toString() ?? 'Past Paper';
-    final year = paper['year']?.toString() ?? '';
-    final questions = paper['total_questions']?.toString() ?? '';
-    final timeLimit = paper['time_limit_minutes']?.toString() ?? '';
-    final isDownloaded = _downloadedContentIds.contains(contentId);
-    final downloadProgress = _downloadProgress[contentId];
+  Widget _buildSubjectCard(String subject) {
+    final color = _subjectColors[subject] ?? Colors.grey;
+    final year = int.tryParse(_selectedYear ?? '0') ?? 0;
+
+    return InkWell(
+      onTap: () => _fetchSubjectContent(subject, year),
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withOpacity(0.3), width: 1),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _getSubjectIcon(subject, size: 40),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Text(
+                subject,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: color,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                'Click to load',
+                style: TextStyle(
+                  fontSize: 10,
+                  color: color,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ============================================
+  // CONTENT LIST (AFTER FETCHING FROM GITHUB)
+  // ============================================
+  Widget _buildContentList() {
+    if (_fetchedContent.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.hourglass_empty, size: 64, color: Colors.grey[400]),
+            const SizedBox(height: 16),
+            Text(
+              'No content available',
+              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Try selecting a different subject',
+              style: TextStyle(fontSize: 13, color: Colors.grey[500]),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: () {
+                setState(() {
+                  _selectedSubject = null;
+                  _fetchedContent.clear();
+                });
+              },
+              icon: const Icon(Icons.arrow_back),
+              label: const Text('Back to Subjects'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                '$_selectedSubject - $_selectedYear',
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.green.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  '${_fetchedContent.length} papers',
+                  style: TextStyle(
+                    color: Colors.green,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Select a paper to start practicing',
+            style: TextStyle(color: Colors.grey[600], fontSize: 14),
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _fetchedContent.length,
+              itemBuilder: (context, index) {
+                final content = _fetchedContent[index];
+                return _buildContentCard(content);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContentCard(Map<String, dynamic> content) {
+    final title = content['title']?.toString() ?? 'Past Paper';
+    final year = content['year']?.toString() ?? '';
+    final totalQuestions = content['total_questions'] ?? 40;
+    final timeLimitMinutes = content['time_limit_minutes'] ?? 60;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
-      elevation: 1,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
-        onTap: isDownloaded
-            ? () => _openPaper(paper)
-            : () => _downloadPaper(paper),
+        onTap: () => _openContent(content),
         borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              // Paper icon
-              Stack(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: color.withAlpha(((255 * 0.1)).toInt()),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(Icons.assignment, color: color, size: 24),
-                  ),
-                  if (isDownloaded)
-                    Positioned(
-                      right: 0,
-                      bottom: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(2),
-                        decoration: const BoxDecoration(
-                            color: Colors.green, shape: BoxShape.circle),
-                        child: const Icon(Icons.check,
-                            color: Colors.white, size: 10),
-                      ),
-                    ),
-                ],
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.assignment, color: AppColors.primary, size: 24),
               ),
               const SizedBox(width: 16),
-
-              // Paper info
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -503,86 +708,26 @@ class _EntrancePastPapersScreenState extends State<EntrancePastPapersScreen> {
                     Text(
                       title,
                       style: const TextStyle(
-                          fontWeight: FontWeight.w600, fontSize: 15),
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
-                    Wrap(
-                      spacing: 12,
-                      runSpacing: 4,
+                    Row(
                       children: [
-                        _buildInfoChip(Icons.calendar_today, year, color),
-                        if (questions.isNotEmpty)
-                          _buildInfoChip(
-                              Icons.quiz, '$questions questions', Colors.blue),
-                        if (timeLimit.isNotEmpty)
-                          _buildInfoChip(
-                              Icons.timer, '$timeLimit min', Colors.orange),
+                        _buildInfoChip(Icons.calendar_today, year, Colors.grey),
+                        const SizedBox(width: 8),
+                        _buildInfoChip(Icons.quiz, '$totalQuestions questions', Colors.blue),
+                        const SizedBox(width: 8),
+                        _buildInfoChip(Icons.timer, '$timeLimitMinutes min', Colors.orange),
                       ],
                     ),
                   ],
                 ),
               ),
-
-              // Action button
-              if (downloadProgress != null)
-                SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      CircularProgressIndicator(
-                          value: downloadProgress, strokeWidth: 3),
-                      Text('${(downloadProgress * 100).toInt()}%',
-                          style: const TextStyle(fontSize: 9)),
-                    ],
-                  ),
-                )
-              else if (isDownloaded)
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.green.withAlpha(((255 * 0.1)).toInt()),
-                        borderRadius: BorderRadius.circular(8),
-                        border:
-                            Border.all(color: Colors.green.withAlpha(((255 * 0.3)).toInt())),
-                      ),
-                      child: const Text('OFFLINE',
-                          style: TextStyle(
-                              color: Colors.green,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold)),
-                    ),
-                    const SizedBox(width: 8),
-                    PopupMenuButton<String>(
-                      onSelected: (action) {
-                        if (action == 'open') _openPaper(paper);
-                        if (action == 'delete') _deleteDownload(contentId);
-                      },
-                      itemBuilder: (context) => [
-                        const PopupMenuItem(
-                            value: 'open', child: Text('Practice Now')),
-                        const PopupMenuItem(
-                            value: 'delete',
-                            child: Text('Delete',
-                                style: TextStyle(color: Colors.red))),
-                      ],
-                      child: Icon(Icons.more_vert, color: Colors.grey[500]),
-                    ),
-                  ],
-                )
-              else
-                IconButton(
-                  icon: Icon(Icons.download, color: AppColors.primary),
-                  onPressed: () => _downloadPaper(paper),
-                  tooltip: 'Download for offline practice',
-                ),
+              const Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
             ],
           ),
         ),
@@ -594,7 +739,7 @@ class _EntrancePastPapersScreenState extends State<EntrancePastPapersScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withAlpha(((255 * 0.1)).toInt()),
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Row(

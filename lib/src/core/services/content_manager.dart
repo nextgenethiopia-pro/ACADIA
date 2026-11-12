@@ -34,10 +34,15 @@ class ContentManager {
   Future<Result<Map<String, dynamic>>> getSubjectMetadata({
     required String grade,
     required String subject,
+    String? stream,
   }) async {
     try {
       final data = await _withRetry(
-        () => _github.getSubjectMetadata(grade: grade, subject: subject),
+        () => _github.getSubjectMetadata(
+          grade: grade,
+          subject: subject,
+          stream: stream,
+        ),
       );
       if (data != null) return Ok(data);
       return const Err(NotFoundException(
@@ -51,10 +56,16 @@ class ContentManager {
   Future<Result<List<Map<String, dynamic>>>> getUnits({
     required String grade,
     required String subject,
+    String? stream,
   }) async {
     try {
-      final units =
-          await _withRetry(() => _github.getUnits(grade: grade, subject: subject));
+      final units = await _withRetry(
+        () => _github.getUnits(
+          grade: grade,
+          subject: subject,
+          stream: stream,
+        ),
+      );
       return Ok(units);
     } on Exception catch (e) {
       return Err(NetworkException('Failed to load units.', cause: e));
@@ -66,11 +77,16 @@ class ContentManager {
     required String grade,
     required String subject,
     required String unitFile,
+    String? stream,
   }) async {
     try {
       final items = await _withRetry(
         () => _github.getUnitContent(
-            grade: grade, subject: subject, unitFile: unitFile),
+          grade: grade,
+          subject: subject,
+          unitFile: unitFile,
+          stream: stream,
+        ),
       );
       return Ok(items);
     } on Exception catch (e) {
@@ -82,15 +98,40 @@ class ContentManager {
   Future<Result<Map<String, dynamic>>> refreshSubjectMetadata({
     required String grade,
     required String subject,
+    String? stream,
   }) async {
     try {
-      final data =
-          await _github.refreshSubjectMetadata(grade: grade, subject: subject);
+      final data = await _github.refreshSubjectMetadata(
+        grade: grade,
+        subject: subject,
+        stream: stream,
+      );
       if (data != null) return Ok(data);
       return const Err(NotFoundException(
           'Subject content could not be refreshed. Check your connection.'));
     } on Exception catch (e) {
       return Err(NetworkException('Refresh failed.', cause: e));
+    }
+  }
+
+  /// Force a network refresh of unit content (pull-to-refresh).
+  Future<Result<List<Map<String, dynamic>>>> refreshUnitContent({
+    required String grade,
+    required String subject,
+    required String unitFile,
+    String? stream,
+  }) async {
+    try {
+      // Force refresh by bypassing cache
+      final items = await _github.getUnitContent(
+        grade: grade,
+        subject: subject,
+        unitFile: unitFile,
+        stream: stream,
+      );
+      return Ok(items);
+    } on Exception catch (e) {
+      return Err(NetworkException('Failed to refresh content.', cause: e));
     }
   }
 

@@ -77,7 +77,7 @@ class _AcademicPathScreenState extends State<AcademicPathScreen> {
               Text(
                 'Select the learning path that matches your academic journey.',
                 style: theme.textTheme.bodyLarge?.copyWith(
-                  color: theme.textTheme.bodyMedium?.color?.withAlpha(((255 * 0.75)).toInt()),
+                  color: theme.textTheme.bodyMedium?.color?.withOpacity(0.75),
                 ),
               ),
               const SizedBox(height: 20),
@@ -88,10 +88,10 @@ class _AcademicPathScreenState extends State<AcademicPathScreen> {
                     vertical: 12,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.amber.withAlpha(((255 * 0.14)).toInt()),
+                    color: Colors.amber.withOpacity(0.14),
                     borderRadius: BorderRadius.circular(999),
                     border: Border.all(
-                      color: Colors.amber.withAlpha(((255 * 0.35)).toInt()),
+                      color: Colors.amber.withOpacity(0.35),
                     ),
                   ),
                   child: Row(
@@ -148,10 +148,10 @@ class _AcademicPathScreenState extends State<AcademicPathScreen> {
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withAlpha(((255 * 0.06)).toInt()),
+                  color: AppColors.primary.withOpacity(0.06),
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                    color: AppColors.primary.withAlpha(((255 * 0.12)).toInt()),
+                    color: AppColors.primary.withOpacity(0.12),
                   ),
                 ),
                 child: Row(
@@ -205,7 +205,7 @@ class _AcademicPathScreenState extends State<AcademicPathScreen> {
     required List<String> highlights,
   }) {
     final isSelected = _selectedPath == value;
-    final accent = AppColors.primary;
+    const accent = AppColors.primary;
 
     return InkWell(
       borderRadius: BorderRadius.circular(20),
@@ -214,7 +214,7 @@ class _AcademicPathScreenState extends State<AcademicPathScreen> {
         duration: const Duration(milliseconds: 220),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: isSelected ? accent.withAlpha(((255 * 0.06)).toInt()) : Colors.white,
+          color: isSelected ? accent.withOpacity(0.06) : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected ? accent : Colors.grey.shade300,
@@ -223,8 +223,8 @@ class _AcademicPathScreenState extends State<AcademicPathScreen> {
           boxShadow: [
             BoxShadow(
               color: isSelected
-                  ? accent.withAlpha(((255 * 0.14)).toInt())
-                  : Colors.black.withAlpha(((255 * 0.04)).toInt()),
+                  ? accent.withOpacity(0.14)
+                  : Colors.black.withOpacity(0.04),
               blurRadius: isSelected ? 18 : 10,
               offset: const Offset(0, 6),
             ),
@@ -237,7 +237,7 @@ class _AcademicPathScreenState extends State<AcademicPathScreen> {
               width: 58,
               height: 58,
               decoration: BoxDecoration(
-                color: accent.withAlpha((255 * (isSelected ? 0.16 : 0.08)).toInt()),
+                color: accent.withOpacity(isSelected ? 0.16 : 0.08),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Icon(icon, color: accent, size: 30),
@@ -308,10 +308,10 @@ class _AcademicPathScreenState extends State<AcademicPathScreen> {
                               vertical: 7,
                             ),
                             decoration: BoxDecoration(
-                              color: accent.withAlpha(((255 * 0.08)).toInt()),
+                              color: accent.withOpacity(0.08),
                               borderRadius: BorderRadius.circular(999),
                               border: Border.all(
-                                color: accent.withAlpha(((255 * 0.12)).toInt()),
+                                color: accent.withOpacity(0.12),
                               ),
                             ),
                             child: Text(

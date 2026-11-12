@@ -87,11 +87,10 @@ class _UniversityTrackSelectionScreenState
     await prefs.setBool(
         'how_to_seen', false); // Show How-To popup on first dashboard load
 
-    // Mark onboarding as complete
-    await prefs.setBool('onboarding_complete', true);
+    await prefs.setBool('onboarding_complete', false);
 
     if (!mounted) return;
-    context.go('/dashboard');
+    context.pushReplacement('/register');
   }
 
   @override
@@ -116,15 +115,15 @@ class _UniversityTrackSelectionScreenState
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withAlpha(((255 * 0.1)).toInt()),
+                  color: AppColors.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: Row(
+                child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.calendar_month,
                         size: 16, color: AppColors.primary),
-                    const SizedBox(width: 6),
+                    SizedBox(width: 6),
                     Text(
                       'Freshman - Second Semester',
                       style: TextStyle(
@@ -132,7 +131,7 @@ class _UniversityTrackSelectionScreenState
                           fontWeight: FontWeight.bold,
                           fontSize: 13),
                     ),
-                    const SizedBox(width: 6),
+                    SizedBox(width: 6),
                     Text(
                       '8 subjects',
                       style: TextStyle(color: AppColors.primary, fontSize: 11),
@@ -148,16 +147,16 @@ class _UniversityTrackSelectionScreenState
                     child: _buildTrackCard(track),
                   )),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
 
               // Permanent warning
               Container(
                 padding: const EdgeInsets.all(12),
                 margin: const EdgeInsets.only(bottom: 16),
                 decoration: BoxDecoration(
-                  color: Colors.amber.withAlpha(((255 * 0.1)).toInt()),
+                  color: Colors.amber.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.amber.withAlpha(((255 * 0.3)).toInt())),
+                  border: Border.all(color: Colors.amber.withOpacity(0.3)),
                 ),
                 child: Row(
                   children: [
@@ -204,7 +203,7 @@ class _UniversityTrackSelectionScreenState
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: isSelected ? color.withAlpha(((255 * 0.05)).toInt()) : Colors.grey[50],
+          color: isSelected ? color.withOpacity(0.05) : Colors.grey[50],
           border: Border.all(
             color: isSelected ? color : Colors.grey[200]!,
             width: isSelected ? 2.5 : 1.5,
@@ -213,7 +212,7 @@ class _UniversityTrackSelectionScreenState
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                      color: color.withAlpha(((255 * 0.2)).toInt()),
+                      color: color.withOpacity(0.2),
                       blurRadius: 12,
                       offset: const Offset(0, 4))
                 ]
@@ -229,7 +228,7 @@ class _UniversityTrackSelectionScreenState
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: color.withAlpha(((255 * 0.15)).toInt()),
+                    color: color.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(track.icon, color: color, size: 28),
@@ -281,9 +280,9 @@ class _UniversityTrackSelectionScreenState
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: subjectColor.withAlpha(((255 * 0.1)).toInt()),
+                    color: subjectColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: subjectColor.withAlpha(((255 * 0.2)).toInt())),
+                    border: Border.all(color: subjectColor.withOpacity(0.2)),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,

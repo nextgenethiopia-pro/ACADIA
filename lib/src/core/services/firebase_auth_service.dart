@@ -2,6 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
+import '../../models/user_model.dart';
+import 'developer_welcome_notification.dart';
+import 'session_service.dart';
+
 /// Firebase Auth Service (Auth + Firestore Profiles)
 /// Stores rich ACADIA registration data in Firebase Auth + Firestore.
 class FirebaseAuthService {
@@ -21,16 +25,16 @@ class FirebaseAuthService {
     required String email,
     required String password,
     required String fullName,
+    String? username,
     String? phoneNumber,
+    String? academicLevel,
+    String? academicPath,
     String? grade,
     String? stream,
-    String? academicPath,
-    String? generation,
-    String? university,
-    String? universityYear,
+    String? department,
+    String? year,
     String? semester,
-    String? track,
-    String? highSchoolName,
+    Map<String, dynamic>? onboardingSelections,
   }) async {
     try {
       final userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
@@ -43,61 +47,124 @@ class FirebaseAuthService {
         return {'success': false, 'error': 'Failed to create user'};
       }
 
-      await user.updateDisplayName(fullName);
-
       final normalizedEmail = email.trim().toLowerCase();
-      final normalizedPath = _normalizeAcademicPath(academicPath);
-      final normalizedGrade = _normalizeNullable(grade);
-      final normalizedStream = _normalizeNullable(stream);
-      final normalizedGeneration = _normalizeNullable(generation);
-      final normalizedUniversity = _normalizeNullable(university);
-      final normalizedUniversityYear = _normalizeNullable(universityYear);
-      final normalizedSemester = _normalizeNullable(semester);
-      final normalizedTrack = _normalizeNullable(track);
-      final normalizedPhone = _normalizePhone(phoneNumber);
-      final normalizedHighSchoolName = _normalizeNullable(highSchoolName);
       final isAdmin = adminEmails.contains(normalizedEmail);
 
-      final profileData = <String, dynamic>{
-        'uid': user.uid,
-        'email': normalizedEmail,
-        'full_name': fullName.trim(),
-        'phone_number': normalizedPhone,
-        'academic_path': normalizedPath,
-        'academic_level': _academicLevelFromPath(normalizedPath),
-        'grade': normalizedGrade,
-        'stream': normalizedStream,
-        'generation': normalizedGeneration,
-        'selected_generation': normalizedGeneration,
-        'university': normalizedUniversity,
-        'selected_university': normalizedUniversity,
-        'university_name': normalizedUniversity,
-        'university_year': normalizedUniversityYear,
-        'selected_year': normalizedUniversityYear,
-        'semester': normalizedSemester,
-        'track': normalizedTrack,
-        'selected_track': normalizedTrack,
-        'high_school_name': normalizedHighSchoolName,
+      await user.updateDisplayName(fullName);
+
+      final now = DateTime.now();
+      final normalizedAcademicLevel = (academicLevel?.trim().isNotEmpty == true)
+          ? academicLevel!.trim()
+          : (academicPath?.trim().isNotEmpty == true
+              ? academicPath!.trim()
+              : 'HIGH SCHOOL');
+
+      final profileData = UserModel(
+        id: user.uid,
+        email: normalizedEmail,
+        fullName: fullName.trim(),
+        username: (username?.trim().isNotEmpty == true)
+            ? username!.trim()
+            : (normalizedEmail.isNotEmpty
+                ? normalizedEmail.split('@')[0]
+                : 'user${user.uid.substring(user.uid.length.clamp(0, 4))}'),
+        phoneNumber: _normalizePhone(phoneNumber) ?? '',
+        academicLevel: normalizedAcademicLevel,
+        grade: _normalizeNullable(grade),
+        stream: _normalizeNullable(stream),
+        department: _normalizeNullable(department),
+        year: _normalizeNullable(year),
+        semester: _normalizeNullable(semester),
+        onboardingSelections: onboardingSelections,
+        selectedPackage: 'free',
+        paymentStatus: 'free',
+        accountStatus: isAdmin ? 'admin' : 'active',
+        registrationDate: now,
+        lastLogin: now,
+        notificationPreferences: true,
+        createdAt: now,
+        updatedAt: now,
+      );
+
+      final userDocData = {
+        ...profileData.toJson(),
+        'academic_path': academicPath ?? normalizedAcademicLevel,
+        'academicPath': academicPath ?? normalizedAcademicLevel,
         'is_admin': isAdmin,
-        'is_email_verified': false,
-        'is_profile_complete': true,
-        'onboarding_complete': true,
-        'registration_source': 'email_password',
-        'device_binding_enabled': true,
-        'created_at': FieldValue.serverTimestamp(),
-        'updated_at': FieldValue.serverTimestamp(),
+        'is_email_verified': user.emailVerified,
       };
 
-      profileData.removeWhere((key, value) => value == null);
+      await _firestore
+          .collection('users')
+          .doc(user.uid)
+          .set(userDocData, SetOptions(merge: true));
 
-      await _firestore.collection('users').doc(user.uid).set(profileData);
+      // Send verification email AFTER profile is written to ensure
+      // Firebase Auth session is fully established
+      String? verificationEmailError;
+      if (!isAdmin) {
+        try {
+          final freshUser = _firebaseAuth.currentUser ?? user;
+          await freshUser.sendEmailVerification();
+          debugPrint(
+            '[signUp] verification email requested for ${user.email}',
+          );
+        } on FirebaseAuthException catch (e) {
+          verificationEmailError = '${e.code}: ${e.message ?? 'no message'}';
+          debugPrint(
+            '[signUp] verification email FAILED: code=${e.code} '
+            'message=${e.message}',
+          );
+        } catch (e, stackTrace) {
+          verificationEmailError = e.toString();
+          debugPrint('[signUp] verification email FAILED (non-auth): $e');
+          debugPrint('$stackTrace');
+        }
+      }
 
-      await user.sendEmailVerification();
+      if (!isAdmin) {
+        // One deterministic, user-scoped developer welcome per account. A
+        // fixed document ID makes this idempotent if signup is ever retried.
+        try {
+          await DeveloperWelcomeNotification.ensureCreated(
+            userId: user.uid,
+            exists: (docId) async =>
+                (await _firestore.collection('notifications').doc(docId).get())
+                    .exists,
+            create: (docId) => _firestore
+                .collection('notifications')
+                .doc(docId)
+                .set({
+              'target_user_id': user.uid,
+              'title': 'Welcome to ACADIA 🎉',
+              'message':
+                  'Hi ${fullName.trim().split(' ').first}, I\'m Firaol Tadesa, '
+                  'founder of NextGen Ethiopia and ACADIA. Thank you for joining. '
+                  'Verify your email, then explore your lessons, quizzes, and '
+                  'past papers. — The ACADIA team',
+              'type': 'welcome',
+              'is_read': false,
+              'image_url': '',
+              'created_by': 'NextGen ACADIA',
+              'created_at': FieldValue.serverTimestamp(),
+            }),
+          );
+        } catch (_) {
+          // Non-critical — do not block signup if notification fails
+        }
+      }
 
       return {
         'success': true,
         'user': user,
-        'message': 'Verification email sent. Please check your inbox.',
+        'needsVerification': !isAdmin,
+        'verificationEmailError': verificationEmailError,
+        'message': isAdmin
+            ? 'Admin account created successfully.'
+            : verificationEmailError == null
+                ? 'Verification email sent. Please check your inbox.'
+                : 'Account created, but the verification email could not be '
+                    'sent ($verificationEmailError).',
       };
     } on FirebaseAuthException catch (e) {
       return {'success': false, 'error': _getFirebaseErrorMessage(e)};
@@ -130,8 +197,21 @@ class FirebaseAuthService {
         };
       }
 
+      // One account = one registered device. The account is registered to the
+      // first device that signs in; other devices are rejected until the
+      // registered device signs out.
+      final deviceLock = await SessionService.instance.claimDevice(user.uid);
+      if (!deviceLock.granted) {
+        await _firebaseAuth.signOut();
+        return {
+          'success': false,
+          'error': SessionService.deviceLockedMessage,
+          'deviceLocked': true,
+        };
+      }
+
       await _firestore.collection('users').doc(user.uid).set({
-        'last_sign_in': FieldValue.serverTimestamp(),
+        'last_login': FieldValue.serverTimestamp(),
         'updated_at': FieldValue.serverTimestamp(),
         'is_email_verified': user.emailVerified,
       }, SetOptions(merge: true));
@@ -145,6 +225,14 @@ class FirebaseAuthService {
   }
 
   Future<void> signOut() async {
+    final userId = _firebaseAuth.currentUser?.uid;
+
+    // Securely release the device registration so the account can be used on
+    // another device after signing out here.
+    if (userId != null) {
+      await SessionService.instance.releaseDevice(userId);
+    }
+
     await _firebaseAuth.signOut();
   }
 
@@ -176,9 +264,9 @@ class FirebaseAuthService {
 
   Future<Map<String, dynamic>> updateProfile({
     String? fullName,
+    String? username,
     String? avatarUrl,
     String? phoneNumber,
-    String? highSchoolName,
   }) async {
     try {
       final user = _firebaseAuth.currentUser;
@@ -194,6 +282,10 @@ class FirebaseAuthService {
         await user.updateDisplayName(fullName.trim());
         updates['full_name'] = fullName.trim();
       }
+      
+      if (username != null && username.trim().isNotEmpty) {
+        updates['username'] = username.trim();
+      }
 
       if (avatarUrl != null && avatarUrl.trim().isNotEmpty) {
         updates['avatar_url'] = avatarUrl.trim();
@@ -202,10 +294,6 @@ class FirebaseAuthService {
       final normalizedPhone = _normalizePhone(phoneNumber);
       if (phoneNumber != null) {
         updates['phone_number'] = normalizedPhone;
-      }
-
-      if (highSchoolName != null) {
-        updates['high_school_name'] = _normalizeNullable(highSchoolName);
       }
 
       updates.removeWhere((key, value) => value == null);
@@ -264,29 +352,58 @@ class FirebaseAuthService {
       final doc = await _firestore.collection('users').doc(user.uid).get();
       if (!doc.exists) {
         final isAdmin = adminEmails.contains(user.email?.toLowerCase());
-        final data = <String, dynamic>{
-          'uid': user.uid,
-          'email': user.email,
-          'full_name': user.displayName ?? 'Student',
+        final now = DateTime.now();
+        final data = UserModel(
+          id: user.uid,
+          email: user.email ?? '',
+          fullName: user.displayName ?? 'Student',
+          username: user.email?.split('@')[0] ?? 'student',
+          accountStatus: 'active',
+          registrationDate: now,
+          lastLogin: now,
+          createdAt: now,
+          updatedAt: now,
+          academicLevel: 'HIGH SCHOOL',
+          phoneNumber: '',
+          selectedPackage: 'free',
+          paymentStatus: 'free',
+          notificationPreferences: true,
+        );
+        final createdProfile = {
+          ...data.toJson(),
+          'academic_path': data.academicLevel,
+          'academicPath': data.academicLevel,
           'is_admin': isAdmin,
           'is_email_verified': user.emailVerified,
-          'created_at': FieldValue.serverTimestamp(),
-          'updated_at': FieldValue.serverTimestamp(),
         };
-        await _firestore.collection('users').doc(user.uid).set(data);
-        return data;
+        await _firestore.collection('users').doc(user.uid).set(createdProfile, SetOptions(merge: true));
+        return createdProfile;
       }
 
-      final profile = doc.data()!;
-      if (profile['is_email_verified'] != user.emailVerified) {
-        await _firestore.collection('users').doc(user.uid).set({
-          'is_email_verified': user.emailVerified,
-          'updated_at': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
-        profile['is_email_verified'] = user.emailVerified;
-      }
+      final docData = doc.data()!;
+      final profile = UserModel.fromJson(docData);
+      final normalizedProfile = profile.toJson();
+      final normalizedAcademicPath = (docData['academic_path'] ??
+              docData['academicPath'] ??
+              docData['academic_level'] ??
+              profile.academicLevel)
+          .toString();
 
-      return profile;
+      normalizedProfile.addAll(docData);
+      normalizedProfile['academic_path'] = normalizedAcademicPath;
+      normalizedProfile['academicPath'] = normalizedAcademicPath;
+      normalizedProfile['academic_level'] = normalizedAcademicPath;
+      normalizedProfile['academicLevel'] = normalizedAcademicPath;
+      normalizedProfile['grade'] = profile.grade ?? docData['grade'];
+      normalizedProfile['stream'] = profile.stream ?? docData['stream'];
+      normalizedProfile['department'] = profile.department ?? docData['department'];
+      normalizedProfile['year'] = profile.year ?? docData['year'];
+      normalizedProfile['semester'] = profile.semester ?? docData['semester'];
+      normalizedProfile['onboarding_selections'] = profile.onboardingSelections ?? docData['onboarding_selections'];
+      normalizedProfile['is_admin'] = docData['is_admin'] ?? adminEmails.contains(user.email?.toLowerCase());
+      normalizedProfile['is_email_verified'] = user.emailVerified;
+
+      return normalizedProfile;
     } catch (e) {
       debugPrint('Error getting profile: $e');
       return null;
@@ -303,31 +420,6 @@ class FirebaseAuthService {
     final normalized = _normalizeNullable(value);
     if (normalized == null) return null;
     return normalized.replaceAll(RegExp(r'\s+'), '');
-  }
-
-  String? _normalizeAcademicPath(String? value) {
-    final normalized = _normalizeNullable(value);
-    if (normalized == null) return null;
-
-    final upper = normalized.toUpperCase();
-    if (upper == 'HIGH SCHOOL' || upper == 'HIGH_SCHOOL') {
-      return 'HIGH SCHOOL';
-    }
-    if (upper == 'UNIVERSITY') {
-      return 'UNIVERSITY';
-    }
-    return normalized;
-  }
-
-  String? _academicLevelFromPath(String? academicPath) {
-    switch (academicPath) {
-      case 'HIGH SCHOOL':
-        return 'high_school';
-      case 'UNIVERSITY':
-        return 'university';
-      default:
-        return null;
-    }
   }
 
   String _getFirebaseErrorMessage(FirebaseAuthException e) {

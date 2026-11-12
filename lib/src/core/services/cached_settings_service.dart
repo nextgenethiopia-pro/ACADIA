@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
+// ============================================
+// FIX: Add import for IsarService
+// ============================================
 import '../../local_database/isar_service.dart';
-import '../../local_database/schemas/content_entry.dart';
 
 /// TTL-cached reader for the Firestore `settings/content_config` document.
 ///

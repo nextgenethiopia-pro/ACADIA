@@ -15,7 +15,7 @@ extension GetExamResultCollection on Isar {
 
 const ExamResultSchema = CollectionSchema(
   name: r'ExamResult',
-  id: -7285210680264624,
+  id: -4973695977191503399,
   properties: {
     r'answers': PropertySchema(
       id: 0,

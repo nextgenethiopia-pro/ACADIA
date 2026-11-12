@@ -15,7 +15,7 @@ extension GetContentCacheCollection on Isar {
 
 const ContentCacheSchema = CollectionSchema(
   name: r'ContentCache',
-  id: 6994020158128451,
+  id: 4726766429642407735,
   properties: {
     r'cachedAt': PropertySchema(
       id: 0,

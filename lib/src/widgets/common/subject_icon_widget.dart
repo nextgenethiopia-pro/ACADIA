@@ -34,7 +34,7 @@ class SubjectIconWidget extends StatelessWidget {
           decoration: decoration ??
               BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
-                color: iconColor.withAlpha((255 * 0.1).toInt()),
+                color: iconColor.withOpacity(0.1),
               ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),
@@ -64,7 +64,7 @@ class SubjectIconWidget extends StatelessWidget {
       decoration: decoration ??
           BoxDecoration(
             borderRadius: BorderRadius.circular(8),
-            color: iconColor.withAlpha((255 * 0.1).toInt()),
+            color: iconColor.withOpacity(0.1),
           ),
       child: Icon(
         AppIcons.getSubjectFallbackIcon(subject),
@@ -98,7 +98,7 @@ class CircularSubjectIconWidget extends StatelessWidget {
       color: iconColor,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: iconColor.withAlpha((255 * 0.1).toInt()),
+        color: iconColor.withOpacity(0.1),
       ),
     );
   }

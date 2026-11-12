@@ -15,7 +15,7 @@ extension GetContentEntryCollection on Isar {
 
 const ContentEntrySchema = CollectionSchema(
   name: r'ContentEntry',
-  id: 6856040934065596,
+  id: 7122543452179448486,
   properties: {
     r'contentVersion': PropertySchema(
       id: 0,
@@ -60,7 +60,7 @@ const ContentEntrySchema = CollectionSchema(
   idName: r'id',
   indexes: {
     r'key': IndexSchema(
-      id: -2829471309718466,
+      id: -4906094122524121629,
       name: r'key',
       unique: true,
       replace: false,

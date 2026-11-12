@@ -3,18 +3,27 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:acadia/src/core/services/offline_database.dart';
+import 'package:dio/dio.dart';
+import 'package:acadia/src/local_database/isar_service.dart';
 import 'package:acadia/src/core/constants/colors.dart';
 import 'package:acadia/src/widgets/common/gradient_button.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:path_provider/path_provider.dart';
 
 class ExamScreen extends StatefulWidget {
   final String contentId;
   final String title;
+  final String? downloadUrl;
+  final int? expectedQuestionCount;
+  final int? expectedTimeLimitMinutes;
 
   const ExamScreen({
     super.key,
     required this.contentId,
     required this.title,
+    this.downloadUrl,
+    this.expectedQuestionCount,
+    this.expectedTimeLimitMinutes,
   });
 
   @override
@@ -22,6 +31,7 @@ class ExamScreen extends StatefulWidget {
 }
 
 class _ExamScreenState extends State<ExamScreen> {
+  final IsarService _isarService = IsarService.instance;
   int _currentQuestion = 1;
   int _totalQuestions = 0;
   String? _selectedAnswer;
@@ -30,10 +40,9 @@ class _ExamScreenState extends State<ExamScreen> {
   bool _isLoading = true;
   bool _isSubmitting = false;
 
-  // Feedback mode: true = immediate feedback, false = review at end
   bool _immediateFeedback = false;
-  final Map<int, bool> _answerResults = {}; // Store correct/incorrect for each question
-  final Map<int, bool> _showingExplanation = {}; // Track which explanations are shown
+  final Map<int, bool> _answerResults = {};
+  final Map<int, bool> _showingExplanation = {};
 
   int _remainingSeconds = 0;
   int _totalTimeSeconds = 0;
@@ -44,10 +53,13 @@ class _ExamScreenState extends State<ExamScreen> {
   List<Map<String, dynamic>> _questions = [];
   String _examTitle = '';
   int _timeLimitMinutes = 30;
+  bool _isPastPaper = false;
 
   @override
   void initState() {
     super.initState();
+    _isPastPaper = widget.contentId.contains('past_paper') || 
+                   widget.title.toLowerCase().contains('past paper');
     _loadExam();
   }
 
@@ -57,57 +69,149 @@ class _ExamScreenState extends State<ExamScreen> {
     super.dispose();
   }
 
+  // ============================================
+  // FIXED: Load exam from correct path
+  // ============================================
   Future<void> _loadExam() async {
     setState(() => _isLoading = true);
     try {
-      final offlineDb = OfflineDatabase.instance;
-      final db = await offlineDb.database;
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        setState(() => _isLoading = false);
+        return;
+      }
 
-      final result = await db.query(
-        'offline_content',
-        where: 'content_id = ?',
-        whereArgs: [widget.contentId],
+      final downloadedContent = await _isarService.getDownloadedContentById(
+        widget.contentId,
+        user.uid,
       );
 
-      if (result.isNotEmpty) {
-        final filePath = result.first['local_path'] as String;
-        final file = File(filePath);
+      String? filePath;
 
-        if (await file.exists()) {
-          final jsonString = await file.readAsString();
-          final data = json.decode(jsonString) as Map<String, dynamic>;
-
-          final questions = List<Map<String, dynamic>>.from(data['questions'] ?? []);
-          final timeLimit = data['time_limit_minutes'] ?? 30;
-
-          if (mounted) {
-            setState(() {
-              _examTitle = data['title']?.toString() ?? widget.title;
-              _questions = questions;
-              _totalQuestions = questions.length;
-              _timeLimitMinutes = timeLimit is int ? timeLimit : 30;
-              _totalTimeSeconds = _timeLimitMinutes * 60;
-              _remainingSeconds = _totalTimeSeconds;
-              _isLoading = false;
-            });
-            _startTimer();
+      if (downloadedContent != null) {
+        final dbPath = downloadedContent.contentPath;
+        if (dbPath != null) {
+          final file = File(dbPath);
+          if (await file.exists()) {
+            filePath = dbPath;
+            debugPrint('✅ Found exam at DB path: $filePath');
           }
-          return;
         }
       }
 
+      if (filePath == null) {
+        final directory = await getApplicationDocumentsDirectory();
+        final jsonDir = Directory('${directory.path}/json_content');
+        if (!await jsonDir.exists()) {
+          await jsonDir.create(recursive: true);
+        }
+
+        final possiblePath = '${jsonDir.path}/${widget.contentId}.json';
+        final file = File(possiblePath);
+        if (await file.exists()) {
+          filePath = possiblePath;
+          debugPrint('✅ Found exam at json_content: $filePath');
+        }
+      }
+
+      Map<String, dynamic>? data;
+      if (filePath != null) {
+        final file = File(filePath);
+        final jsonString = await file.readAsString();
+        data = json.decode(jsonString.replaceFirst('\uFEFF', ''))
+            as Map<String, dynamic>;
+      } else if (widget.downloadUrl != null &&
+          widget.downloadUrl!.isNotEmpty) {
+        final response = await Dio().get<String>(widget.downloadUrl!);
+        if (response.data != null) {
+          final jsonString = response.data!.replaceFirst('\uFEFF', '');
+          data = json.decode(jsonString) as Map<String, dynamic>;
+          final directory = await getApplicationDocumentsDirectory();
+          final jsonDir = Directory('${directory.path}/json_content');
+          if (!await jsonDir.exists()) {
+            await jsonDir.create(recursive: true);
+          }
+          await File('${jsonDir.path}/${widget.contentId}.json')
+              .writeAsString(jsonString);
+        }
+      }
+
+      if (data == null) {
+        if (mounted) {
+          setState(() => _isLoading = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                  'The exam file could not be loaded. Check your connection and try again.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return;
+      }
+
+      List<Map<String, dynamic>> questions = [];
+      Map<String, dynamic>? nestedItem;
+      if (data['questions'] != null) {
+        questions = List<Map<String, dynamic>>.from(data['questions']);
+      } else if (data['items'] != null) {
+        final items = data['items'];
+        if (items is List && items.isNotEmpty) {
+          final firstItem = items[0];
+          if (firstItem is Map && firstItem.containsKey('questions')) {
+            nestedItem = Map<String, dynamic>.from(firstItem);
+            questions =
+                List<Map<String, dynamic>>.from(firstItem['questions']);
+          } else {
+            questions = List<Map<String, dynamic>>.from(items);
+          }
+        }
+      }
+
+      debugPrint('📊 Loaded ${questions.length} exam questions');
+
+      final rawTimeLimit = data['time_limit_minutes'] ??
+          nestedItem?['time_limit_minutes'] ??
+          widget.expectedTimeLimitMinutes ??
+          30;
+      final timeLimit = rawTimeLimit is num ? rawTimeLimit.toInt() : 30;
+
       if (mounted) {
-        setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Exam file not found. Please download it first.'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        setState(() {
+          _examTitle = downloadedContent?.title ??
+              nestedItem?['title']?.toString() ??
+              data!['title']?.toString() ??
+              widget.title;
+          _questions = questions;
+          _totalQuestions = questions.length;
+          _timeLimitMinutes = timeLimit;
+          _totalTimeSeconds = _timeLimitMinutes * 60;
+          _remainingSeconds = _totalTimeSeconds;
+          _isLoading = false;
+        });
+        if (questions.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('This exam file contains no questions.'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        } else {
+          _startTimer();
+        }
       }
     } catch (e) {
       if (mounted) setState(() => _isLoading = false);
       debugPrint('Error loading exam: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+                'The exam could not be opened. The file may be invalid or unavailable.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -142,19 +246,25 @@ class _ExamScreenState extends State<ExamScreen> {
     setState(() => _showQuestionGrid = !_showQuestionGrid);
   }
 
-  void _selectAnswer(String answer) {
+  String _getCorrectAnswer(Map<String, dynamic> question) {
+    final correctKey = question['correct_answer']?.toString() ?? '';
+    if (correctKey.isEmpty) return '';
+    final options = question['options'] as Map<String, dynamic>? ?? {};
+    return options[correctKey]?.toString() ?? '';
+  }
+
+  void _selectAnswer(String answerText) {
     if (_isPaused) return;
-    if (_answers[_currentQuestion] != null && _immediateFeedback) return; // Already answered in immediate mode
+    if (_answers[_currentQuestion] != null && _immediateFeedback) return;
 
     setState(() {
-      _selectedAnswer = answer;
-      _answers[_currentQuestion] = answer;
+      _selectedAnswer = answerText;
+      _answers[_currentQuestion] = answerText;
 
-      // Immediate feedback mode: show result right away
       if (_immediateFeedback) {
         final question = _questions[_currentQuestion - 1];
-        final correctAnswer = question['correct_answer']?.toString() ?? '';
-        _answerResults[_currentQuestion] = (answer == correctAnswer);
+        final correctAnswer = _getCorrectAnswer(question);
+        _answerResults[_currentQuestion] = (answerText == correctAnswer);
       }
     });
   }
@@ -194,7 +304,22 @@ class _ExamScreenState extends State<ExamScreen> {
     _submitExam(isAutoSubmit: true);
   }
 
+  void _debugAnswers() {
+    debugPrint('=' * 50);
+    debugPrint('🔍 EXAM ANSWER DEBUG');
+    debugPrint('=' * 50);
+    for (int i = 0; i < _questions.length; i++) {
+      final q = _questions[i];
+      final userAnswer = _answers[i + 1];
+      final correctAnswer = _getCorrectAnswer(q);
+      debugPrint('Q${i+1}: user="$userAnswer" | correct="$correctAnswer" | match=${userAnswer == correctAnswer}');
+    }
+    debugPrint('=' * 50);
+  }
+
   Future<void> _submitExam({bool isAutoSubmit = false}) async {
+    _debugAnswers();
+
     final unanswered = _totalQuestions - _answers.length;
 
     if (!isAutoSubmit && unanswered > 0) {
@@ -235,7 +360,7 @@ class _ExamScreenState extends State<ExamScreen> {
         wrong++;
       } else {
         final question = _questions[i];
-        final correctAnswer = question['correct_answer']?.toString() ?? '';
+        final correctAnswer = _getCorrectAnswer(question);
         if (userAnswer == correctAnswer) {
           correct++;
         } else {
@@ -246,6 +371,8 @@ class _ExamScreenState extends State<ExamScreen> {
 
     final score = correct;
     final timeTaken = _totalTimeSeconds - _remainingSeconds;
+
+    final correctAnswers = _questions.map((q) => _getCorrectAnswer(q)).toList();
 
     if (mounted) {
       context.pushReplacement('/exam-result', extra: {
@@ -259,7 +386,8 @@ class _ExamScreenState extends State<ExamScreen> {
         'contentId': widget.contentId,
         'questions': _questions,
         'userAnswers': _answers,
-        'correctAnswers': _questions.map((q) => q['correct_answer']).toList(),
+        'correctAnswers': correctAnswers,
+        'isPastPaper': _isPastPaper,
       });
     }
   }
@@ -290,7 +418,7 @@ class _ExamScreenState extends State<ExamScreen> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Loading Exam...')),
+        appBar: AppBar(title: const Text('Loading...')),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
@@ -306,7 +434,7 @@ class _ExamScreenState extends State<ExamScreen> {
               const SizedBox(height: 16),
               const Text('No questions available', style: TextStyle(color: Colors.grey, fontSize: 16)),
               const SizedBox(height: 8),
-              const Text('Download the exam file first', style: TextStyle(color: Colors.grey, fontSize: 13)),
+              const Text('Download the file first', style: TextStyle(color: Colors.grey, fontSize: 13)),
             ],
           ),
         ),
@@ -328,7 +456,10 @@ class _ExamScreenState extends State<ExamScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(_examTitle, style: const TextStyle(fontSize: 16)),
+          title: Text(
+            _isPastPaper ? 'Past Paper' : 'Exam',
+            style: const TextStyle(fontSize: 16),
+          ),
           leading: IconButton(
             onPressed: () async {
               final shouldPop = await _onWillPop();
@@ -337,7 +468,6 @@ class _ExamScreenState extends State<ExamScreen> {
             icon: const Icon(Icons.close),
           ),
           actions: [
-            // Feedback mode toggle
             Padding(
               padding: const EdgeInsets.only(right: 8.0),
               child: Row(
@@ -353,11 +483,10 @@ class _ExamScreenState extends State<ExamScreen> {
                     onChanged: (value) {
                       setState(() {
                         _immediateFeedback = value;
-                        // Clear any selected answer when switching modes
                         _selectedAnswer = null;
                       });
                     },
-                    activeColor: AppColors.primary,
+                    activeThumbColor: AppColors.primary,
                   ),
                 ],
               ),
@@ -372,9 +501,9 @@ class _ExamScreenState extends State<ExamScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   color: isDanger
-                      ? Colors.red.withAlpha(((255 * 0.1)).toInt())
+                      ? Colors.red.withOpacity(0.1)
                       : isWarning
-                          ? Colors.orange.withAlpha(((255 * 0.1)).toInt())
+                          ? Colors.orange.withOpacity(0.1)
                           : Colors.grey[50],
                   child: Row(
                     children: [
@@ -399,7 +528,6 @@ class _ExamScreenState extends State<ExamScreen> {
                         ),
                       ),
                       const Spacer(),
-                      // Question count badge
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
@@ -408,7 +536,7 @@ class _ExamScreenState extends State<ExamScreen> {
                         ),
                         child: Text(
                           '$answeredCount/$_totalQuestions',
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -446,7 +574,6 @@ class _ExamScreenState extends State<ExamScreen> {
                   minHeight: 4,
                 ),
 
-                // Question area (hidden when paused)
                 if (!_isPaused)
                   Expanded(
                     child: SingleChildScrollView(
@@ -457,7 +584,6 @@ class _ExamScreenState extends State<ExamScreen> {
                     ),
                   ),
 
-                // Question Grid Toggle Button
                 if (!_isPaused && _totalQuestions > 0)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -476,7 +602,6 @@ class _ExamScreenState extends State<ExamScreen> {
                     ),
                   ),
 
-                // Question Grid
                 if (!_isPaused && _showQuestionGrid && _totalQuestions > 0)
                   Container(
                     padding: const EdgeInsets.all(12),
@@ -484,7 +609,7 @@ class _ExamScreenState extends State<ExamScreen> {
                       color: Colors.white,
                       boxShadow: [
                         BoxShadow(
-                            color: Colors.black.withAlpha(((255 * 0.05)).toInt()),
+                            color: Colors.black.withOpacity(0.05),
                             blurRadius: 4,
                             offset: const Offset(0, -2))
                       ],
@@ -508,7 +633,7 @@ class _ExamScreenState extends State<ExamScreen> {
                         } else if (isWrong) {
                           bgColor = Colors.red;
                         } else if (isAnswered) {
-                          bgColor = Colors.green.withAlpha(((255 * 0.2)).toInt());
+                          bgColor = Colors.green.withOpacity(0.2);
                         } else {
                           bgColor = Colors.grey[100];
                         }
@@ -534,7 +659,7 @@ class _ExamScreenState extends State<ExamScreen> {
                                   width: isCurrent || _hoveredQuestion == qNum ? 2 : 1,
                                 ),
                                 boxShadow: _hoveredQuestion == qNum
-                                    ? [BoxShadow(color: AppColors.primary.withAlpha(((255 * 0.3)).toInt()), blurRadius: 4)]
+                                    ? [BoxShadow(color: AppColors.primary.withOpacity(0.3), blurRadius: 4)]
                                     : null,
                               ),
                               child: Center(
@@ -558,7 +683,6 @@ class _ExamScreenState extends State<ExamScreen> {
                     ),
                   ),
 
-                // Bottom Navigation
                 if (!_isPaused)
                   Container(
                     padding: const EdgeInsets.all(16),
@@ -566,7 +690,7 @@ class _ExamScreenState extends State<ExamScreen> {
                       color: Colors.white,
                       boxShadow: [
                         BoxShadow(
-                            color: Colors.black.withAlpha(((255 * 0.05)).toInt()),
+                            color: Colors.black.withOpacity(0.05),
                             blurRadius: 4,
                             offset: const Offset(0, -2))
                       ],
@@ -586,7 +710,7 @@ class _ExamScreenState extends State<ExamScreen> {
                           Expanded(
                             flex: 2,
                             child: GradientButton(
-                              text: 'SUBMIT EXAM',
+                              text: _isPastPaper ? 'SUBMIT PAST PAPER' : 'SUBMIT EXAM',
                               onPressed: () => _submitExam(),
                               isLoading: _isSubmitting,
                             ),
@@ -607,7 +731,6 @@ class _ExamScreenState extends State<ExamScreen> {
               ],
             ),
             
-            // Pause Overlay - Hides questions when exam is paused (as per ACADIA spec)
             if (_isPaused)
               Positioned.fill(
                 child: Container(
@@ -619,11 +742,11 @@ class _ExamScreenState extends State<ExamScreen> {
                         Icon(
                           Icons.pause_circle_outline,
                           size: 100,
-                          color: Colors.white.withAlpha(((255 * 0.9)).toInt()),
+                          color: Colors.white.withOpacity(0.9),
                         ),
                         const SizedBox(height: 24),
                         const Text(
-                          'Exam Paused',
+                          'Paused',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 28,
@@ -634,7 +757,7 @@ class _ExamScreenState extends State<ExamScreen> {
                         Text(
                           'Time remaining: ${_formatTime(_remainingSeconds)}',
                           style: TextStyle(
-                            color: Colors.white.withAlpha(((255 * 0.8)).toInt()),
+                            color: Colors.white.withOpacity(0.8),
                             fontSize: 16,
                           ),
                         ),
@@ -642,7 +765,7 @@ class _ExamScreenState extends State<ExamScreen> {
                         Text(
                           'Your questions are hidden. Timer continues in background.',
                           style: TextStyle(
-                            color: Colors.white.withAlpha(((255 * 0.6)).toInt()),
+                            color: Colors.white.withOpacity(0.6),
                             fontSize: 14,
                           ),
                           textAlign: TextAlign.center,
@@ -652,7 +775,7 @@ class _ExamScreenState extends State<ExamScreen> {
                           onPressed: _togglePause,
                           icon: const Icon(Icons.play_arrow, size: 24),
                           label: const Text(
-                            'Resume Exam',
+                            'Resume',
                             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                           style: ElevatedButton.styleFrom(
@@ -681,12 +804,12 @@ class _ExamScreenState extends State<ExamScreen> {
     final optionLabels = ['A', 'B', 'C', 'D'];
     final hasAnswered = _answers[_currentQuestion] != null;
     final isCorrectAnswer = _immediateFeedback && hasAnswered && _answerResults[_currentQuestion] == true;
-    final isWrongAnswer = _immediateFeedback && hasAnswered && _answerResults[_currentQuestion] == false;
+
+    final optionEntries = options.entries.toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Question Card
         Card(
           elevation: 2,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -698,7 +821,7 @@ class _ExamScreenState extends State<ExamScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withAlpha(((255 * 0.1)).toInt()),
+                    color: AppColors.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text('Question $_currentQuestion',
@@ -707,14 +830,13 @@ class _ExamScreenState extends State<ExamScreen> {
                 const SizedBox(height: 12),
                 Text(question['question']?.toString() ?? '',
                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, height: 1.4)),
-                // Result badge for immediate feedback
                 if (_immediateFeedback && hasAnswered)
                   Padding(
                     padding: const EdgeInsets.only(top: 12),
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: isCorrectAnswer ? Colors.green.withAlpha(((255 * 0.1)).toInt()) : Colors.red.withAlpha(((255 * 0.1)).toInt()),
+                        color: isCorrectAnswer ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
@@ -748,32 +870,31 @@ class _ExamScreenState extends State<ExamScreen> {
             style: TextStyle(color: Colors.grey[600], fontSize: 14)),
         const SizedBox(height: 12),
         
-        ...options.entries.toList().asMap().entries.map((entry) {
+        ...optionEntries.asMap().entries.map((entry) {
           final optionIndex = entry.key;
           final optionEntry = entry.value;
-          final label = optionLabels[optionIndex];
           final optionText = optionEntry.value?.toString() ?? '';
+          final label = optionLabels[optionIndex];
           final isSelected = _selectedAnswer == optionText;
 
-          // Immediate feedback colors
           Color? optionColor;
           IconData? feedbackIcon;
           Color? feedbackColor;
 
           if (_immediateFeedback && hasAnswered) {
-            final correctAnswer = question['correct_answer']?.toString() ?? '';
+            final correctAnswer = _getCorrectAnswer(question);
             final isCorrect = (optionText == correctAnswer);
 
             if (isSelected && isCorrect) {
-              optionColor = Colors.green.withAlpha(((255 * 0.15)).toInt());
+              optionColor = Colors.green.withOpacity(0.15);
               feedbackIcon = Icons.check_circle;
               feedbackColor = Colors.green;
             } else if (isSelected && !isCorrect) {
-              optionColor = Colors.red.withAlpha(((255 * 0.15)).toInt());
+              optionColor = Colors.red.withOpacity(0.15);
               feedbackIcon = Icons.cancel;
               feedbackColor = Colors.red;
             } else if (!isSelected && isCorrect) {
-              optionColor = Colors.green.withAlpha(((255 * 0.1)).toInt());
+              optionColor = Colors.green.withOpacity(0.1);
               feedbackIcon = Icons.check_circle_outline;
               feedbackColor = Colors.green;
             }
@@ -787,7 +908,7 @@ class _ExamScreenState extends State<ExamScreen> {
               child: Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: optionColor ?? (isSelected ? AppColors.primary.withAlpha(((255 * 0.08)).toInt()) : Colors.grey[50]),
+                  color: optionColor ?? (isSelected ? AppColors.primary.withOpacity(0.08) : Colors.grey[50]),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: isSelected ? AppColors.primary : Colors.grey[200]!,
@@ -831,8 +952,6 @@ class _ExamScreenState extends State<ExamScreen> {
           );
         }),
 
-        // Show Explanation Button (only in Immediate Feedback Mode)
-        // According to ACADIA spec, explanation appears on the same screen when "Show Explanation" is tapped
         if (_immediateFeedback && hasAnswered)
           Padding(
             padding: const EdgeInsets.only(top: 16),
@@ -853,9 +972,9 @@ class _ExamScreenState extends State<ExamScreen> {
                     style: const TextStyle(fontSize: 13),
                   ),
                   style: OutlinedButton.styleFrom(
-                    backgroundColor: AppColors.primary.withAlpha(((255 * 0.05)).toInt()),
+                    backgroundColor: AppColors.primary.withOpacity(0.05),
                     foregroundColor: AppColors.primary,
-                    side: BorderSide(color: AppColors.primary.withAlpha(((255 * 0.3)).toInt())),
+                    side: BorderSide(color: AppColors.primary.withOpacity(0.3)),
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   ),
                 ),
@@ -864,9 +983,9 @@ class _ExamScreenState extends State<ExamScreen> {
                     margin: const EdgeInsets.only(top: 12),
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.blue.withAlpha(((255 * 0.05)).toInt()),
+                      color: Colors.blue.withOpacity(0.05),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.blue.withAlpha(((255 * 0.2)).toInt())),
+                      border: Border.all(color: Colors.blue.withOpacity(0.2)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

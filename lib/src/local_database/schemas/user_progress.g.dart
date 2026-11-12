@@ -15,7 +15,7 @@ extension GetUserProgressCollection on Isar {
 
 const UserProgressSchema = CollectionSchema(
   name: r'UserProgress',
-  id: 5547942932469550,
+  id: 518958300452706037,
   properties: {
     r'averageScore': PropertySchema(
       id: 0,
@@ -65,7 +65,7 @@ const UserProgressSchema = CollectionSchema(
   idName: r'id',
   indexes: {
     r'userId': IndexSchema(
-      id: -2778856404866178,
+      id: -2005826577402374815,
       name: r'userId',
       unique: false,
       replace: false,

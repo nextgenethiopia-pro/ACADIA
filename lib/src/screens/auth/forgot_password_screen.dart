@@ -121,7 +121,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               child: Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withAlpha(((255 * 0.1)).toInt()),
+                  color: AppColors.primary.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -167,7 +167,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: AppColors.primary, width: 2),
+                borderSide: const BorderSide(color: AppColors.primary, width: 2),
               ),
             ),
             validator: (value) {
@@ -256,7 +256,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           child: Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Colors.green.withAlpha(((255 * 0.1)).toInt()),
+              color: Colors.green.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -283,9 +283,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: AppColors.primary.withAlpha(((255 * 0.05)).toInt()),
+            color: AppColors.primary.withOpacity(0.05),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.primary.withAlpha(((255 * 0.2)).toInt())),
+            border: Border.all(color: AppColors.primary.withOpacity(0.2)),
           ),
           child: Column(
             children: [
@@ -308,9 +308,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.blue.withAlpha(((255 * 0.05)).toInt()),
+            color: Colors.blue.withOpacity(0.05),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.blue.withAlpha(((255 * 0.2)).toInt())),
+            border: Border.all(color: Colors.blue.withOpacity(0.2)),
           ),
           child: Column(
             children: [

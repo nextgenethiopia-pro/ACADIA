@@ -15,7 +15,7 @@ extension GetStudyStreakCollection on Isar {
 
 const StudyStreakSchema = CollectionSchema(
   name: r'StudyStreak',
-  id: 5051820796139719,
+  id: 1590318889630554135,
   properties: {
     r'currentStreak': PropertySchema(
       id: 0,

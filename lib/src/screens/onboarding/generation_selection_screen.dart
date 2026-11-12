@@ -149,7 +149,7 @@ class _GenerationSelectionScreenState extends State<GenerationSelectionScreen> {
         elevation: 0,
       ),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -157,17 +157,17 @@ class _GenerationSelectionScreenState extends State<GenerationSelectionScreen> {
               Text(
                 'Choose your university generation to narrow down your institution list.',
                 style: theme.textTheme.bodyLarge?.copyWith(
-                  color: theme.textTheme.bodyMedium?.color?.withAlpha(((255 * 0.75)).toInt()),
+                  color: theme.textTheme.bodyMedium?.color?.withOpacity(0.75),
                 ),
               ),
               const SizedBox(height: 18),
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withAlpha(((255 * 0.06)).toInt()),
+                  color: AppColors.primary.withOpacity(0.06),
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                    color: AppColors.primary.withAlpha(((255 * 0.12)).toInt()),
+                    color: AppColors.primary.withOpacity(0.12),
                   ),
                 ),
                 child: Row(
@@ -196,7 +196,8 @@ class _GenerationSelectionScreenState extends State<GenerationSelectionScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              Expanded(
+              SizedBox(
+                height: 400,
                 child: ListView.separated(
                   itemCount: _generations.length,
                   separatorBuilder: (_, __) => const SizedBox(height: 14),
@@ -250,7 +251,7 @@ class _GenerationSelectionScreenState extends State<GenerationSelectionScreen> {
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
           color:
-              isSelected ? AppColors.primary.withAlpha(((255 * 0.06)).toInt()) : Colors.white,
+              isSelected ? AppColors.primary.withOpacity(0.06) : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected ? AppColors.primary : Colors.grey.shade300,
@@ -259,8 +260,8 @@ class _GenerationSelectionScreenState extends State<GenerationSelectionScreen> {
           boxShadow: [
             BoxShadow(
               color: isSelected
-                  ? AppColors.primary.withAlpha(((255 * 0.12)).toInt())
-                  : Colors.black.withAlpha(((255 * 0.04)).toInt()),
+                  ? AppColors.primary.withOpacity(0.12)
+                  : Colors.black.withOpacity(0.04),
               blurRadius: isSelected ? 18 : 10,
               offset: const Offset(0, 6),
             ),
@@ -273,7 +274,7 @@ class _GenerationSelectionScreenState extends State<GenerationSelectionScreen> {
               width: 54,
               height: 54,
               decoration: BoxDecoration(
-                color: AppColors.primary.withAlpha((255 * (isSelected ? 0.16 : 0.08)).toInt()),
+                color: AppColors.primary.withOpacity(isSelected ? 0.16 : 0.08),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Icon(

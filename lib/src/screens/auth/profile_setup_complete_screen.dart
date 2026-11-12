@@ -203,7 +203,7 @@ class _ProfileSetupCompleteScreenState
                     child: Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: Colors.green.withAlpha(((255 * 0.1)).toInt()),
+                        color: Colors.green.withOpacity(0.1),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -239,13 +239,13 @@ class _ProfileSetupCompleteScreenState
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          AppColors.primary.withAlpha(((255 * 0.1)).toInt()),
-                          AppColors.primary.withAlpha(((255 * 0.05)).toInt()),
+                          AppColors.primary.withOpacity(0.1),
+                          AppColors.primary.withOpacity(0.05),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: AppColors.primary.withAlpha(((255 * 0.2)).toInt()),
+                        color: AppColors.primary.withOpacity(0.2),
                       ),
                     ),
                     child: Column(
@@ -255,7 +255,7 @@ class _ProfileSetupCompleteScreenState
                             Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: AppColors.primary.withAlpha(((255 * 0.15)).toInt()),
+                                color: AppColors.primary.withOpacity(0.15),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: const Icon(
@@ -306,10 +306,10 @@ class _ProfileSetupCompleteScreenState
                             vertical: 8,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.amber.withAlpha(((255 * 0.15)).toInt()),
+                            color: Colors.amber.withOpacity(0.15),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: Colors.amber.withAlpha(((255 * 0.3)).toInt()),
+                              color: Colors.amber.withOpacity(0.3),
                             ),
                           ),
                           child: Row(
@@ -343,10 +343,10 @@ class _ProfileSetupCompleteScreenState
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.blue.withAlpha(((255 * 0.08)).toInt()),
+                      color: Colors.blue.withOpacity(0.08),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: Colors.blue.withAlpha(((255 * 0.18)).toInt()),
+                        color: Colors.blue.withOpacity(0.18),
                       ),
                     ),
                     child: Column(

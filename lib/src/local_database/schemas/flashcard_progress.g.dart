@@ -15,7 +15,7 @@ extension GetFlashcardProgressCollection on Isar {
 
 const FlashcardProgressSchema = CollectionSchema(
   name: r'FlashcardProgress',
-  id: -1802558487123712,
+  id: -8780216714885342513,
   properties: {
     r'cardId': PropertySchema(
       id: 0,

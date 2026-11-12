@@ -4,8 +4,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:acadia/src/core/blocs/theme/theme_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:acadia/src/core/constants/colors.dart';
-import 'package:acadia/src/core/services/offline_database.dart';
+import 'package:acadia/src/local_database/isar_service.dart';
 import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AppSettingsScreen extends StatefulWidget {
   const AppSettingsScreen({super.key});
@@ -15,6 +16,7 @@ class AppSettingsScreen extends StatefulWidget {
 }
 
 class _AppSettingsScreenState extends State<AppSettingsScreen> {
+  final IsarService _isarService = IsarService.instance;
   bool _isDarkMode = false;
   bool _pushNotifications = true;
   bool _autoDownload = false;
@@ -48,16 +50,17 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
   Future<void> _calculateStorageUsage() async {
     setState(() => _isLoadingStorage = true);
     try {
-      final offlineDb = OfflineDatabase.instance;
-      final db = await offlineDb.database;
-      
-      // Get all downloaded content
-      final downloads = await db.query('offline_content');
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        setState(() => _isLoadingStorage = false);
+        return;
+      }
+
+      final downloads = await _isarService.getAllDownloadedContent(user.uid);
       
       double totalSizeMB = 0;
       for (final download in downloads) {
-        final fileSize = download['file_size_bytes'] as int? ?? 0;
-        totalSizeMB += fileSize / (1024 * 1024);
+        totalSizeMB += download.fileSize / (1024 * 1024);
       }
       
       setState(() {
@@ -84,13 +87,14 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
 
   Future<void> _clearCache() async {
     try {
-      final offlineDb = OfflineDatabase.instance;
-      final db = await offlineDb.database;
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+
+      final downloads = await _isarService.getAllDownloadedContent(user.uid);
       
       // Delete all downloaded files
-      final downloads = await db.query('offline_content');
       for (final download in downloads) {
-        final filePath = download['local_path'] as String?;
+        final filePath = download.contentPath;
         if (filePath != null) {
           final file = File(filePath);
           if (await file.exists()) {
@@ -100,7 +104,12 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
       }
       
       // Clear database records
-      await db.delete('offline_content');
+      for (final download in downloads) {
+        final contentId = download.contentId;
+        if (contentId != null) {
+          await _isarService.deleteDownloadedContent(contentId, user.uid);
+        }
+      }
       
       await _calculateStorageUsage();
       
@@ -182,7 +191,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
                 _saveSetting('dark_mode', value);
                 context.read<ThemeBloc>().add(ThemeSet(isDark: value));
               },
-              activeColor: AppColors.primary,
+              activeThumbColor: AppColors.primary,
             ),
           ),
 
@@ -197,7 +206,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
             trailing: Switch(
               value: _pushNotifications,
               onChanged: (value) => _saveSetting('notifications_enabled', value),
-              activeColor: AppColors.primary,
+              activeThumbColor: AppColors.primary,
             ),
           ),
 
@@ -224,7 +233,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
             trailing: Switch(
               value: _autoDownload,
               onChanged: (value) => _saveSetting('auto_download', value),
-              activeColor: AppColors.primary,
+              activeThumbColor: AppColors.primary,
             ),
           ),
           _buildSettingTile(
@@ -234,7 +243,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
             trailing: Switch(
               value: _dataSaverMode,
               onChanged: (value) => _saveSetting('data_saver', value),
-              activeColor: AppColors.primary,
+              activeThumbColor: AppColors.primary,
             ),
           ),
 
@@ -248,7 +257,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
               gradient: LinearGradient(
                 colors: [
                   theme.cardColor,
-                  isStorageWarning ? Colors.orange.withAlpha(((255 * 0.05)).toInt()) : theme.cardColor,
+                  isStorageWarning ? Colors.orange.withOpacity(0.05) : theme.cardColor,
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -256,7 +265,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withAlpha(((255 * 0.02)).toInt()),
+                  color: Colors.black.withOpacity(0.02),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -270,7 +279,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.storage, color: AppColors.primary, size: 20),
+                        const Icon(Icons.storage, color: AppColors.primary, size: 20),
                         const SizedBox(width: 8),
                         Text(
                           'Storage Usage',
@@ -284,7 +293,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: isStorageCritical ? Colors.red.withAlpha(((255 * 0.1)).toInt()) : Colors.orange.withAlpha(((255 * 0.1)).toInt()),
+                          color: isStorageCritical ? Colors.red.withOpacity(0.1) : Colors.orange.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
@@ -342,7 +351,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
                         icon: const Icon(Icons.cleaning_services, size: 18),
                         label: const Text('Clear Cache'),
                         style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: Colors.red.withAlpha(((255 * 0.5)).toInt())),
+                          side: BorderSide(color: Colors.red.withOpacity(0.5)),
                           foregroundColor: Colors.red,
                         ),
                       ),
@@ -365,13 +374,36 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
             ),
           ),
 
+          const SizedBox(height: 24),
+
+          // About & Legal Section
+          _buildSectionHeader('About & Legal'),
+          _buildSettingTile(
+            icon: Icons.info_outline,
+            title: 'About ACADIA',
+            subtitle: 'Version, developer and contact information',
+            onTap: () => context.push('/settings/about'),
+          ),
+          _buildSettingTile(
+            icon: Icons.privacy_tip_outlined,
+            title: 'Privacy Policy',
+            subtitle: 'How ACADIA handles your information',
+            onTap: () => context.push('/settings/privacy'),
+          ),
+          _buildSettingTile(
+            icon: Icons.description_outlined,
+            title: 'Terms of Service',
+            subtitle: 'Rules for using the ACADIA app',
+            onTap: () => context.push('/settings/terms'),
+          ),
+
           const SizedBox(height: 32),
 
           // Reset Button
           Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.red.withAlpha(((255 * 0.3)).toInt())),
+              border: Border.all(color: Colors.red.withOpacity(0.3)),
             ),
             child: ListTile(
               leading: const Icon(Icons.restore, color: Colors.red),
@@ -447,7 +479,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppColors.primary.withAlpha(((255 * 0.1)).toInt()),
+            color: AppColors.primary.withOpacity(0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(icon, color: AppColors.primary, size: 20),

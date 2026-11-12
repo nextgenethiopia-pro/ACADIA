@@ -1,3 +1,5 @@
+// lib/src/core/di/injection.dart
+
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:acadia/src/local_database/isar_service.dart';
@@ -16,7 +18,6 @@ import '../services/package_service.dart';
 import '../services/profile_storage_service.dart';
 import '../services/progress_tracking_service.dart';
 import '../../data/repositories/auth_repository_impl.dart';
-import '../../data/repositories/content_repository_impl.dart';
 import '../../data/repositories/download_repository_impl.dart';
 import '../../data/repositories/github_content_repository_impl.dart';
 import '../../data/repositories/notification_repository_impl.dart';
@@ -26,7 +27,6 @@ import '../../data/repositories/profile_repository_impl.dart';
 import '../../data/repositories/progress_repository_impl.dart';
 import '../../data/repositories/user_repository_impl.dart';
 import '../../domain/repositories/auth_repository.dart';
-import '../../domain/repositories/content_repository.dart';
 import '../../domain/repositories/download_repository.dart';
 import '../../domain/repositories/github_content_repository.dart';
 import '../../domain/repositories/notification_repository.dart';
@@ -35,6 +35,9 @@ import '../../domain/repositories/payment_repository.dart';
 import '../../domain/repositories/profile_repository.dart';
 import '../../domain/repositories/progress_repository.dart';
 import '../../domain/repositories/user_repository.dart';
+
+// ❌ REMOVED: import '../../domain/repositories/entrance_repository.dart';
+// ❌ REMOVED: import '../../data/repositories/entrance_repository_impl.dart';
 
 final GetIt getIt = GetIt.instance;
 
@@ -75,8 +78,6 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton<NotificationService>(() => NotificationService());
   getIt.registerLazySingleton<ProfileStorageService>(
       () => ProfileStorageService());
-  // ImgbbService exposes only static methods (used directly in payment_screen),
-  // so it is intentionally NOT registered here.
   getIt.registerLazySingleton<ContentConfigService>(() => ContentConfigService());
   getIt.registerLazySingleton<ProgressTrackingService>(
       () => ProgressTrackingService());
@@ -89,9 +90,7 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton<PackageRepository>(
     () => PackageRepositoryImpl(getIt<PackageService>()),
   );
-  getIt.registerLazySingleton<ContentRepository>(
-    () => ContentRepositoryImpl(getIt<FirebaseService>()),
-  );
+
   getIt.registerLazySingleton<GithubContentRepository>(
     () => GithubContentRepositoryImpl(getIt<GithubContentService>()),
   );
@@ -102,7 +101,7 @@ Future<void> configureDependencies() async {
     () => NotificationRepositoryImpl(getIt<FirebaseService>()),
   );
   getIt.registerLazySingleton<ProgressRepository>(
-    () => ProgressRepositoryImpl(getIt<FirebaseService>()),
+    () => ProgressRepositoryImpl(),
   );
   getIt.registerLazySingleton<UserRepository>(
     () => UserRepositoryImpl(getIt<FirebaseService>()),
@@ -110,10 +109,15 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton<DownloadRepository>(
     () => DownloadRepositoryImpl(
       getIt<DownloadManager>(),
-      getIt<OfflineDatabase>(),
+      getIt<IsarService>(),
     ),
   );
   getIt.registerLazySingleton<ProfileRepository>(
     () => ProfileRepositoryImpl(getIt<ProfileStorageService>()),
   );
+
+  // ❌ REMOVED: EntranceRepository registration
+  // getIt.registerLazySingleton<EntranceRepository>(
+  //   () => EntranceRepositoryImpl(isar: getIt<IsarService>(), client: http.Client()),
+  // );
 }

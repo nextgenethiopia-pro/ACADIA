@@ -16,7 +16,6 @@ class ContentStructure {
   /// Order matches the Chapter Content screen's display order:
   /// Video -> Short Note -> Quiz -> Exam -> Flashcard -> Past Paper.
   static const List<String> defaultContentTypes = [
-    'video',
     'short_note',
     'quiz',
     'exam',
@@ -75,7 +74,7 @@ class ContentStructure {
   }
 
   /// Returns true if [contentType] is one of the recognized content types
-  /// (video, short_note, quiz, exam, flashcard, past_paper).
+  /// (short_note, quiz, exam, flashcard, past_paper).
   static bool isValidContentType(String contentType) {
     return defaultContentTypes.contains(contentType);
   }

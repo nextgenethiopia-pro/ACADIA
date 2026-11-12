@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,6 +12,8 @@ import 'package:acadia/src/core/constants/colors.dart';
 import 'package:acadia/src/core/constants/payment_methods.dart';
 import 'package:acadia/src/core/services/firebase_service.dart';
 import 'package:acadia/src/core/services/imgbb_service.dart';
+import 'package:acadia/src/core/services/package_service.dart';
+import 'package:acadia/src/core/services/payment_notification_service.dart';
 import 'package:acadia/src/widgets/common/gradient_button.dart';
 
 class PaymentScreen extends StatefulWidget {
@@ -76,6 +79,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
           prefs.getString('university');
 
       _determinePackage();
+      _packagePrice = await _resolvePackagePrice();
 
       if (mounted) {
         setState(() => _isLoading = false);
@@ -94,7 +98,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     final semester = (_userSemester ?? '').trim();
     final track = (_userTrack ?? '').toLowerCase();
 
-    if (path == 'HIGH SCHOOL') {
+    if (path == 'HIGH SCHOOL' || _userGrade != null) {
       switch (_userGrade) {
         case '9':
           _packageName = 'Grade 9 Package';
@@ -113,7 +117,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
               : 'Grade 12 Natural Science Package';
           break;
         default:
-          _packageName = 'High School Package';
+          _packageName = 'Grade 9 Package';
       }
     } else {
       if (semester == '2') {
@@ -130,20 +134,69 @@ class _PaymentScreenState extends State<PaymentScreen> {
     _packagePrice = 300;
   }
 
+  Future<int> _resolvePackagePrice() async {
+    final prefs = await SharedPreferences.getInstance();
+    final grade = prefs.getString('grade') ?? _userGrade ?? '9';
+    final schoolLevel = prefs.getString('academic_level') ?? (_userPath?.toLowerCase() ?? 'high_school');
+    return PackageService().getPackagePrice(grade: grade, schoolLevel: schoolLevel);
+  }
+
   Map<String, String> _selectedMethodData() {
     return PaymentMethods.getMethodById(_selectedMethod) ??
         PaymentMethods.allMethods.first;
   }
 
-  IconData _iconForMethod(String icon) {
-    switch (icon) {
-      case 'phone':
-      case 'phone_android':
-        return Icons.phone_android;
-      case 'account_balance':
+  /// Brand logo for each payment method (bundled from assets/icons).
+  String? _methodIconAsset(String methodId) {
+    switch (methodId) {
+      case 'telebirr':
+        return 'assets/icons/telebirr_icon.png';
+      case 'mpesa':
+        return 'assets/icons/m-pesa_icon.png';
+      case 'cbe':
+        return 'assets/icons/cbe_birr_icon.png';
+      case 'cbo':
+        return 'assets/icons/cbo_bank_icon.png';
+      case 'awash':
+        return 'assets/icons/awash_bank_icon.png';
       default:
-        return Icons.account_balance;
+        return null;
     }
+  }
+
+  Widget _buildMethodIcon(String methodId, {double size = 24}) {
+    final asset = _methodIconAsset(methodId);
+    if (asset == null) {
+      return Icon(Icons.account_balance, size: size, color: AppColors.primary);
+    }
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(size * 0.22),
+      child: Image.asset(
+        asset,
+        width: size,
+        height: size,
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) => Icon(
+          Icons.account_balance,
+          size: size,
+          color: AppColors.primary,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _copyToClipboard(String value, {String label = 'Account number'}) async {
+    if (value.trim().isEmpty) return;
+    await Clipboard.setData(ClipboardData(text: value.trim()));
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$label copied: ${value.trim()}'),
+        backgroundColor: AppColors.primary,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 
   String _accountLabelForMethod(String methodId) {
@@ -205,27 +258,28 @@ class _PaymentScreenState extends State<PaymentScreen> {
     }
   }
 
-  Future<String?> _uploadReceiptToImgBB(File file) async {
-    try {
-      if (mounted) {
-        setState(() {
-          _isUploading = true;
-          _uploadProgress = 0.2;
-        });
-      }
+  Future<String> _uploadReceiptToImgBB(File file) async {
+    if (mounted) {
+      setState(() {
+        _isUploading = true;
+        _uploadProgress = 0.2;
+      });
+    }
 
+    try {
       final url = await ImgbbService.uploadImage(file);
 
       if (mounted) {
         setState(() {
-          _uploadProgress = url == null ? 0 : 1;
+          _uploadProgress = 1;
         });
       }
 
       return url;
-    } catch (e) {
-      debugPrint('ImgBB upload error: $e');
-      return null;
+    } catch (e, stackTrace) {
+      debugPrint('[PaymentScreen] receipt upload failed: $e');
+      debugPrint('$stackTrace');
+      rethrow;
     } finally {
       if (mounted) {
         setState(() {
@@ -248,10 +302,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
     try {
       final uploadedUrl = await _uploadReceiptToImgBB(_receiptFile!);
 
-      if (uploadedUrl == null || uploadedUrl.isEmpty) {
-        throw Exception('Receipt upload failed. Please try again.');
-      }
-
       final user = FirebaseAuth.instance.currentUser;
       final firebase = FirebaseService();
 
@@ -259,6 +309,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         'user_id': user?.uid,
         'user_email': user?.email,
         'user_name': user?.displayName ?? 'Student',
+        'user_phone': _senderAccountController.text.trim(),
         'academic_path': _userPath,
         'grade': _userGrade,
         'stream': _userStream,
@@ -266,6 +317,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         'track': _userTrack,
         'generation': _userGeneration,
         'university': _userUniversity,
+        'package': _packageName,
         'package_name': _packageName,
         'amount': _packagePrice,
         'payment_method': _selectedMethod,
@@ -274,12 +326,33 @@ class _PaymentScreenState extends State<PaymentScreen> {
         'sender_account': _senderAccountController.text.trim(),
         'transaction_ref': _transactionRefController.text.trim(),
         'receipt_url': uploadedUrl,
+        'screenshot_url': uploadedUrl,
         'status': 'pending',
         'uploaded_via': 'imgbb',
+        'submission_date': DateTime.now().toIso8601String(),
         'created_at': DateTime.now().toIso8601String(),
       }..removeWhere((key, value) => value == null);
 
-      await firebase.addDocument('payments', paymentData);
+      if (kDebugMode) {
+        print('Submitting payment data: $paymentData');
+      }
+      final paymentId = await firebase.addDocument('payments', paymentData);
+
+      // Forward the payment to the administrator on Telegram through the
+      // backend. A notification failure must never block a submitted payment.
+      await PaymentNotificationService().notifyPaymentSubmitted(
+        userId: user?.uid ?? '',
+        paymentId: paymentId,
+        amount: _packagePrice,
+        method: _selectedMethod,
+        reference: _transactionRefController.text.trim(),
+        packageName: _packageName,
+        userName: user?.displayName ?? 'Student',
+        userEmail: user?.email,
+        userPhone: _senderAccountController.text.trim(),
+        screenshotUrl: uploadedUrl,
+        submittedAt: paymentData['submission_date'] as String?,
+      );
 
       if (!mounted) return;
       setState(() {
@@ -435,7 +508,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   LinearProgressIndicator(
                     value: _uploadProgress <= 0 ? null : _uploadProgress,
                     color: AppColors.primary,
-                    backgroundColor: AppColors.primary.withAlpha(((255 * 0.12)).toInt()),
+                    backgroundColor: AppColors.primary.withOpacity(0.12),
                     borderRadius: BorderRadius.circular(999),
                     minHeight: 8,
                   ),
@@ -503,9 +576,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.primary.withAlpha(((255 * 0.06)).toInt()),
+        color: AppColors.primary.withOpacity(0.06),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.primary.withAlpha(((255 * 0.14)).toInt())),
+        border: Border.all(color: AppColors.primary.withOpacity(0.14)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -607,7 +680,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? AppColors.primary.withAlpha(((255 * 0.08)).toInt())
+                      ? AppColors.primary.withOpacity(0.08)
                       : Colors.white,
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
@@ -619,12 +692,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      _iconForMethod(method['icon'] ?? ''),
-                      size: 18,
-                      color:
-                          isSelected ? AppColors.primary : Colors.grey.shade700,
-                    ),
+                    _buildMethodIcon(id, size: 20),
                     const SizedBox(width: 8),
                     Text(
                       method['name'] ?? '',
@@ -653,7 +721,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(((255 * 0.03)).toInt()),
+            color: Colors.black.withOpacity(0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -664,7 +732,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
         children: [
           Row(
             children: [
-              Icon(_iconForMethod(method['icon'] ?? ''), color: accent),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: accent.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: _buildMethodIcon(method['id'] ?? '', size: 26),
+              ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
@@ -679,14 +754,17 @@ class _PaymentScreenState extends State<PaymentScreen> {
           ),
           const SizedBox(height: 16),
           _buildInfoRow(
-              _accountLabelForMethod(_selectedMethod), method['account'] ?? ''),
+            _accountLabelForMethod(_selectedMethod),
+            method['account'] ?? '',
+            copyable: true,
+          ),
           const SizedBox(height: 10),
           _buildInfoRow('Account Holder', method['holder'] ?? ''),
           const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: AppColors.primary.withAlpha(((255 * 0.06)).toInt()),
+              color: AppColors.primary.withOpacity(0.06),
               borderRadius: BorderRadius.circular(14),
             ),
             child: Text(
@@ -786,10 +864,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
               width: double.infinity,
               height: 220,
               decoration: BoxDecoration(
-                color: AppColors.primary.withAlpha(((255 * 0.05)).toInt()),
+                color: AppColors.primary.withOpacity(0.05),
                 borderRadius: BorderRadius.circular(18),
                 border: Border.all(
-                  color: AppColors.primary.withAlpha(((255 * 0.14)).toInt()),
+                  color: AppColors.primary.withOpacity(0.14),
                   style: BorderStyle.solid,
                 ),
               ),
@@ -937,8 +1015,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-  Widget _buildInfoRow(String label, String value) {
-    return Row(
+  Widget _buildInfoRow(String label, String value, {bool copyable = false}) {
+    final valueStyle = const TextStyle(
+      fontWeight: FontWeight.w700,
+      color: Colors.black87,
+    );
+
+    final row = Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
@@ -953,15 +1036,30 @@ class _PaymentScreenState extends State<PaymentScreen> {
         ),
         const SizedBox(width: 10),
         Expanded(
-          child: SelectableText(
-            value,
-            style: const TextStyle(
-              fontWeight: FontWeight.w700,
-              color: Colors.black87,
-            ),
-          ),
+          child: copyable
+              ? Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Flexible(child: SelectableText(value, style: valueStyle)),
+                    const SizedBox(width: 8),
+                    Icon(Icons.copy_rounded,
+                        size: 16, color: AppColors.primary),
+                  ],
+                )
+              : SelectableText(value, style: valueStyle),
         ),
       ],
+    );
+
+    if (!copyable) return row;
+
+    return InkWell(
+      onTap: () => _copyToClipboard(value),
+      borderRadius: BorderRadius.circular(10),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2),
+        child: row,
+      ),
     );
   }
 }

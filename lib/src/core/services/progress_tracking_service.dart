@@ -146,43 +146,49 @@ class ProgressTrackingService {
   /// Record study time (in seconds)
   Future<void> recordStudyTime(int seconds) async {
     final user = _auth.currentUser;
-    if (user == null) return;
+    final uid = user?.uid ?? 'local_user';
 
-    await _isarService.updateStudyTime(user.uid, seconds);
+    await _isarService.updateStudyTime(uid, seconds);
 
     // Record weekly activity (convert seconds to hours)
     final hours = seconds / 3600;
-    await _isarService.recordWeeklyActivity(user.uid, hours);
+    await _isarService.recordWeeklyActivity(uid, hours);
 
-    await _syncProgressToFirebase();
+    if (user != null) {
+      await _syncProgressToFirebase();
+    }
   }
 
   /// Mark a lesson as completed
   Future<void> completeLesson(String subject, int totalLessons) async {
     final user = _auth.currentUser;
-    if (user == null) return;
+    final uid = user?.uid ?? 'local_user';
 
-    await _isarService.incrementLessonsCompleted(user.uid);
-    await _isarService.updateSubjectProgress(user.uid, subject, totalLessons);
-    await _syncProgressToFirebase();
+    await _isarService.incrementLessonsCompleted(uid);
+    await _isarService.updateSubjectProgress(uid, subject, totalLessons);
+    if (user != null) {
+      await _syncProgressToFirebase();
+    }
   }
 
   /// Mark a chapter as completed
   Future<void> completeChapter(String chapterId, String subject) async {
     final user = _auth.currentUser;
-    if (user == null) return;
+    final uid = user?.uid ?? 'local_user';
 
-    await _isarService.markChapterCompleted(user.uid, chapterId);
+    await _isarService.markChapterCompleted(uid, chapterId);
     await completeLesson(subject, 1); // Increment lesson count
   }
 
   /// Record quiz score (0-100)
   Future<void> recordQuizScore(int score) async {
     final user = _auth.currentUser;
-    if (user == null) return;
+    final uid = user?.uid ?? 'local_user';
 
-    await _isarService.updateQuizScore(user.uid, score);
-    await _syncProgressToFirebase();
+    await _isarService.updateQuizScore(uid, score);
+    if (user != null) {
+      await _syncProgressToFirebase();
+    }
   }
 
   /// Record exam score (0-100)
@@ -193,25 +199,27 @@ class ProgressTrackingService {
   /// Record weekly activity
   Future<void> recordWeeklyActivity(double hours) async {
     final user = _auth.currentUser;
-    if (user == null) return;
+    final uid = user?.uid ?? 'local_user';
 
-    await _isarService.recordWeeklyActivity(user.uid, hours);
-    await _syncProgressToFirebase();
+    await _isarService.recordWeeklyActivity(uid, hours);
+    if (user != null) {
+      await _syncProgressToFirebase();
+    }
   }
 
   /// Get subject progress list
   Future<List<Map<String, dynamic>>> getSubjectProgress() async {
     final user = _auth.currentUser;
-    if (user == null) return [];
-    return await _isarService.getSubjectProgress(user.uid);
+    final uid = user?.uid ?? 'local_user';
+    return await _isarService.getSubjectProgress(uid);
   }
 
   /// Get weekly activity data for chart
   Future<Map<String, double>> getWeeklyActivityForChart() async {
     final user = _auth.currentUser;
-    if (user == null) return {};
+    final uid = user?.uid ?? 'local_user';
 
-    final weeklyActivity = await _isarService.getWeeklyActivity(user.uid);
+    final weeklyActivity = await _isarService.getWeeklyActivity(uid);
     final result = <String, double>{};
     final days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 

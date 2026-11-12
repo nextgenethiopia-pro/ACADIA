@@ -1,19 +1,23 @@
-import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:acadia/src/core/services/firebase_service.dart';
-import 'package:acadia/src/core/services/offline_database.dart';
-import 'package:acadia/src/core/services/download_manager.dart';
 import 'package:acadia/src/core/constants/colors.dart';
+import 'package:acadia/src/core/di/injection.dart';
+import 'package:acadia/src/domain/repositories/github_content_repository.dart';
+
+import 'package:acadia/src/core/constants/academic_structure.dart';
 
 class EntranceExamScreen extends StatefulWidget {
-  final String? subject;
-  final String? stream;
-  final String? grade;
+  final String? initialSubject;
+  final String? initialGrade;
+  final String? initialStream;
 
-  const EntranceExamScreen({super.key, this.subject, this.stream, this.grade});
+  const EntranceExamScreen({
+    super.key,
+    this.initialSubject,
+    this.initialGrade,
+    this.initialStream,
+  });
 
   @override
   State<EntranceExamScreen> createState() => _EntranceExamScreenState();
@@ -23,45 +27,78 @@ class _EntranceExamScreenState extends State<EntranceExamScreen> {
   String? _userStream;
   String? _selectedSubject;
   String? _selectedGrade;
-  List<Map<String, dynamic>> _allContent = [];
-  Map<String, List<Map<String, dynamic>>> _contentByChapter = {};
-  Set<String> _downloadedContentIds = {};
-  Map<String, double> _downloadProgress = {};
-  bool _isLoading = true;
+  String? _selectedUnit;
+  List<Map<String, dynamic>> _fetchedContent = [];
+  bool _isFetchingContent = false;
 
-  final DownloadManager _downloadManager = DownloadManager();
-  final OfflineDatabase _offlineDb = OfflineDatabase.instance;
+  // ============================================
+  // HARDCODED SUBJECTS
+  // ============================================
+  List<String> get _subjects {
+    final stream = _normalizeStream(_userStream);
+    if (stream == 'social_science') {
+      return const [
+        'Mathematics',
+        'English',
+        'Aptitude',
+        'Economics',
+        'Geography',
+        'History',
+      ];
+    }
+    return const [
+      'Mathematics',
+      'English',
+      'Physics',
+      'Chemistry',
+      'Biology',
+      'Aptitude',
+    ];
+  }
 
-  // 6 subjects per stream (from ACADIA spec)
-  final List<String> _naturalSubjects = [
-    'Mathematics', 'English', 'Biology', 'Chemistry', 'Physics', 'Aptitude'
-  ];
-  final List<String> _socialSubjects = [
-    'Mathematics', 'English', 'Aptitude', 'Economics', 'Geography', 'History'
-  ];
+  // ============================================
+  // HARDCODED GRADES (9, 10, 11, 12)
+  // ============================================
   final List<String> _grades = ['9', '10', '11', '12'];
 
-  // Chapter counts per grade and subject
-  final Map<String, Map<String, int>> _chapterCounts = {
-    '9': {
-      'Mathematics': 9, 'English': 8, 'Biology': 6, 'Chemistry': 5,
-      'Physics': 7, 'Aptitude': 2, 'Geography': 6, 'History': 9, 'Economics': 8,
-    },
-    '10': {
-      'Mathematics': 7, 'English': 10, 'Biology': 6, 'Chemistry': 6,
-      'Physics': 6, 'Aptitude': 2, 'Geography': 8, 'History': 9, 'Economics': 8,
-    },
-    '11': {
-      'Mathematics': 5, 'English': 10, 'Biology': 6, 'Chemistry': 6,
-      'Physics': 7, 'Aptitude': 2, 'Geography': 8, 'History': 9, 'Economics': 7,
-    },
-    '12': {
-      'Mathematics': 5, 'English': 10, 'Biology': 6, 'Chemistry': 5,
-      'Physics': 5, 'Aptitude': 2, 'Geography': 8, 'History': 9, 'Economics': 8,
-    },
+  // ============================================
+  // HARDCODED UNITS PER GRADE & SUBJECT (REAL GITHUB STRUCTURE)
+  // ============================================
+  List<String> _getUnits(String subject, String grade) {
+    return AcademicStructure.getEntranceChapters(
+      grade,
+      _normalizeStream(_userStream),
+      subject,
+    );
+  }
+
+  // ============================================
+  // SUBJECT ICONS & COLORS
+  // ============================================
+  static const Map<String, IconData> _subjectIcons = {
+    'Mathematics': Icons.calculate,
+    'English': Icons.menu_book,
+    'Physics': Icons.science,
+    'Chemistry': Icons.biotech,
+    'Biology': Icons.pest_control,
+    'Aptitude': Icons.psychology,
+    'Geography': Icons.public,
+    'History': Icons.history_edu,
+    'Economics': Icons.trending_up,
   };
 
-  // Subject icons
+  static const Map<String, Color> _subjectColors = {
+    'Mathematics': Color(0xFF9C27B0),
+    'English': Color(0xFF2196F3),
+    'Physics': Color(0xFFFF9800),
+    'Chemistry': Color(0xFF4CAF50),
+    'Biology': Color(0xFFE91E63),
+    'Aptitude': Color(0xFF708090),
+    'Geography': Color(0xFF009688),
+    'History': Color(0xFF795548),
+    'Economics': Color(0xFFFF5722),
+  };
+
   static const Map<String, String> _subjectIconAssets = {
     'Mathematics': 'assets/icons/subjects_icon/Math_icon.jpg',
     'English': 'assets/icons/subjects_icon/English_icon.jpg',
@@ -74,209 +111,198 @@ class _EntranceExamScreenState extends State<EntranceExamScreen> {
     'Economics': 'assets/icons/subjects_icon/Economics_icon.jpg',
   };
 
-  static const Map<String, Color> _subjectColors = {
-    'Mathematics': Color(0xFF093C5D),
-    'English': Color(0xFF093C5D),
-    'Physics': Color(0xFF093C5D),
-    'Chemistry': Color(0xFF093C5D),
-    'Biology': Color(0xFF093C5D),
-    'Aptitude': Color(0xFF093C5D),
-    'Geography': Color(0xFF093C5D),
-    'History': Color(0xFF093C5D),
-    'Economics': Color(0xFF093C5D),
-  };
-
   @override
   void initState() {
     super.initState();
-    _selectedSubject = widget.subject;
-    _selectedGrade = widget.grade;
     _loadData();
   }
 
   Future<void> _loadData() async {
-    setState(() => _isLoading = true);
     try {
       final prefs = await SharedPreferences.getInstance();
-      _userStream = widget.stream ?? prefs.getString('stream') ?? prefs.getString('selected_stream') ?? 'natural';
+      final stream = widget.initialStream ??
+          prefs.getString('stream') ??
+          prefs.getString('selected_stream') ??
+          'natural';
 
-      if (_selectedSubject != null && _selectedGrade != null) {
-        await _loadContentForSubjectAndGrade();
-      } else if (_selectedSubject != null) {
-        await _loadContentForSubject();
-      }
-
-      setState(() => _isLoading = false);
-    } catch (e) {
-      setState(() => _isLoading = false);
-      debugPrint('Error loading entrance exam data: $e');
-    }
-  }
-
-  Future<void> _loadContentForSubject() async {
-    try {
-      final firebase = FirebaseService();
-      final content = await firebase.getDocuments('entrance_materials', where: {
-        'type': 'entrance_exam',
-        'subject': _selectedSubject,
-        'stream': _userStream,
-        'status': 'active',
+      setState(() {
+        _userStream = stream;
+        if (widget.initialSubject != null && widget.initialSubject!.isNotEmpty) {
+          _selectedSubject = widget.initialSubject;
+        }
+        if (widget.initialGrade != null && widget.initialGrade!.isNotEmpty) {
+          _selectedGrade = widget.initialGrade;
+        }
       });
-
-      _groupContentByChapter(content);
     } catch (e) {
-      debugPrint('Error loading subject content: $e');
+      debugPrint('Error loading data: $e');
     }
   }
 
-  Future<void> _loadContentForSubjectAndGrade() async {
-    try {
-      final firebase = FirebaseService();
-      final content = await firebase.getDocuments('entrance_materials', where: {
-        'type': 'entrance_exam',
-        'subject': _selectedSubject,
-        'stream': _userStream,
-        'grade': _selectedGrade,
-        'status': 'active',
-      });
-
-      _groupContentByChapter(content);
-    } catch (e) {
-      debugPrint('Error loading grade content: $e');
-    }
-  }
-
-  Future<void> _groupContentByChapter(List<Map<String, dynamic>> content) async {
-    // Group by chapter
-    final grouped = <String, List<Map<String, dynamic>>>{};
-    for (final item in content) {
-      final chapter = item['chapter']?.toString() ?? 'Unit 1';
-      grouped.putIfAbsent(chapter, () => []);
-      grouped[chapter]!.add(item);
-    }
-
-    // Check downloads
-    final downloaded = <String>{};
-    for (final item in content) {
-      final id = item['id']?.toString() ?? '';
-      if (id.isNotEmpty && await _offlineDb.isContentDownloaded(id)) {
-        downloaded.add(id);
-      }
-    }
-
+  // ============================================
+  // FETCH CONTENT FROM GITHUB (ONLY AFTER UNIT CLICK)
+  // ============================================
+  Future<void> _fetchUnitContent(String subject, String grade, String unit) async {
     setState(() {
-      _allContent = content;
-      _contentByChapter = grouped;
-      _downloadedContentIds = downloaded;
+      _isFetchingContent = true;
+      _selectedUnit = unit;
+      _fetchedContent.clear();
     });
+
+    try {
+      final normalizedStream = _normalizeStream(_userStream);
+      final repository = getIt<GithubContentRepository>();
+      
+      final content = await repository.getEntranceExamUnitContent(
+        grade: grade,
+        subject: subject,
+        unit: unit,
+        stream: normalizedStream,
+      );
+
+      setState(() {
+        _fetchedContent = content;
+        _isFetchingContent = false;
+      });
+
+      if (_fetchedContent.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'No practice exam is published for $subject Grade $grade $unit.',
+            ),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error fetching entrance unit content: $e');
+      setState(() => _isFetchingContent = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Could not load practice exams. Please try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
-  List<String> get _subjects {
-    return _userStream == 'social' ? _socialSubjects : _naturalSubjects;
+  String _normalizeStream(String? stream) {
+    switch (stream?.trim().toLowerCase()) {
+      case 'natural':
+      case 'natural science':
+      case 'natural_science':
+        return 'natural_science';
+      case 'social':
+      case 'social science':
+      case 'social_science':
+        return 'social_science';
+      default:
+        return stream?.trim().toLowerCase().replaceAll(' ', '_') ?? '';
+    }
   }
 
-  int _getChapterCount(String subject, String grade) {
-    return _chapterCounts[grade]?[subject] ?? 5;
+  void _openContent(Map<String, dynamic> content) {
+    final contentType = content['content_type']?.toString().toLowerCase() ?? '';
+    final contentId = content['id']?.toString() ?? '';
+    final title = content['title']?.toString() ?? 'Entrance Content';
+    final downloadUrl = content['download_url']?.toString() ?? '';
+    final totalQuestions = content['total_questions'] ?? 40;
+    final timeLimitMinutes = content['time_limit_minutes'] ?? 60;
+
+    switch (contentType) {
+      case 'short_note':
+      case 'pdf':
+      case 'notes':
+        context.push('/pdf-viewer', extra: {
+          'contentId': contentId,
+          'title': title,
+          'downloadUrl': downloadUrl,
+        });
+        break;
+      case 'quiz':
+        context.push('/quiz', extra: {
+          'contentId': contentId,
+          'title': title,
+          'downloadUrl': downloadUrl,
+        });
+        break;
+      case 'video':
+        context.push('/video-player', extra: {
+          'contentId': contentId,
+          'title': title,
+          'videoUrl': downloadUrl,
+        });
+        break;
+      case 'flashcard':
+        context.push('/flashcard', extra: {
+          'contentId': contentId,
+          'title': title,
+        });
+        break;
+      case 'exam':
+      case 'past_paper':
+      default:
+        context.push('/exam', extra: {
+          'contentId': contentId,
+          'title': title,
+          'downloadUrl': downloadUrl,
+          'totalQuestions': totalQuestions,
+          'timeLimitMinutes': timeLimitMinutes,
+        });
+    }
   }
 
-  int _getAvailableChaptersCount() {
-    return _contentByChapter.keys.length;
-  }
-
-  Widget _getSubjectIcon(String subject, {double size = 24}) {
+  Widget _getSubjectIcon(String subject, {double size = 32}) {
     final assetPath = _subjectIconAssets[subject];
     if (assetPath != null) {
       return ClipRRect(
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(8),
         child: Image.asset(
           assetPath,
           width: size,
           height: size,
           fit: BoxFit.contain,
-          errorBuilder: (_, __, ___) => Icon(Icons.quiz, size: size),
+          errorBuilder: (_, __, ___) => Icon(
+            _subjectIcons[subject] ?? Icons.article,
+            size: size,
+            color: _subjectColors[subject] ?? Colors.grey,
+          ),
         ),
       );
     }
-    return Icon(Icons.quiz, size: size);
-  }
-
-  Color _getSubjectColor(String subject) {
-    return _subjectColors[subject] ?? Colors.grey;
-  }
-
-  Future<void> _downloadContent(Map<String, dynamic> content) async {
-    final contentId = content['id']?.toString() ?? '';
-    if (contentId.isEmpty) return;
-
-    setState(() => _downloadProgress[contentId] = 0);
-
-    try {
-      await _downloadManager.downloadContent(
-        contentId: contentId,
-        title: content['title']?.toString() ?? 'Entrance Questions',
-        downloadUrl: content['download_url']?.toString() ?? content['url']?.toString() ?? '',
-        contentType: 'quiz',
-        fileFormat: 'json',
-        subject: content['subject']?.toString() ?? '',
-        chapter: content['chapter']?.toString() ?? '',
-        grade: _selectedGrade ?? '',
-        onProgress: (progress) {
-          if (mounted) setState(() => _downloadProgress[contentId] = progress);
-        },
-      );
-
-      if (mounted) {
-        setState(() {
-          _downloadedContentIds.add(contentId);
-          _downloadProgress.remove(contentId);
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Questions downloaded!'), backgroundColor: Colors.green, duration: Duration(seconds: 2)),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _downloadProgress.remove(contentId));
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Download failed: $e'), backgroundColor: Colors.red),
-        );
-      }
-    }
-  }
-
-  void _openContent(Map<String, dynamic> content) {
-    final contentId = content['id']?.toString() ?? '';
-    final title = content['title']?.toString() ?? 'Entrance Questions';
-    context.push('/quiz', extra: {'contentId': contentId, 'title': title});
+    return Icon(
+      _subjectIcons[subject] ?? Icons.article,
+      size: size,
+      color: _subjectColors[subject] ?? Colors.grey,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Entrance Exam'),
-          leading: IconButton(onPressed: () => context.pop(), icon: const Icon(Icons.arrow_back)),
-        ),
-        body: const Center(child: CircularProgressIndicator()),
-      );
-    }
-
     return Scaffold(
       appBar: AppBar(
-        title: Text(_selectedGrade != null 
-            ? 'Grade $_selectedGrade $_selectedSubject' 
-            : (_selectedSubject ?? 'Entrance Exam')),
+        title: Text(_selectedSubject == null 
+            ? 'Entrance Exam' 
+            : _selectedGrade == null 
+                ? '$_selectedSubject - Select Grade' 
+                : _selectedUnit == null
+                    ? '$_selectedSubject - Grade $_selectedGrade'
+                    : '$_selectedUnit'),
         leading: IconButton(
           onPressed: () {
-            if (_selectedGrade != null && _selectedSubject != null) {
-              // Go back to grade selection
-              setState(() => _selectedGrade = null);
+            if (_selectedUnit != null) {
+              setState(() {
+                _selectedUnit = null;
+                _fetchedContent.clear();
+              });
+            } else if (_selectedGrade != null) {
+              setState(() {
+                _selectedGrade = null;
+              });
             } else if (_selectedSubject != null) {
-              // Go back to subject selection
               setState(() {
                 _selectedSubject = null;
-                _contentByChapter = {};
               });
             } else {
               context.pop();
@@ -284,406 +310,444 @@ class _EntranceExamScreenState extends State<EntranceExamScreen> {
           },
           icon: const Icon(Icons.arrow_back),
         ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        foregroundColor: Colors.black87,
       ),
-      body: _selectedSubject == null
-          ? _buildSubjectSelection()
-          : _selectedGrade == null
-              ? _buildGradeSelection()
-              : _buildChapterList(),
+      body: _isFetchingContent
+          ? const Center(child: CircularProgressIndicator())
+          : _selectedSubject == null
+              ? _buildSubjectGrid()
+              : _selectedGrade == null
+                  ? _buildGradeGrid()
+                  : _selectedUnit == null
+                      ? _buildUnitGrid()
+                      : _buildContentList(),
     );
   }
 
-  // ============================================================
-  // STEP 1: Select Subject
-  // ============================================================
-  Widget _buildSubjectSelection() {
-    final subjects = _subjects;
-
-    return RefreshIndicator(
-      onRefresh: _loadData,
-      child: ListView(
-        padding: const EdgeInsets.all(16),
-        physics: const AlwaysScrollableScrollPhysics(),
+  // ============================================
+  // SUBJECT GRID (3 columns)
+  // ============================================
+  Widget _buildSubjectGrid() {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Colors.orange, Colors.deepOrange],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+          const Text(
+            'Select Subject',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Choose a subject to start practicing',
+            style: TextStyle(color: Colors.grey[600], fontSize: 14),
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 0.9,
               ),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Icon(Icons.quiz, color: Colors.white, size: 36),
-                const SizedBox(height: 12),
-                const Text('Entrance Exam', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22)),
-                const SizedBox(height: 4),
-                Text('Practice questions by grade and chapter',
-                    style: TextStyle(color: Colors.white.withAlpha(((255 * 0.8)).toInt()), fontSize: 14)),
-              ],
+              itemCount: _subjects.length,
+              itemBuilder: (context, index) {
+                final subject = _subjects[index];
+                return _buildSubjectCard(subject);
+              },
             ),
           ),
-          const SizedBox(height: 20),
-          const Text('Select Subject', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-          const SizedBox(height: 12),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 1.3,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-            ),
-            itemCount: subjects.length,
-            itemBuilder: (context, index) {
-              final subject = subjects[index];
-              final color = _getSubjectColor(subject);
+        ],
+      ),
+    );
+  }
 
-              return Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                child: InkWell(
-                  onTap: () {
-                    setState(() {
-                      _selectedSubject = subject;
-                      _selectedGrade = null;
-                    });
-                    _loadContentForSubject();
-                  },
-                  borderRadius: BorderRadius.circular(12),
-                  child: Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      gradient: LinearGradient(
-                        colors: [color.withAlpha(((255 * 0.12)).toInt()), color.withAlpha(((255 * 0.03)).toInt())],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    ),
+  Widget _buildSubjectCard(String subject) {
+    final color = _subjectColors[subject] ?? Colors.grey;
+
+    return InkWell(
+      onTap: () {
+        setState(() {
+          _selectedSubject = subject;
+        });
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withOpacity(0.3), width: 1),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _getSubjectIcon(subject, size: 40),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Text(
+                subject,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: color,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ============================================
+  // GRADE GRID (HARDCODED: 11, 12)
+  // ============================================
+  Widget _buildGradeGrid() {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '$_selectedSubject - Select Grade',
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Choose your grade level',
+            style: TextStyle(color: Colors.grey[600], fontSize: 14),
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 1.2,
+              ),
+              itemCount: _grades.length,
+              itemBuilder: (context, index) {
+                final grade = _grades[index];
+                return _buildGradeCard(grade);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGradeCard(String grade) {
+    final color = AppColors.primary;
+
+    return InkWell(
+      onTap: () {
+        setState(() {
+          _selectedGrade = grade;
+        });
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withOpacity(0.3), width: 1),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Grade $grade',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Choose grade',
+              style: TextStyle(
+                fontSize: 12,
+                color: color.withOpacity(0.7),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ============================================
+  // UNIT GRID (HARDCODED PER SUBJECT & GRADE)
+  // ============================================
+  Widget _buildUnitGrid() {
+    final units = _getUnits(_selectedSubject!, _selectedGrade!);
+
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '$_selectedSubject - Grade $_selectedGrade',
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Select a unit to start practicing',
+            style: TextStyle(color: Colors.grey[600], fontSize: 14),
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: units.isEmpty
+                ? Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        _getSubjectIcon(subject, size: 32),
-                        const SizedBox(height: 8),
+                        Icon(Icons.hourglass_empty, size: 64, color: Colors.grey[400]),
+                        const SizedBox(height: 16),
                         Text(
-                          subject,
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: color),
-                          textAlign: TextAlign.center,
+                          'No units available for this subject',
+                          style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                         ),
                       ],
                     ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ============================================================
-  // STEP 2: Select Grade
-  // ============================================================
-  Widget _buildGradeSelection() {
-    final color = _getSubjectColor(_selectedSubject ?? '');
-    final subjects = _subjects;
-
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        // Selected subject header
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: color.withAlpha(((255 * 0.1)).toInt()),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: color.withAlpha(((255 * 0.3)).toInt())),
-          ),
-          child: Row(
-            children: [
-              _getSubjectIcon(_selectedSubject ?? '', size: 40),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  _selectedSubject ?? '',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: color),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 20),
-        const Text('Select Grade', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-        const SizedBox(height: 12),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 1.5,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-          ),
-          itemCount: _grades.length,
-          itemBuilder: (context, index) {
-            final grade = _grades[index];
-            final chapterCount = _getChapterCount(_selectedSubject ?? '', grade);
-            final availableCount = _getAvailableChaptersForGrade(grade);
-
-            return Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              child: InkWell(
-                onTap: () => setState(() => _selectedGrade = grade),
-                borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    gradient: LinearGradient(
-                      colors: [color.withAlpha(((255 * 0.1)).toInt()), color.withAlpha(((255 * 0.03)).toInt())],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+                  )
+                : GridView.builder(
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 1.0,
                     ),
+                    itemCount: units.length,
+                    itemBuilder: (context, index) {
+                      final unit = units[index];
+                      return _buildUnitCard(unit);
+                    },
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Grade $grade',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: color),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '$chapterCount chapters',
-                        style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
-      ],
-    );
-  }
-
-  int _getAvailableChaptersForGrade(String grade) {
-    // Count chapters that have content for this grade
-    int count = 0;
-    for (final chapter in _contentByChapter.keys) {
-      final items = _contentByChapter[chapter] ?? [];
-      for (final item in items) {
-        if (item['grade']?.toString() == grade) {
-          count++;
-          break;
-        }
-      }
-    }
-    return count > 0 ? count : _contentByChapter.length;
-  }
-
-  // ============================================================
-  // STEP 3: Show Chapters
-  // ============================================================
-  Widget _buildChapterList() {
-    final color = _getSubjectColor(_selectedSubject ?? '');
-    final chapters = _contentByChapter.keys.toList()..sort();
-
-    return RefreshIndicator(
-      onRefresh: () async {
-        await _loadContentForSubjectAndGrade();
-        return Future.value();
-      },
-      child: ListView(
-        padding: const EdgeInsets.all(16),
-        physics: const AlwaysScrollableScrollPhysics(),
-        children: [
-          // Breadcrumb navigation
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.grey[100],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              children: [
-                GestureDetector(
-                  onTap: () => setState(() => _selectedGrade = null),
-                  child: Text(_selectedSubject ?? '', style: TextStyle(color: color, fontWeight: FontWeight.w500)),
-                ),
-                const Icon(Icons.chevron_right, size: 16, color: Colors.grey),
-                Text('Grade $_selectedGrade', style: const TextStyle(fontWeight: FontWeight.w500)),
-              ],
-            ),
           ),
-          const SizedBox(height: 20),
-
-          // Chapter header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text('Chapters', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: color.withAlpha(((255 * 0.1)).toInt()),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  '${chapters.length} chapters',
-                  style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-
-          if (chapters.isEmpty)
-            const Center(
-              child: Padding(
-                padding: EdgeInsets.all(32),
-                child: Column(
-                  children: [
-                    Icon(Icons.hourglass_empty, size: 64, color: Colors.grey),
-                    SizedBox(height: 16),
-                    Text('No content available yet',
-                        style: TextStyle(fontSize: 16, color: Colors.grey)),
-                    SizedBox(height: 8),
-                    Text('Content will be uploaded soon by NextGen team',
-                        style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic, fontSize: 13)),
-                  ],
-                ),
-              ),
-            )
-          else
-            ...chapters.map((chapter) {
-              final items = _contentByChapter[chapter] ?? [];
-              return _buildChapterCard(chapter, items, color);
-            }),
-
-          const SizedBox(height: 32),
         ],
       ),
     );
   }
 
-  Widget _buildChapterCard(String chapter, List<Map<String, dynamic>> items, Color color) {
-    final content = items.isNotEmpty ? items.first : null;
-    final contentId = content?['id']?.toString() ?? '';
-    final title = content?['title']?.toString() ?? chapter;
-    final questions = content?['total_questions']?.toString() ?? '0';
-    final lastUpdated = content?['last_updated']?.toString() ?? content?['created_at']?.toString() ?? '';
-    final isDownloaded = _downloadedContentIds.contains(contentId);
-    final downloadProgress = _downloadProgress[contentId];
+  Widget _buildUnitCard(String unit) {
+    final color = AppColors.primary;
+
+    return InkWell(
+      onTap: () => _fetchUnitContent(_selectedSubject!, _selectedGrade!, unit),
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withOpacity(0.2), width: 1),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.menu_book, color: AppColors.primary, size: 32),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Text(
+                unit,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primary,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Text(
+                'Click to load',
+                style: TextStyle(
+                  fontSize: 10,
+                  color: AppColors.primary,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ============================================
+  // CONTENT LIST (AFTER FETCHING FROM GITHUB)
+  // ============================================
+  Widget _buildContentList() {
+    if (_fetchedContent.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.menu_book_outlined, size: 64, color: Colors.grey[400]),
+              const SizedBox(height: 16),
+              Text(
+                'No practice exam published for this unit',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[700],
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'The repository currently holds entrance curriculum metadata '
+                'for this unit but no exam file. Real entrance past papers are '
+                'available in the Past Papers section.',
+                style: TextStyle(fontSize: 13, color: Colors.grey[500]),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                onPressed: () => context.push('/entrance/past-papers'),
+                icon: const Icon(Icons.assignment),
+                label: const Text('Open Past Papers'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextButton.icon(
+                onPressed: () {
+                  setState(() {
+                    _selectedUnit = null;
+                    _fetchedContent.clear();
+                  });
+                },
+                icon: const Icon(Icons.arrow_back),
+                label: const Text('Back to Units'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                '$_selectedUnit',
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.green.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  '${_fetchedContent.length} exams',
+                  style: TextStyle(
+                    color: Colors.green,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Select an exam to start practicing',
+            style: TextStyle(color: Colors.grey[600], fontSize: 14),
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _fetchedContent.length,
+              itemBuilder: (context, index) {
+                final content = _fetchedContent[index];
+                return _buildContentCard(content);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContentCard(Map<String, dynamic> content) {
+    final title = content['title']?.toString() ?? 'Entrance Exam';
+    final totalQuestions = content['total_questions'] ?? 40;
+    final timeLimitMinutes = content['time_limit_minutes'] ?? 60;
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      elevation: 2,
+      margin: const EdgeInsets.only(bottom: 10),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
-        onTap: content != null
-            ? (isDownloaded ? () => _openContent(content) : () => _downloadContent(content))
-            : null,
+        onTap: () => _openContent(content),
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              // Chapter icon
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: color.withAlpha(((255 * 0.1)).toInt()),
-                  borderRadius: BorderRadius.circular(12),
+                  color: AppColors.primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(Icons.menu_book, color: color, size: 28),
+                child: const Icon(Icons.quiz, color: AppColors.primary, size: 24),
               ),
               const SizedBox(width: 16),
-              
-              // Chapter info
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      chapter,
-                      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                      title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        Icon(Icons.quiz, size: 12, color: Colors.grey[500]),
-                        const SizedBox(width: 4),
-                        Text('$questions questions', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
-                        if (lastUpdated.isNotEmpty) ...[
-                          const SizedBox(width: 12),
-                          Icon(Icons.update, size: 12, color: Colors.grey[500]),
-                          const SizedBox(width: 4),
-                          Text('Updated: $_formatDate(lastUpdated)', style: TextStyle(color: Colors.grey[500], fontSize: 11)),
-                        ],
+                        _buildInfoChip(Icons.quiz, '$totalQuestions questions', Colors.blue),
+                        const SizedBox(width: 8),
+                        _buildInfoChip(Icons.timer, '$timeLimitMinutes min', Colors.orange),
                       ],
                     ),
                   ],
                 ),
               ),
-              
-              // Action button
-              if (content == null)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Text('Coming Soon', style: TextStyle(fontSize: 10, color: Colors.grey)),
-                )
-              else if (downloadProgress != null)
-                SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      CircularProgressIndicator(value: downloadProgress, strokeWidth: 3),
-                      Text('${(downloadProgress * 100).toInt()}%', style: const TextStyle(fontSize: 10)),
-                    ],
-                  ),
-                )
-              else if (isDownloaded)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: BoxDecoration(
-                    color: Colors.green.withAlpha(((255 * 0.1)).toInt()),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.green.withAlpha(((255 * 0.3)).toInt())),
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.check_circle, color: Colors.green, size: 14),
-                      SizedBox(width: 4),
-                      Text('OFFLINE', style: TextStyle(color: Colors.green, fontSize: 10, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                )
-              else
-                IconButton(
-                  icon: Icon(Icons.download, color: AppColors.primary),
-                  onPressed: () => _downloadContent(content),
-                  tooltip: 'Download for offline practice',
-                ),
+              const Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
             ],
           ),
         ),
@@ -691,12 +755,21 @@ class _EntranceExamScreenState extends State<EntranceExamScreen> {
     );
   }
 
-  String _formatDate(String dateStr) {
-    try {
-      final date = DateTime.parse(dateStr);
-      return '${date.day}/${date.month}/${date.year}';
-    } catch (e) {
-      return dateStr;
-    }
+  Widget _buildInfoChip(IconData icon, String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 10, color: color),
+          const SizedBox(width: 2),
+          Text(label, style: TextStyle(fontSize: 10, color: color)),
+        ],
+      ),
+    );
   }
 }

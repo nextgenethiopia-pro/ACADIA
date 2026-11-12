@@ -171,7 +171,7 @@ class _NotificationCreationScreenState
       maxWidth: 1024,
       maxHeight: 1024,
     );
-    
+
     if (result == null) return;
 
     setState(() {
@@ -183,7 +183,7 @@ class _NotificationCreationScreenState
     try {
       // Upload to FreeImage.host
       final imageUrl = await _uploadToFreeImage(result.path);
-      
+
       if (imageUrl != null) {
         setState(() {
           _imageUrl = imageUrl;
@@ -226,12 +226,12 @@ class _NotificationCreationScreenState
     try {
       final file = File(imagePath);
       final bytes = await file.readAsBytes();
-      
+
       // FreeImage.host API endpoint
       const uploadUrl = 'https://freeimage.host/api/1/upload';
-      
+
       final dio = Dio();
-      
+
       // Create multipart request
       final formData = FormData.fromMap({
         'key': _freeImageApiKey,
@@ -242,7 +242,7 @@ class _NotificationCreationScreenState
         ),
         'format': 'json',
       });
-      
+
       // Update progress
       final response = await dio.post(
         uploadUrl,
@@ -255,23 +255,58 @@ class _NotificationCreationScreenState
           }
         },
       );
-      
-      if (response.statusCode == 200 && response.data['status_code'] == 200) {
+
+      final data = response.data;
+
+      if (response.statusCode == 200 && data is Map && data['status_code'] == 200) {
         // Get the direct image URL from response
-        final imageUrl = response.data['image']['url'];
-        return imageUrl;
-      } else {
-        debugPrint('FreeImage.host upload failed: ${response.data}');
-        final errorMsg = response.data['status_txt'] ?? 'Upload failed';
-        throw Exception(errorMsg);
+        final image = data['image'];
+        final imageUrl = image is Map ? image['url'] : null;
+        if (imageUrl is String && imageUrl.isNotEmpty) {
+          return imageUrl;
+        }
+        throw Exception('FreeImage.host returned no image URL.');
       }
+
+      debugPrint('FreeImage.host upload failed: HTTP ${response.statusCode} body=$data');
+      throw Exception(_describeFreeImageFailure(response.statusCode, data));
     } on DioException catch (e) {
-      debugPrint('FreeImage.host Dio error: $e');
-      throw Exception('Network error: ${e.message}');
+      final status = e.response?.statusCode;
+      final data = e.response?.data;
+      debugPrint(
+        'FreeImage.host Dio error: type=${e.type.name} status=$status body=$data',
+      );
+
+      if (status == null) {
+        throw Exception('Network error (${e.type.name}): ${e.message}');
+      }
+      throw Exception(_describeFreeImageFailure(status, data));
+    } on Exception {
+      rethrow;
     } catch (e) {
       debugPrint('FreeImage.host upload error: $e');
-      rethrow;
+      throw Exception('FreeImage.host upload error: $e');
     }
+  }
+
+  /// FreeImage.host failures look like:
+  /// `{"status_code":400,"status_txt":"...","error":{"message":"...","code":103}}`.
+  String _describeFreeImageFailure(int? statusCode, dynamic data) {
+    String detail = '';
+
+    if (data is Map) {
+      if (data['error'] is Map) {
+        final error = data['error'] as Map;
+        detail = '${error['message']} (freeimage code ${error['code']})';
+      } else if (data['status_txt'] != null) {
+        detail = data['status_txt'].toString();
+      }
+    } else if (data != null) {
+      detail = data.toString();
+    }
+
+    if (detail.trim().isEmpty) detail = 'no details returned';
+    return 'FreeImage.host HTTP $statusCode: $detail';
   }
 
   Future<void> _pickImageFromUrl() async {
@@ -310,7 +345,7 @@ class _NotificationCreationScreenState
         ],
       ),
     );
-    
+
     if (url != null) {
       setState(() {
         _imageUrl = url;
@@ -365,7 +400,7 @@ class _NotificationCreationScreenState
             Text('Message: ${_messageController.text.trim()}'),
             if (_imageUrl != null) ...[
               const SizedBox(height: 8),
-              Text('Image: Attached', style: TextStyle(color: Colors.green)),
+              const Text('Image: Attached', style: TextStyle(color: Colors.green)),
             ],
             const SizedBox(height: 16),
             Text(
@@ -644,7 +679,7 @@ class _NotificationCreationScreenState
                               }
                             });
                           },
-                          selectedColor: AppColors.primary.withAlpha((255 * 0.2).toInt()),
+                          selectedColor: AppColors.primary.withOpacity(0.2),
                         );
                       }).toList(),
                     ),
@@ -800,7 +835,12 @@ class _NotificationCreationScreenState
                       const SizedBox(width: 12),
                       Expanded(
                         child: DropdownButtonFormField<String>(
-                          value: _statusFilter,
+                          initialValue: _statusFilter,
+                          dropdownColor: Theme.of(context).colorScheme.surface,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                           decoration: InputDecoration(
                             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -898,6 +938,7 @@ class _NotificationCreationScreenState
                   right: 8,
                   child: CircleAvatar(
                     backgroundColor: Colors.black54,
+                    radius: 14,
                     child: IconButton(
                       icon: const Icon(Icons.close, color: Colors.white, size: 16),
                       onPressed: _removeImage,
@@ -905,7 +946,6 @@ class _NotificationCreationScreenState
                       constraints: const BoxConstraints(),
                       iconSize: 16,
                     ),
-                    radius: 14,
                   ),
                 ),
               ],
@@ -1070,7 +1110,7 @@ class _NotificationCreationScreenState
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: typeInfo.color.withAlpha((255 * 0.1).toInt()),
+          backgroundColor: typeInfo.color.withOpacity(0.1),
           child: Icon(typeInfo.icon, color: typeInfo.color, size: 20),
         ),
         title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w500)),
@@ -1132,9 +1172,9 @@ class _NotificationCreationScreenState
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withAlpha((255 * 0.1).toInt()),
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withAlpha((255 * 0.3).toInt())),
+        border: Border.all(color: color.withOpacity(0.3)),
       ),
       child: Text(label, style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold)),
     );

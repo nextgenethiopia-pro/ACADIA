@@ -1,16 +1,14 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:acadia/src/core/services/firebase_service.dart';
+import 'package:acadia/src/core/services/imgbb_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:acadia/src/core/blocs/auth/auth_bloc.dart';
 import 'package:acadia/src/core/constants/colors.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:dio/dio.dart';
 import 'dart:io';
-import 'dart:convert';
 
 class ProfileTab extends StatefulWidget {
   const ProfileTab({super.key});
@@ -24,9 +22,7 @@ class _ProfileTabState extends State<ProfileTab> {
   String? _userGrade;
   String? _userStream;
   String? _userPath;
-  Map<String, dynamic>? _userStats;
   bool _isLoading = true;
-  bool _isRefreshing = false;
   String? _errorMessage;
   bool _hasNetworkError = false;
   String? _profilePhotoUrl;
@@ -34,9 +30,6 @@ class _ProfileTabState extends State<ProfileTab> {
   double _uploadProgress = 0.0;
   bool _isAdmin = false;
   final ImagePicker _picker = ImagePicker();
-
-  // FreeImage.host API Key
-  static const String _freeImageApiKey = '6d207e02198a847aa98d0a2a901485a5';
 
   // Hardcoded admin emails - always have admin access
   static const List<String> _hardcodedAdminEmails = [
@@ -56,7 +49,6 @@ class _ProfileTabState extends State<ProfileTab> {
       setState(() {
         _hasNetworkError = false;
         _errorMessage = null;
-        if (!_isLoading) _isRefreshing = true;
       });
     }
 
@@ -90,14 +82,8 @@ class _ProfileTabState extends State<ProfileTab> {
         setState(() {
           _userData = userProfile;
           _profilePhotoUrl = userProfile?['profile_photo_url']?.toString();
-          _userStats = {
-            'total_study_hours': userProfile?['total_study_hours'] ?? 0,
-            'completed_content': userProfile?['completed_content'] ?? 0,
-            'average_score': userProfile?['average_score'] ?? 0,
-          };
           _isAdmin = isAdmin;
           _isLoading = false;
-          _isRefreshing = false;
         });
       }
     } catch (e) {
@@ -108,7 +94,6 @@ class _ProfileTabState extends State<ProfileTab> {
         setState(() {
           _isAdmin = isAdmin;
           _isLoading = false;
-          _isRefreshing = false;
           if (!isAdmin) {
             _hasNetworkError = true;
             _errorMessage = 'Failed to load profile data.';
@@ -119,53 +104,11 @@ class _ProfileTabState extends State<ProfileTab> {
     }
   }
 
-  // ============================================================
-  // FREEIMAGE.HOST UPLOAD
-  // ============================================================
-
-  Future<String?> _uploadToFreeImage(String imagePath) async {
-    try {
-      final file = File(imagePath);
-      final bytes = await file.readAsBytes();
-      
-      const uploadUrl = 'https://freeimage.host/api/1/upload';
-      
-      final dio = Dio();
-      final formData = FormData.fromMap({
-        'key': _freeImageApiKey,
-        'action': 'upload',
-        'source': MultipartFile.fromBytes(
-          bytes,
-          filename: 'profile_${DateTime.now().millisecondsSinceEpoch}.jpg',
-        ),
-        'format': 'json',
-      });
-      
-      final response = await dio.post(
-        uploadUrl,
-        data: formData,
-        onSendProgress: (sent, total) {
-          if (mounted) {
-            setState(() {
-              _uploadProgress = sent / total;
-            });
-          }
-        },
-      );
-      
-      if (response.statusCode == 200 && response.data['status_code'] == 200) {
-        return response.data['image']['url'];
-      } else {
-        debugPrint('FreeImage.host upload failed: ${response.data}');
-        throw Exception(response.data['status_txt'] ?? 'Upload failed');
-      }
-    } on DioException catch (e) {
-      debugPrint('FreeImage.host Dio error: $e');
-      throw Exception('Network error: ${e.message}');
-    } catch (e) {
-      debugPrint('FreeImage.host upload error: $e');
-      rethrow;
-    }
+  // Upload profile photos through the shared ImgBB service so the endpoint,
+  // multipart field names, API key configuration, and error parsing are
+  // consistent with ACADIA's other ImgBB uploads.
+  Future<String> _uploadToImgBB(String imagePath) {
+    return ImgbbService.uploadImage(File(imagePath));
   }
 
   Future<void> _updateProfilePhoto(String imageUrl) async {
@@ -211,8 +154,8 @@ class _ProfileTabState extends State<ProfileTab> {
           _uploadProgress = 0.0;
         });
 
-        // Upload to FreeImage.host
-        final imageUrl = await _uploadToFreeImage(pickedFile.path);
+        // Upload to ImgBB
+        final imageUrl = await _uploadToImgBB(pickedFile.path);
         
         if (imageUrl != null) {
           // Update user profile with new image URL
@@ -310,7 +253,7 @@ class _ProfileTabState extends State<ProfileTab> {
                     LinearProgressIndicator(value: _uploadProgress),
                     const SizedBox(height: 8),
                     Text(
-                      'Uploading to FreeImage.host: ${(_uploadProgress * 100).toInt()}%',
+                      'Uploading to ImgBB: ${(_uploadProgress * 100).toInt()}%',
                       style: const TextStyle(fontSize: 12),
                     ),
                   ],
@@ -348,15 +291,29 @@ class _ProfileTabState extends State<ProfileTab> {
   }
 
   String _getAcademicPathDisplay() {
-    if (_userPath == 'high-school' || _userPath == 'HIGH SCHOOL') {
-      final stream = _userStream == 'natural'
-          ? 'Natural Science'
-          : _userStream == 'social'
-              ? 'Social Science'
-              : '';
-      return 'Grade ${_userGrade ?? '9-12'}${stream.isNotEmpty ? ' • $stream' : ''}';
-    } else if (_userPath == 'university' || _userPath == 'UNIVERSITY') {
-      return 'University Student';
+    final path = (_userPath ?? _userData?['academic_path'] ?? _userData?['academic_level'] ?? '').toString().toUpperCase();
+    final grade = _userGrade ?? _userData?['grade']?.toString();
+    final stream = (_userStream ?? _userData?['stream']?.toString() ?? '').toLowerCase();
+    final year = _userData?['year']?.toString();
+    final semester = _userData?['semester']?.toString();
+    final track = (_userData?['track']?.toString() ?? '').toLowerCase();
+
+    if (path == 'UNIVERSITY' || path.contains('UNIVERSITY')) {
+      if (semester == '2') {
+        final trackName = track == 'pre_engineering' ? 'Pre-Engineering' : 'Other Natural Science';
+        return 'University Freshman - Semester 2 ($trackName)';
+      }
+      if (semester == '1') {
+        final streamName = stream == 'social' ? 'Social Science' : 'Natural Science';
+        return 'University Freshman - Semester 1 ($streamName)';
+      }
+      return 'University Student${year != null ? ' ($year)' : ''}';
+    } else if (grade != null && grade.isNotEmpty) {
+      if (grade == '11' || grade == '12') {
+        final streamName = stream == 'social' ? 'Social Science' : 'Natural Science';
+        return 'Grade $grade • $streamName';
+      }
+      return 'Grade $grade • General Program';
     }
     return _userPath ?? 'Education Path Not Set';
   }
@@ -405,9 +362,6 @@ class _ProfileTabState extends State<ProfileTab> {
         FirebaseAuth.instance.currentUser?.email ??
         '';
     final isPro = _userData?['is_pro'] == true;
-    final studyTime = '${_userStats?['total_study_hours'] ?? 0}';
-    final completed = '${_userStats?['completed_content'] ?? 0}';
-    final successRate = '${_userStats?['average_score'] ?? 0}%';
 
     return RefreshIndicator(
       onRefresh: _loadData,
@@ -434,8 +388,6 @@ class _ProfileTabState extends State<ProfileTab> {
                     child: Column(
                       children: [
                         _buildProfileCard(userName, userEmail, isPro),
-                        const SizedBox(height: 24),
-                        _buildStatsGrid(studyTime, completed, successRate),
                         const SizedBox(height: 32),
                         _buildActionMenu(),
                       ],
@@ -458,7 +410,7 @@ class _ProfileTabState extends State<ProfileTab> {
         borderRadius: BorderRadius.circular(32),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withAlpha(((255 * 0.1)).toInt()),
+            color: AppColors.primary.withOpacity(0.1),
             blurRadius: 30,
             offset: const Offset(0, 15),
           ),
@@ -541,9 +493,9 @@ class _ProfileTabState extends State<ProfileTab> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withAlpha(((255 * 0.05)).toInt()),
+                  color: AppColors.primary.withOpacity(0.05),
                   borderRadius: BorderRadius.circular(100),
-                  border: Border.all(color: AppColors.primary.withAlpha(((255 * 0.1)).toInt())),
+                  border: Border.all(color: AppColors.primary.withOpacity(0.1)),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -567,9 +519,9 @@ class _ProfileTabState extends State<ProfileTab> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.amber.withAlpha(((255 * 0.1)).toInt()),
+                    color: Colors.amber.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(100),
-                    border: Border.all(color: Colors.amber.withAlpha(((255 * 0.3)).toInt())),
+                    border: Border.all(color: Colors.amber.withOpacity(0.3)),
                   ),
                   child: const Text(
                     'PRO',
@@ -585,68 +537,6 @@ class _ProfileTabState extends State<ProfileTab> {
           ),
           const SizedBox(height: 32),
         ],
-      ),
-    );
-  }
-
-  Widget _buildStatsGrid(String time, String completed, String success) {
-    return Row(
-      children: [
-        _buildStatItem('Study Hours', time, Icons.auto_graph_rounded, Colors.blue),
-        const SizedBox(width: 12),
-        _buildStatItem('Lessons', completed, Icons.menu_book_rounded, Colors.orange),
-        const SizedBox(width: 12),
-        _buildStatItem('Avg. Score', success, Icons.analytics_rounded, Colors.purple),
-      ],
-    );
-  }
-
-  Widget _buildStatItem(String label, String value, IconData icon, Color color) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(((255 * 0.03)).toInt()),
-              blurRadius: 15,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: color.withAlpha(((255 * 0.1)).toInt()),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: color, size: 20),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              value,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 11,
-                color: Colors.grey[500],
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -746,7 +636,7 @@ class _ProfileTabState extends State<ProfileTab> {
             borderRadius: BorderRadius.circular(28),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withAlpha(((255 * 0.02)).toInt()),
+                color: Colors.black.withOpacity(0.02),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
@@ -767,7 +657,7 @@ class _ProfileTabState extends State<ProfileTab> {
       leading: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: themeColor.withAlpha(((255 * 0.1)).toInt()),
+          color: themeColor.withOpacity(0.1),
           borderRadius: BorderRadius.circular(14),
         ),
         child: Icon(icon, color: themeColor, size: 20),
@@ -792,7 +682,7 @@ class _ProfileTabState extends State<ProfileTab> {
         decoration: BoxDecoration(
           color: Colors.red[50],
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Colors.red.withAlpha(((255 * 0.1)).toInt())),
+          border: Border.all(color: Colors.red.withOpacity(0.1)),
         ),
         child: const Center(
           child: Text(

@@ -18,10 +18,16 @@ abstract class AuthRepository {
     required String email,
     required String password,
     required String fullName,
+    String? username,
     String? phoneNumber,
+    String? academicLevel,
     String? grade,
     String? stream,
     String? academicPath,
+    String? department,
+    String? year,
+    String? semester,
+    Map<String, dynamic>? onboardingSelections,
   });
 
   /// Signs in with email/password. Returns an [AuthException] with

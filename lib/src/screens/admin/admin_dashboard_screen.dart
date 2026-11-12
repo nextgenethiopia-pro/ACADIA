@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:acadia/src/core/services/firebase_service.dart';
+import 'package:acadia/src/core/di/injection.dart';
+import 'package:acadia/src/core/services/github_content_service.dart';
 import 'package:acadia/src/core/constants/colors.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
@@ -17,7 +19,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   bool _isLoading = true;
   bool _isRefreshing = false;
   int _pendingPayments = 0;
-  int _pendingContent = 0;
 
   @override
   void initState() {
@@ -31,18 +32,27 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         if (!_isLoading) _isRefreshing = true;
       });
     }
-    
+
     try {
       final firebase = FirebaseService();
+      final github = getIt<GithubContentService>();
 
       final users = await firebase.getDocuments('users');
-      final content = await firebase.getDocuments('content');
       final payments = await firebase.getDocuments('payments');
 
       // Calculate stats
       final totalUsers = users.length;
-      final totalContent = content.length;
-      _pendingContent = content.where((c) => c['status'] == 'pending').length;
+      int totalContent = 0;
+      try {
+        final subjectsIndex = await github.getSubjectsIndex();
+        if (subjectsIndex != null) {
+          for (final value in subjectsIndex.values) {
+            if (value is List) totalContent += value.length;
+          }
+        }
+      } catch (e) {
+        debugPrint('Unable to load GitHub subject metadata: $e');
+      }
 
       final approvedPayments = payments.where((p) => p['status'] == 'approved').toList();
       final totalRevenue = approvedPayments.fold<int>(0, (sum, p) => sum + ((p['amount'] as num?)?.toInt() ?? 0));
@@ -56,18 +66,15 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         final grade = user['grade']?.toString() ?? '';
         final stream = user['stream']?.toString() ?? '';
 
-        // Count high school users
         if (level == 'high-school' || level == 'HIGH SCHOOL' || (grade.isNotEmpty && grade != 'freshman')) {
           highSchoolCount++;
         }
 
-        // Count unique universities
         final university = user['university']?.toString();
         if (university != null && university.isNotEmpty) {
           uniqueUniversities.add(university);
         }
 
-        // Users by path
         String pathLabel;
         if (level == 'high-school' || level == 'HIGH SCHOOL') {
           if (grade == '11' || grade == '12') {
@@ -83,9 +90,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
       _pendingPayments = payments.where((p) => p['status'] == 'pending').length;
 
-      // Recent activity (combine user registrations and payments)
       final activity = <Map<String, dynamic>>[];
-      
+
       for (var u in users.take(5)) {
         activity.add({
           'title': '${u['full_name'] ?? 'Unknown'} registered',
@@ -95,7 +101,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           'color': Colors.blue,
         });
       }
-      
+
       for (var p in payments.take(5)) {
         activity.add({
           'title': 'Payment ${p['status']?.toString().toUpperCase()}',
@@ -105,7 +111,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           'color': p['status'] == 'approved' ? Colors.green : Colors.orange,
         });
       }
-      
+
       activity.sort((a, b) => _parseTimestamp(b['time']).compareTo(_parseTimestamp(a['time'])));
 
       setState(() {
@@ -201,7 +207,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Welcome
               Row(
                 children: [
                   const Text('Welcome, Admin', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
@@ -209,12 +214,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.1),
+                      color: AppColors.primary.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Text(
+                    child: const Text(
                       'v1.0.0',
-                      style: const TextStyle(color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],
@@ -222,11 +227,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               Text('Last login: ${_formatTime(DateTime.now())}', style: TextStyle(color: Colors.grey[600], fontSize: 14)),
               const SizedBox(height: 24),
 
-              // 5 Stat Cards
               Row(children: [
                 _buildStatCard('Total Users', '${_stats['totalUsers'] ?? 0}', Icons.people, Colors.blue),
                 const SizedBox(width: 12),
-                _buildStatCard('Total Content', '${_stats['totalContent'] ?? 0}', Icons.description, Colors.green),
+                _buildStatCard('Subjects', '${_stats['totalContent'] ?? 0}', Icons.description, Colors.green),
               ]),
               const SizedBox(height: 12),
               Row(children: [
@@ -242,7 +246,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: Colors.red.withAlpha((255 * 0.1).toInt()),
+                      color: Colors.red.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Column(
@@ -252,7 +256,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                           children: [
                             const Icon(Icons.pending, color: Colors.red, size: 22),
                             const Spacer(),
-                            if (_pendingPayments > 0 || _pendingContent > 0)
+                            if (_pendingPayments > 0)
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(
@@ -260,14 +264,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Text(
-                                  '${_pendingPayments + _pendingContent}',
+                                  '$_pendingPayments',
                                   style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
                                 ),
                               ),
                           ],
                         ),
                         const Spacer(),
-                        Text('Pending', style: TextStyle(color: Colors.red, fontWeight: FontWeight.w500, fontSize: 11)),
+                        const Text('Pending', style: TextStyle(color: Colors.red, fontWeight: FontWeight.w500, fontSize: 11)),
                       ],
                     ),
                   ),
@@ -275,7 +279,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               ]),
               const SizedBox(height: 24),
 
-              // Users by Academic Path
               const Text('Users by Academic Path', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               const SizedBox(height: 12),
               ..._usersByPath.take(6).map((u) => _buildHorizontalBar(
@@ -286,7 +289,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               )),
               const SizedBox(height: 24),
 
-              // Quick Actions
               const Text('Quick Actions', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               const SizedBox(height: 12),
               GridView.count(
@@ -297,7 +299,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 crossAxisSpacing: 10,
                 mainAxisSpacing: 10,
                 children: [
-                  _buildQuickAction('Content', Icons.folder_open, () => context.push('/admin/content-management'), badge: _pendingContent > 0 ? '$_pendingContent' : null),
+                  _buildQuickAction('Content', Icons.folder_open, () => context.push('/admin/content-management')),
                   _buildQuickAction('Users', Icons.people, () => context.push('/admin/user-management')),
                   _buildQuickAction('Payments', Icons.payment, () => context.push('/admin/payment-approval'), badge: _pendingPayments > 0 ? '$_pendingPayments' : null),
                   _buildQuickAction('Notify', Icons.notifications, () => context.push('/admin/create-notification')),
@@ -309,7 +311,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               ),
               const SizedBox(height: 24),
 
-              // Recent Activity
               const Text('Recent Activity', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               const SizedBox(height: 12),
               if (_recentActivity.isEmpty)
@@ -328,7 +329,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     leading: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: (a['color'] as Color).withAlpha(((255 * 0.1)).toInt()),
+                        color: (a['color'] as Color).withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(a['icon'] as IconData, color: a['color'] as Color, size: 20),
@@ -352,9 +353,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: color.withAlpha(((255 * 0.1)).toInt()),
+          color: color.withOpacity(0.1),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withAlpha(((255 * 0.2)).toInt())),
+          border: Border.all(color: color.withOpacity(0.2)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -417,7 +418,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withAlpha((255 * 0.1).toInt()),
+                        color: AppColors.primary.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(icon, color: AppColors.primary, size: 24),

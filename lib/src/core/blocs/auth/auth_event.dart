@@ -28,31 +28,31 @@ class AuthSignUpRequested extends AuthEvent {
   final String email;
   final String password;
   final String fullName;
+  final String? username;
   final String? phoneNumber;
+  final String? academicLevel;
+  final String? academicPath;
   final String? grade;
   final String? stream;
-  final String? academicPath;
-  final String? generation;
-  final String? university;
-  final String? universityYear;
+  final String? department;
+  final String? year;
   final String? semester;
-  final String? track;
-  final String? highSchoolName;
+  final Map<String, dynamic>? onboardingSelections;
 
   const AuthSignUpRequested({
     required this.email,
     required this.password,
     required this.fullName,
+    this.username,
     this.phoneNumber,
+    this.academicLevel,
+    this.academicPath,
     this.grade,
     this.stream,
-    this.academicPath,
-    this.generation,
-    this.university,
-    this.universityYear,
+    this.department,
+    this.year,
     this.semester,
-    this.track,
-    this.highSchoolName,
+    this.onboardingSelections,
   });
 
   @override
@@ -60,16 +60,16 @@ class AuthSignUpRequested extends AuthEvent {
         email,
         password,
         fullName,
+        username,
         phoneNumber,
+        academicLevel,
+        academicPath,
         grade,
         stream,
-        academicPath,
-        generation,
-        university,
-        universityYear,
+        department,
+        year,
         semester,
-        track,
-        highSchoolName,
+        onboardingSelections,
       ];
 }
 

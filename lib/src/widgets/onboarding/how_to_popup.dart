@@ -166,7 +166,7 @@ class _HowToPopupState extends State<HowToPopup> {
             width: 120,
             height: 120,
             decoration: BoxDecoration(
-              color: AppColors.primary.withAlpha((255 * 0.1).toInt()),
+              color: AppColors.primary.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(

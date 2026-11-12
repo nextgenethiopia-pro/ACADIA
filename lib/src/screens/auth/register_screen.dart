@@ -18,6 +18,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
 
   final _fullNameController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -45,6 +46,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   void dispose() {
     _fullNameController.dispose();
+    _usernameController.dispose();
     _emailController.dispose();
     _phoneController.removeListener(_onPhoneChanged);
     _phoneController.dispose();
@@ -256,13 +258,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final grade = prefs.getString('selected_grade') ?? prefs.getString('grade');
     final stream =
         prefs.getString('selected_stream') ?? prefs.getString('stream');
+    final department = prefs.getString('selected_department');
+    final year = prefs.getString('selected_year');
+    final semester = prefs.getString('semester');
     final generation =
         prefs.getString('selected_generation') ?? prefs.getString('generation');
     final university =
         prefs.getString('selected_university') ?? prefs.getString('university');
-    final universityYear = prefs.getString('selected_year');
-    final semester = prefs.getString('semester');
-    final track = prefs.getString('selected_track');
+    final universityName = prefs.getString('university_name');
+    final track =
+        prefs.getString('selected_track') ?? prefs.getString('track');
+    final highSchoolName = _highSchoolNameController.text.trim();
+
+    final onboardingSelections = {
+      'academicLevel': academicLevel,
+      'grade': grade,
+      'stream': stream,
+      'department': department,
+      'year': year,
+      'semester': semester,
+      'generation': generation,
+      'university': university,
+      'universityName': universityName,
+      'track': track,
+      'highSchoolName': highSchoolName.isNotEmpty ? highSchoolName : null,
+    };
 
     final normalizedPhone = _sanitizePhone(_phoneController.text.trim());
 
@@ -273,15 +293,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
             email: _emailController.text.trim(),
             password: _passwordController.text,
             fullName: _fullNameController.text.trim(),
+            username: _usernameController.text.trim(),
             phoneNumber: normalizedPhone,
-            academicPath: academicLevel ?? academicPath,
+            academicLevel: academicLevel ?? academicPath,
+            academicPath: academicPath,
             grade: grade,
             stream: stream,
-            generation: generation,
-            university: university,
-            universityYear: universityYear,
+            department: department,
+            year: year,
             semester: semester,
-            track: track,
+            onboardingSelections: onboardingSelections,
           ),
         );
   }
@@ -290,6 +311,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final text = value?.trim() ?? '';
     if (text.isEmpty) return 'Please enter your full name';
     if (text.length < 3) return 'Name must be at least 3 characters';
+    return null;
+  }
+
+  String? _validateUsername(String? value) {
+    final text = value?.trim() ?? '';
+    if (text.isEmpty) return 'Please enter a username';
+    if (text.length < 3) return 'Username must be at least 3 characters';
+    if (text.contains(' ')) return 'Username cannot contain spaces';
     return null;
   }
 
@@ -486,39 +515,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
-                            shape: BoxShape.circle,
-                          ),
-                          child: IconButton(
-                            onPressed: isLoading ? null : () => context.pop(),
-                            icon: const Icon(Icons.arrow_back),
-                          ),
-                        ),
-                        Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: AppColors.primary.withAlpha(((255 * 0.1)).toInt()),
-                          ),
-                          child: ClipOval(
-                            child: Image.asset(
-                              'assets/logos/logo.png',
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) => const Icon(
-                                Icons.school,
-                                size: 28,
-                                color: AppColors.primary,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        onPressed: isLoading ? null : () => context.pop(),
+                        icon: const Icon(Icons.arrow_back),
+                      ),
                     ),
                     const SizedBox(height: 20),
                     Text(
@@ -542,7 +547,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withAlpha(((255 * 0.06)).toInt()),
+                          color: AppColors.primary.withOpacity(0.06),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: const Row(
@@ -572,6 +577,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         icon: Icons.person_outline,
                       ),
                       validator: _validateFullName,
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _usernameController,
+                      enabled: !isLoading,
+                      decoration: _inputDecoration(
+                        label: 'Username',
+                        hint: 'Enter a username',
+                        icon: Icons.alternate_email,
+                      ),
+                      validator: _validateUsername,
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
@@ -765,9 +781,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.primary.withAlpha(((255 * 0.06)).toInt()),
+        color: AppColors.primary.withOpacity(0.06),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.primary.withAlpha(((255 * 0.14)).toInt())),
+        border: Border.all(color: AppColors.primary.withOpacity(0.14)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -776,7 +792,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             width: 52,
             height: 52,
             decoration: BoxDecoration(
-              color: AppColors.primary.withAlpha(((255 * 0.12)).toInt()),
+              color: AppColors.primary.withOpacity(0.12),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Icon(
@@ -833,9 +849,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     vertical: 7,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.amber.withAlpha(((255 * 0.14)).toInt()),
+                    color: Colors.amber.withOpacity(0.14),
                     borderRadius: BorderRadius.circular(999),
-                    border: Border.all(color: Colors.amber.withAlpha(((255 * 0.28)).toInt())),
+                    border: Border.all(color: Colors.amber.withOpacity(0.28)),
                   ),
                   child: Text(
                     'This academic selection will be used for your account setup',

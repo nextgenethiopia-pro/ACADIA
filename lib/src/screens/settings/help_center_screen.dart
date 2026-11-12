@@ -14,7 +14,6 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   String _selectedCategory = 'All';
-  final Map<int, bool> _expandedFaqs = {};
 
   final List<String> _categories = [
     'All',
@@ -61,7 +60,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
     },
     {
       'question': 'How do I access entrance exam preparation?',
-      'answer': 'Entrance exam preparation is available for Grade 11 and 12 students who have purchased their grade package. Go to the Entrance tab to access past papers (organized by year from 2014 onwards) and entrance exam practice questions (organized by subject, grade, and chapter).',
+      'answer': 'Entrance exam preparation is available for Grade 11 and 12 students who have purchased their grade package. Go to the Entrance tab to access past papers (organized by year from 2010 onwards) and entrance exam practice questions (organized by subject, grade, and chapter).',
       'category': 'Content Access',
     },
     {
@@ -117,7 +116,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
     // Technical Support
     {
       'question': 'How do I contact support?',
-      'answer': 'You can reach us via Telegram @acadia_support, email nextgenethiopia@gmail.com, or call +251 967 870 090. We typically respond within 24 hours during business hours.',
+      'answer': 'You can reach us via Telegram @acadia_supports, email nextgenethiopia@gmail.com, or call +251 967 870 090. We typically respond within 24 hours during business hours.',
       'category': 'Technical Support',
     },
     {
@@ -202,7 +201,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                   Text(
                     'Search for answers or browse categories below.',
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: Colors.white.withAlpha(((255 * 0.9)).toInt()),
+                      color: Colors.white.withOpacity(0.9),
                     ),
                   ),
                 ],
@@ -234,31 +233,40 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
             const SizedBox(height: 16),
 
             // FAQ Categories
-            Text(
+            _buildSectionHeader(
+              theme,
               'Browse by Category',
-              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              'Filter topics to find answers faster',
             ),
-            const SizedBox(height: 8),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: _categories.map((category) {
-                  final isSelected = _selectedCategory == category;
-                  final count = _faqItems.where((f) => 
-                    (category == 'All' || f['category'] == category)
-                  ).length;
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: FilterChip(
-                      label: Text('$category ($count)', style: const TextStyle(fontSize: 12)),
-                      selected: isSelected,
-                      onSelected: (v) => setState(() => _selectedCategory = category),
-                      selectedColor: AppColors.primary.withAlpha(((255 * 0.2)).toInt()),
-                      backgroundColor: Colors.grey[100],
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _categories.map((category) {
+                final isSelected = _selectedCategory == category;
+                final count = _faqItems
+                    .where((f) =>
+                        category == 'All' || f['category'] == category)
+                    .length;
+                return ChoiceChip(
+                  label: Text(
+                    '$category ($count)',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.normal,
+                      color: isSelected ? Colors.white : Colors.black87,
                     ),
-                  );
-                }).toList(),
-              ),
+                  ),
+                  selected: isSelected,
+                  showCheckmark: false,
+                  onSelected: (v) =>
+                      setState(() => _selectedCategory = category),
+                  selectedColor: AppColors.primary,
+                  backgroundColor: Colors.grey[100],
+                  side: BorderSide(color: Colors.grey[200]!),
+                );
+              }).toList(),
             ),
             const SizedBox(height: 16),
 
@@ -273,12 +281,12 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withAlpha(((255 * 0.1)).toInt()),
+                    color: AppColors.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     '${_filteredFaqs.length} results',
-                    style: TextStyle(color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.bold),
+                    style: const TextStyle(color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
@@ -305,92 +313,24 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
 
             const SizedBox(height: 24),
 
-            // Quick Actions
-            Text(
-              'Quick Actions',
-              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            // Tutorial Videos
+            _buildSectionHeader(
+              theme,
+              'How to Use ACADIA',
+              'Watch a quick walkthrough in your preferred language',
             ),
             const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildQuickActionCard(
-                    Icons.email, 'Email Support',
-                    () => _launchEmail('nextgenethiopia@gmail.com'),
-                    Colors.red,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _buildQuickActionCard(
-                    Icons.telegram, 'Telegram',
-                    () => _launchUrl('https://t.me/acadia_support'),
-                    Colors.blue,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-
-            // Tutorial Videos
-            Text(
-              'How to Use ACADIA',
-              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
             _buildTutorialCard(),
-            const SizedBox(height: 24),
+            const SizedBox(height: 28),
 
-            // Contact Section
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.grey[50],
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.grey[200]!),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withAlpha(((255 * 0.1)).toInt()),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Icon(Icons.headset_mic, color: AppColors.primary, size: 20),
-                      ),
-                      const SizedBox(width: 12),
-                      Text('Still need help?', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text('Our support team is here to assist you.', style: TextStyle(color: Colors.grey[600])),
-                  const SizedBox(height: 16),
-                  _buildContactRow(
-                    Icons.email, 'Email: nextgenethiopia@gmail.com',
-                    () => _launchEmail('nextgenethiopia@gmail.com'),
-                  ),
-                  const SizedBox(height: 8),
-                  _buildContactRow(
-                    Icons.telegram, 'Telegram: @acadia_support',
-                    () => _launchUrl('https://t.me/acadia_support'),
-                  ),
-                  const SizedBox(height: 8),
-                  _buildContactRow(
-                    Icons.phone, 'Phone: +251 967 870 090',
-                    () => _launchUrl('tel:+251967870090'),
-                  ),
-                  const SizedBox(height: 8),
-                  _buildContactRow(
-                    Icons.access_time, 'Response time: Within 24 hours',
-                    () {},
-                  ),
-                ],
-              ),
+            // Contact Support (single, consolidated support card)
+            _buildSectionHeader(
+              theme,
+              'Contact Support',
+              'Our team typically replies within 24 hours',
             ),
+            const SizedBox(height: 12),
+            _buildContactCard(),
             const SizedBox(height: 24),
 
             // Version info
@@ -407,33 +347,79 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
     );
   }
 
-  Widget _buildQuickActionCard(IconData icon, String label, VoidCallback onTap, Color color) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: color.withAlpha(((255 * 0.1)).toInt()),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(icon, color: color, size: 28),
-              ),
-              const SizedBox(height: 8),
-              Text(label, style: const TextStyle(fontWeight: FontWeight.w600), textAlign: TextAlign.center),
-            ],
-          ),
+  Widget _buildSectionHeader(ThemeData theme, String title, String subtitle) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
+        const SizedBox(height: 2),
+        Text(
+          subtitle,
+          style: TextStyle(color: Colors.grey[600], fontSize: 12),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildContactCard() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Column(
+        children: [
+          _buildContactRow(
+            icon: Icons.email_outlined,
+            label: 'Email Support',
+            subtitle: 'nextgenethiopia@gmail.com',
+            url: 'nextgenethiopia@gmail.com',
+            isEmail: true,
+          ),
+          _buildContactDivider(),
+          _buildContactRow(
+            icon: Icons.telegram,
+            asset: 'assets/icons/telegram_icon.png',
+            label: 'Telegram Support',
+            subtitle: '@acadia_supports',
+            url: 'https://t.me/acadia_supports',
+          ),
+          _buildContactDivider(),
+          _buildContactRow(
+            icon: Icons.phone_outlined,
+            label: 'Call Support',
+            subtitle: '+251 967 870 090',
+            url: 'tel:+251967870090',
+          ),
+          _buildContactDivider(),
+          _buildContactRow(
+            icon: Icons.play_circle_outline,
+            asset: 'assets/icons/youtube_icon.png',
+            label: 'YouTube Channel',
+            subtitle: '@acadia-app',
+            url: 'https://www.youtube.com/@acadia-app',
+          ),
+          _buildContactDivider(),
+          _buildContactRow(
+            icon: Icons.music_note,
+            asset: 'assets/icons/tiktok_icon.png',
+            label: 'TikTok',
+            subtitle: '@acadia.app',
+            url: 'https://www.tiktok.com/@acadia.app',
+          ),
+          _buildContactDivider(),
+          _buildResponseTime(),
+        ],
       ),
     );
   }
+
+  Widget _buildContactDivider() =>
+      Divider(height: 1, indent: 64, color: Colors.grey[100]);
 
   Widget _buildFaqItem(Map<String, dynamic> faq, ThemeData theme) {
     return Card(
@@ -444,7 +430,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
         leading: Container(
           padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
-            color: AppColors.primary.withAlpha(((255 * 0.1)).toInt()),
+            color: AppColors.primary.withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: const Icon(Icons.help_outline, color: AppColors.primary, size: 20),
@@ -469,9 +455,9 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
             margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.blue.withAlpha(((255 * 0.03)).toInt()),
+              color: Colors.blue.withOpacity(0.03),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.blue.withAlpha(((255 * 0.1)).toInt())),
+              border: Border.all(color: Colors.blue.withOpacity(0.1)),
             ),
             child: Text(
               faq['answer'],
@@ -497,7 +483,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withAlpha(((255 * 0.1)).toInt()),
+                  color: AppColors.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(Icons.play_circle_filled, color: AppColors.primary, size: 32),
@@ -507,9 +493,9 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Watch Tutorial Videos', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                    const Text('Watch Tutorial Video', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                     const SizedBox(height: 4),
-                    Text('Available in English, Amharic & Afaan Oromoo',
+                    Text('Available in English, Amharic & Afaan Oromoo — works offline',
                         style: TextStyle(color: Colors.grey[600], fontSize: 13)),
                   ],
                 ),
@@ -522,54 +508,117 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
     );
   }
 
-  Widget _buildContactRow(IconData icon, String text, VoidCallback onTap) {
+  Widget _buildContactRow({
+    required IconData icon,
+    String? asset,
+    required String label,
+    required String subtitle,
+    required String url,
+    bool isEmail = false,
+  }) {
     return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
+      onTap: () => isEmail ? _launchEmail(url) : _launchUrl(url),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(4),
+              width: 36,
+              height: 36,
+              alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: AppColors.primary.withAlpha(((255 * 0.1)).toInt()),
-                shape: BoxShape.circle,
+                color: AppColors.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(icon, size: 14, color: AppColors.primary),
+              child: asset == null
+                  ? Icon(icon, size: 18, color: AppColors.primary)
+                  : ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: Image.asset(
+                        asset,
+                        width: 20,
+                        height: 20,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) =>
+                            Icon(icon, size: 18, color: AppColors.primary),
+                      ),
+                    ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 12),
             Expanded(
-              child: Text(text, style: const TextStyle(fontSize: 13)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  ),
+                ],
+              ),
             ),
-            if (onTap != () {})
-              Icon(Icons.open_in_new, size: 14, color: Colors.grey[400]),
+            const Icon(Icons.chevron_right, size: 20, color: Colors.grey),
           ],
         ),
       ),
     );
   }
 
-  Future<void> _launchUrl(String url) async {
+  Widget _buildResponseTime() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        children: [
+          Icon(Icons.schedule, size: 18, color: Colors.grey[600]),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Response time: within 24 hours',
+              style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _launchUrl(String rawUrl) async {
+    var url = rawUrl.trim();
+    if (url.isEmpty) return;
+
+    if (url.startsWith('@')) {
+      url = 'https://t.me/${url.substring(1)}';
+    } else if (!url.startsWith('http://') &&
+        !url.startsWith('https://') &&
+        !url.startsWith('mailto:') &&
+        !url.startsWith('tel:')) {
+      url = 'https://$url';
+    }
+
     try {
       final uri = Uri.parse(url);
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Could not open link'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
+      bool launched = false;
+      try {
+        launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } catch (_) {
+        launched = false;
+      }
+      if (!launched) {
+        await launchUrl(uri, mode: LaunchMode.platformDefault);
       }
     } catch (e) {
+      debugPrint('Error launching URL: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: ${e.toString()}'),
+          const SnackBar(
+            content: Text('Could not open link'),
             backgroundColor: Colors.red,
           ),
         );
@@ -578,9 +627,33 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
   }
 
   Future<void> _launchEmail(String email) async {
-    final uri = Uri.parse('mailto:$email');
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
+    var cleanEmail = email.trim();
+    if (cleanEmail.isEmpty) return;
+    if (cleanEmail.startsWith('mailto:')) {
+      cleanEmail = cleanEmail.substring(7);
+    }
+
+    try {
+      final uri = Uri.parse('mailto:$cleanEmail');
+      bool launched = false;
+      try {
+        launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } catch (_) {
+        launched = false;
+      }
+      if (!launched) {
+        await launchUrl(uri, mode: LaunchMode.platformDefault);
+      }
+    } catch (e) {
+      debugPrint('Error launching email: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Could not open email client'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 }

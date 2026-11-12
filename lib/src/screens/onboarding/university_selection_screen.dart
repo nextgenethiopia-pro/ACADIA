@@ -185,7 +185,7 @@ class _UniversitySelectionScreenState extends State<UniversitySelectionScreen> {
         title: Text(_generation ?? 'Select University'),
       ),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -193,10 +193,10 @@ class _UniversitySelectionScreenState extends State<UniversitySelectionScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withAlpha(((255 * 0.06)).toInt()),
+                  color: AppColors.primary.withOpacity(0.06),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: AppColors.primary.withAlpha(((255 * 0.14)).toInt()),
+                    color: AppColors.primary.withOpacity(0.14),
                   ),
                 ),
                 child: Row(
@@ -206,7 +206,7 @@ class _UniversitySelectionScreenState extends State<UniversitySelectionScreen> {
                       width: 46,
                       height: 46,
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withAlpha(((255 * 0.12)).toInt()),
+                        color: AppColors.primary.withOpacity(0.12),
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: Icon(
@@ -301,7 +301,7 @@ class _UniversitySelectionScreenState extends State<UniversitySelectionScreen> {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withAlpha(((255 * 0.08)).toInt()),
+                        color: AppColors.primary.withOpacity(0.08),
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: const Text(
@@ -316,7 +316,8 @@ class _UniversitySelectionScreenState extends State<UniversitySelectionScreen> {
                 ],
               ),
               const SizedBox(height: 12),
-              Expanded(
+              SizedBox(
+                height: 400,
                 child: _filteredUniversities.isEmpty
                     ? Center(
                         child: Column(
@@ -368,7 +369,7 @@ class _UniversitySelectionScreenState extends State<UniversitySelectionScreen> {
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
                                 color: isSelected
-                                    ? AppColors.primary.withAlpha(((255 * 0.06)).toInt())
+                                    ? AppColors.primary.withOpacity(0.06)
                                     : Colors.white,
                                 borderRadius: BorderRadius.circular(18),
                                 border: Border.all(
@@ -380,8 +381,8 @@ class _UniversitySelectionScreenState extends State<UniversitySelectionScreen> {
                                 boxShadow: [
                                   BoxShadow(
                                     color: isSelected
-                                        ? AppColors.primary.withAlpha(((255 * 0.10)).toInt())
-                                        : Colors.black.withAlpha(((255 * 0.03)).toInt()),
+                                        ? AppColors.primary.withOpacity(0.10)
+                                        : Colors.black.withOpacity(0.03),
                                     blurRadius: isSelected ? 16 : 8,
                                     offset: const Offset(0, 4),
                                   ),

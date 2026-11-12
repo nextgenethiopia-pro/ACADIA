@@ -15,7 +15,7 @@ extension GetAIContextCollection on Isar {
 
 const AIContextSchema = CollectionSchema(
   name: r'AIContext',
-  id: -4638677768107256,
+  id: -2202125139643435539,
   properties: {
     r'answer': PropertySchema(
       id: 0,

@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
 import 'package:acadia/src/core/constants/colors.dart';
+import 'package:acadia/src/core/constants/app_constants.dart';
 
 class TutorialVideoScreen extends StatefulWidget {
   const TutorialVideoScreen({super.key});
@@ -19,12 +21,8 @@ class _TutorialVideoScreenState extends State<TutorialVideoScreen> {
   bool _showControls = true;
   Timer? _controlsTimer;
 
-  // Local asset videos
-  final Map<String, String> _videoAssets = {
-    'English': 'assets/videos/tutorial_english.mp4',
-    'Amharic': 'assets/videos/tutorial_amharic.mp4',
-    'Afaan Oromoo': 'assets/videos/tutorial_oromo.mp4',
-  };
+  // Single tutorial video shown for every language.
+  static const String _tutorialAsset = 'assets/videos/how_to_use.mp4';
 
   // Video descriptions
   final Map<String, String> _videoDescriptions = {
@@ -39,7 +37,30 @@ class _TutorialVideoScreenState extends State<TutorialVideoScreen> {
   @override
   void initState() {
     super.initState();
-    _loadVideo(_selectedLanguage);
+    _initLanguageAndVideo();
+  }
+
+  Future<void> _initLanguageAndVideo() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final saved = prefs.getString(AppConstants.keyLanguage);
+      if (saved != null && _videoDescriptions.containsKey(saved)) {
+        _selectedLanguage = saved;
+      }
+    } catch (e) {
+      debugPrint('Error reading language preference: $e');
+    }
+    if (!mounted) return;
+    _loadVideo();
+  }
+
+  Future<void> _saveLanguage(String language) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(AppConstants.keyLanguage, language);
+    } catch (e) {
+      debugPrint('Error saving language preference: $e');
+    }
   }
 
   @override
@@ -49,7 +70,7 @@ class _TutorialVideoScreenState extends State<TutorialVideoScreen> {
     super.dispose();
   }
 
-  Future<void> _loadVideo(String language) async {
+  Future<void> _loadVideo() async {
     if (_controller != null) {
       await _controller!.dispose();
     }
@@ -60,11 +81,8 @@ class _TutorialVideoScreenState extends State<TutorialVideoScreen> {
       _showControls = true;
     });
 
-    final assetPath = _videoAssets[language];
-    if (assetPath == null) return;
-
     try {
-      _controller = VideoPlayerController.asset(assetPath)
+      _controller = VideoPlayerController.asset(_tutorialAsset)
         ..initialize().then((_) {
           if (mounted) {
             setState(() {
@@ -122,14 +140,14 @@ class _TutorialVideoScreenState extends State<TutorialVideoScreen> {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppColors.primary.withAlpha(((255 * 0.05)).toInt()),
-                  AppColors.secondary.withAlpha(((255 * 0.02)).toInt())
+                  AppColors.primary.withOpacity(0.05),
+                  AppColors.secondary.withOpacity(0.02)
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.primary.withAlpha(((255 * 0.2)).toInt())),
+              border: Border.all(color: AppColors.primary.withOpacity(0.2)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -139,7 +157,7 @@ class _TutorialVideoScreenState extends State<TutorialVideoScreen> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withAlpha(((255 * 0.1)).toInt()),
+                        color: AppColors.primary.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: const Icon(Icons.language,
@@ -171,14 +189,26 @@ class _TutorialVideoScreenState extends State<TutorialVideoScreen> {
                       child: DropdownButton<String>(
                         value: _selectedLanguage,
                         underline: const SizedBox(),
+                        dropdownColor: Colors.white,
+                        style: const TextStyle(
+                          color: Colors.black87,
+                          fontSize: 14,
+                        ),
+                        iconEnabledColor: AppColors.primary,
                         items: ['English', 'Amharic', 'Afaan Oromoo']
                             .map((lang) => DropdownMenuItem(
-                                value: lang, child: Text(lang)))
+                                value: lang,
+                                child: Text(
+                                  lang,
+                                  style: const TextStyle(
+                                    color: Colors.black87,
+                                  ),
+                                )))
                             .toList(),
                         onChanged: (value) {
                           if (value != null) {
                             setState(() => _selectedLanguage = value);
-                            _loadVideo(value);
+                            _saveLanguage(value);
                           }
                         },
                       ),
@@ -190,7 +220,7 @@ class _TutorialVideoScreenState extends State<TutorialVideoScreen> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: Colors.blue.withAlpha(((255 * 0.05)).toInt()),
+                      color: Colors.blue.withOpacity(0.05),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
@@ -225,7 +255,7 @@ class _TutorialVideoScreenState extends State<TutorialVideoScreen> {
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withAlpha(((255 * 0.1)).toInt()),
+                      color: Colors.black.withOpacity(0.1),
                       blurRadius: 20,
                       offset: const Offset(0, 10),
                     ),
@@ -318,7 +348,7 @@ class _TutorialVideoScreenState extends State<TutorialVideoScreen> {
                                     ),
                                     const SizedBox(height: 8),
                                     Text(
-                                      'Please add MP4 files to assets/videos/',
+                                      'Please make sure assets/videos/how_to_use.mp4 is bundled with the app.',
                                       style: TextStyle(
                                           color: Colors.grey[500],
                                           fontSize: 13),
@@ -351,7 +381,7 @@ class _TutorialVideoScreenState extends State<TutorialVideoScreen> {
                   color: Colors.white,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withAlpha(((255 * 0.05)).toInt()),
+                      color: Colors.black.withOpacity(0.05),
                       blurRadius: 10,
                       offset: const Offset(0, -2),
                     ),
@@ -366,7 +396,7 @@ class _TutorialVideoScreenState extends State<TutorialVideoScreen> {
                         allowScrubbing: true,
                         colors: VideoProgressColors(
                           playedColor: AppColors.primary,
-                          bufferedColor: AppColors.primary.withAlpha(((255 * 0.3)).toInt()),
+                          bufferedColor: AppColors.primary.withOpacity(0.3),
                           backgroundColor: Colors.grey[300]!,
                         ),
                       ),
@@ -410,7 +440,7 @@ class _TutorialVideoScreenState extends State<TutorialVideoScreen> {
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.primary.withAlpha(((255 * 0.3)).toInt()),
+                                  color: AppColors.primary.withOpacity(0.3),
                                   blurRadius: 8,
                                 ),
                               ],

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:acadia/src/core/constants/colors.dart';
+import 'package:acadia/src/local_database/isar_service.dart';
 
 class EntranceScheduleScreen extends StatefulWidget {
   const EntranceScheduleScreen({super.key});
@@ -21,8 +23,8 @@ class _EntranceScheduleScreenState extends State<EntranceScheduleScreen> {
   double _overallProgress = 0.0;
   String _focusLevel = 'Balanced';
   String _focusMessage = '';
-  String _headerTitle = 'Progress-Based Study Schedule';
-  String _headerSubtitle =
+  final String _headerTitle = 'Progress-Based Study Schedule';
+  final String _headerSubtitle =
       'A personalized entrance preparation plan based on your current learning progress.';
 
   late List<_ProgressMetric> _progressMetrics;
@@ -47,7 +49,18 @@ class _EntranceScheduleScreenState extends State<EntranceScheduleScreen> {
         'natural';
     final studentName = prefs.getString('user_name') ?? 'Student';
 
-    final metrics = _buildMetricsForStream(stream);
+    // Load real subject progress from Isar
+    final userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+    List<Map<String, dynamic>> isarProgress = [];
+    if (userId.isNotEmpty) {
+      try {
+        isarProgress = await IsarService.instance.getSubjectProgress(userId);
+      } catch (_) {
+        // Fall back to empty list — defaults handled below
+      }
+    }
+
+    final metrics = _buildMetricsForStream(stream, isarProgress);
     final overallProgress = metrics
             .map((metric) => metric.progress)
             .fold<double>(0, (a, b) => a + b) /
@@ -112,88 +125,66 @@ class _EntranceScheduleScreenState extends State<EntranceScheduleScreen> {
     });
   }
 
-  List<_ProgressMetric> _buildMetricsForStream(String stream) {
-    final isSocial = stream.toLowerCase() == 'social';
+  List<_ProgressMetric> _buildMetricsForStream(
+    String stream,
+    List<Map<String, dynamic>> isarProgress,
+  ) {
+    final isSocial = stream.toLowerCase() == 'social' ||
+        stream.toLowerCase().contains('social');
 
-    if (isSocial) {
-      return [
-        const _ProgressMetric(
-          subject: 'Economics',
-          progress: 0.38,
-          chaptersDone: 3,
-          totalChapters: 8,
-        ),
-        const _ProgressMetric(
-          subject: 'Geography',
-          progress: 0.44,
-          chaptersDone: 4,
-          totalChapters: 9,
-        ),
-        const _ProgressMetric(
-          subject: 'History',
-          progress: 0.61,
-          chaptersDone: 5,
-          totalChapters: 8,
-        ),
-        const _ProgressMetric(
-          subject: 'Citizenship',
-          progress: 0.55,
-          chaptersDone: 5,
-          totalChapters: 9,
-        ),
-        const _ProgressMetric(
-          subject: 'Mathematics',
-          progress: 0.47,
-          chaptersDone: 4,
-          totalChapters: 8,
-        ),
-        const _ProgressMetric(
-          subject: 'English',
-          progress: 0.67,
-          chaptersDone: 6,
-          totalChapters: 9,
-        ),
-      ];
+    // Canonical subject definitions — totalChapters are the reference values
+    final List<Map<String, dynamic>> subjectDefs = isSocial
+        ? [
+            {'subject': 'Economics', 'totalChapters': 8},
+            {'subject': 'Geography', 'totalChapters': 9},
+            {'subject': 'History', 'totalChapters': 8},
+            {'subject': 'Citizenship', 'totalChapters': 9},
+            {'subject': 'Mathematics', 'totalChapters': 8},
+            {'subject': 'English', 'totalChapters': 9},
+          ]
+        : [
+            {'subject': 'Mathematics', 'totalChapters': 10},
+            {'subject': 'Physics', 'totalChapters': 9},
+            {'subject': 'Chemistry', 'totalChapters': 10},
+            {'subject': 'Biology', 'totalChapters': 10},
+            {'subject': 'English', 'totalChapters': 10},
+            {'subject': 'Aptitude', 'totalChapters': 9},
+          ];
+
+    // Build a lookup map from Isar data (case-insensitive)
+    final progressMap = <String, Map<String, dynamic>>{};
+    for (final p in isarProgress) {
+      final key = (p['subject'] as String? ?? '').toLowerCase();
+      progressMap[key] = p;
     }
 
-    return [
-      const _ProgressMetric(
-        subject: 'Mathematics',
-        progress: 0.42,
-        chaptersDone: 4,
-        totalChapters: 10,
-      ),
-      const _ProgressMetric(
-        subject: 'Physics',
-        progress: 0.34,
-        chaptersDone: 3,
-        totalChapters: 9,
-      ),
-      const _ProgressMetric(
-        subject: 'Chemistry',
-        progress: 0.51,
-        chaptersDone: 5,
-        totalChapters: 10,
-      ),
-      const _ProgressMetric(
-        subject: 'Biology',
-        progress: 0.63,
-        chaptersDone: 6,
-        totalChapters: 10,
-      ),
-      const _ProgressMetric(
-        subject: 'English',
-        progress: 0.71,
-        chaptersDone: 7,
-        totalChapters: 10,
-      ),
-      const _ProgressMetric(
-        subject: 'Aptitude',
-        progress: 0.46,
-        chaptersDone: 4,
-        totalChapters: 9,
-      ),
-    ];
+    return subjectDefs.map((def) {
+      final subject = def['subject'] as String;
+      final totalChapters = def['totalChapters'] as int;
+      final isarEntry = progressMap[subject.toLowerCase()];
+
+      int done = 0;
+      double progress = 0.0;
+
+      if (isarEntry != null) {
+        done = (isarEntry['lessons_completed'] as num?)?.toInt() ?? 0;
+        final total = (isarEntry['total_lessons'] as num?)?.toInt();
+        if (total != null && total > 0) {
+          progress = (done / total).clamp(0.0, 1.0);
+        } else {
+          final pct = (isarEntry['completion_percentage'] as num?)?.toDouble() ?? 0;
+          progress = (pct / 100).clamp(0.0, 1.0);
+          done = (progress * totalChapters).round();
+        }
+      }
+
+      return _ProgressMetric(
+        subject: subject,
+        progress: progress,
+        chaptersDone: done.clamp(0, totalChapters),
+        totalChapters: totalChapters,
+      );
+    }).toList();
   }
 
   String _deriveFocusLevel(double progress) {
@@ -258,11 +249,11 @@ class _EntranceScheduleScreenState extends State<EntranceScheduleScreen> {
     return [
       _WeeklyFocusItem(day: 'Monday', subject: weakest.subject),
       _WeeklyFocusItem(day: 'Tuesday', subject: secondWeakest.subject),
-      _WeeklyFocusItem(day: 'Wednesday', subject: 'Past Paper Practice'),
+      const _WeeklyFocusItem(day: 'Wednesday', subject: 'Past Paper Practice'),
       _WeeklyFocusItem(day: 'Thursday', subject: weakest.subject),
       _WeeklyFocusItem(day: 'Friday', subject: strongest.subject),
-      _WeeklyFocusItem(day: 'Saturday', subject: 'Mock Exam + Review'),
-      _WeeklyFocusItem(day: 'Sunday', subject: 'Weak-Area Revision'),
+      const _WeeklyFocusItem(day: 'Saturday', subject: 'Mock Exam + Review'),
+      const _WeeklyFocusItem(day: 'Sunday', subject: 'Weak-Area Revision'),
     ];
   }
 
@@ -376,7 +367,7 @@ class _EntranceScheduleScreenState extends State<EntranceScheduleScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           colors: [
             AppColors.primary,
             AppColors.primaryLight,
@@ -387,7 +378,7 @@ class _EntranceScheduleScreenState extends State<EntranceScheduleScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withAlpha((255 * 0.22).toInt()),
+            color: AppColors.primary.withOpacity(0.22),
             blurRadius: 18,
             offset: const Offset(0, 8),
           ),
@@ -435,7 +426,7 @@ class _EntranceScheduleScreenState extends State<EntranceScheduleScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withAlpha((255 * 0.14).toInt()),
+        color: Colors.white.withOpacity(0.14),
         borderRadius: BorderRadius.circular(999),
         border: Border.all(color: Colors.white24),
       ),
@@ -488,10 +479,10 @@ class _EntranceScheduleScreenState extends State<EntranceScheduleScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.primary.withAlpha((255 * 0.10).toInt())),
+        border: Border.all(color: AppColors.primary.withOpacity(0.10)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha((255 * 0.04).toInt()),
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -538,9 +529,9 @@ class _EntranceScheduleScreenState extends State<EntranceScheduleScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.primary.withAlpha((255 * 0.06).toInt()),
+        color: AppColors.primary.withOpacity(0.06),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.primary.withAlpha((255 * 0.12).toInt())),
+        border: Border.all(color: AppColors.primary.withOpacity(0.12)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -623,10 +614,10 @@ class _EntranceScheduleScreenState extends State<EntranceScheduleScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.primary.withAlpha((255 * 0.10).toInt())),
+        border: Border.all(color: AppColors.primary.withOpacity(0.10)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha((255 * 0.035).toInt()),
+            color: Colors.black.withOpacity(0.035),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -650,7 +641,7 @@ class _EntranceScheduleScreenState extends State<EntranceScheduleScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withAlpha((255 * 0.08).toInt()),
+                  color: AppColors.primary.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(
@@ -669,7 +660,7 @@ class _EntranceScheduleScreenState extends State<EntranceScheduleScreen> {
             value: metric.progress,
             minHeight: 9,
             borderRadius: BorderRadius.circular(999),
-            backgroundColor: AppColors.primary.withAlpha((255 * 0.10).toInt()),
+            backgroundColor: AppColors.primary.withOpacity(0.10),
             valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
           ),
           const SizedBox(height: 10),
@@ -711,10 +702,10 @@ class _EntranceScheduleScreenState extends State<EntranceScheduleScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.primary.withAlpha((255 * 0.10).toInt())),
+        border: Border.all(color: AppColors.primary.withOpacity(0.10)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha((255 * 0.035).toInt()),
+            color: Colors.black.withOpacity(0.035),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -727,7 +718,7 @@ class _EntranceScheduleScreenState extends State<EntranceScheduleScreen> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: AppColors.primary.withAlpha((255 * 0.08).toInt()),
+              color: AppColors.primary.withOpacity(0.08),
               borderRadius: BorderRadius.circular(14),
             ),
             child: Icon(session.icon, color: AppColors.primary),
@@ -778,10 +769,10 @@ class _EntranceScheduleScreenState extends State<EntranceScheduleScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.primary.withAlpha((255 * 0.10).toInt())),
+        border: Border.all(color: AppColors.primary.withOpacity(0.10)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha((255 * 0.035).toInt()),
+            color: Colors.black.withOpacity(0.035),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -839,10 +830,10 @@ class _EntranceScheduleScreenState extends State<EntranceScheduleScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.primary.withAlpha((255 * 0.10).toInt())),
+        border: Border.all(color: AppColors.primary.withOpacity(0.10)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha((255 * 0.035).toInt()),
+            color: Colors.black.withOpacity(0.035),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),

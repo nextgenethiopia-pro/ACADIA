@@ -15,7 +15,7 @@ extension GetSubjectProgressCollection on Isar {
 
 const SubjectProgressSchema = CollectionSchema(
   name: r'SubjectProgress',
-  id: 7478109582456005,
+  id: 5790100031126172227,
   properties: {
     r'completionPercentage': PropertySchema(
       id: 0,

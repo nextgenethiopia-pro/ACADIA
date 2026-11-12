@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:acadia/src/core/services/firebase_service.dart';
-import 'package:acadia/src/core/services/offline_database.dart';
+import 'package:acadia/src/local_database/isar_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:acadia/src/core/constants/colors.dart';
+import 'package:acadia/src/core/constants/academic_structure.dart';
 
 class ProgressTab extends StatefulWidget {
   const ProgressTab({super.key});
@@ -14,6 +14,7 @@ class ProgressTab extends StatefulWidget {
 }
 
 class _ProgressTabState extends State<ProgressTab> {
+  final IsarService _isarService = IsarService.instance;
   String? _userGrade;
   String? _userStream;
   String? _userPath;
@@ -30,10 +31,12 @@ class _ProgressTabState extends State<ProgressTab> {
   double _averageScore = 0;
   int _currentStreak = 0;
   int _longestStreak = 0;
-  Map<String, int> _weeklyActivity = {}; // Mon-Sun activity in hours
+  Map<String, int> _weeklyActivity = {};
   List<Map<String, dynamic>> _achievements = [];
 
-  // Subject colors and icons
+  // ============================================
+  // SUBJECT DATA
+  // ============================================
   static const Map<String, Color> _subjectColors = {
     'Mathematics': Color(0xFF9C27B0),
     'English': Color(0xFF2196F3),
@@ -103,6 +106,9 @@ class _ProgressTabState extends State<ProgressTab> {
     _loadData();
   }
 
+  // ============================================
+  // LOAD DATA
+  // ============================================
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
     try {
@@ -114,8 +120,11 @@ class _ProgressTabState extends State<ProgressTab> {
       final track = prefs.getString('selected_track');
 
       _subjects = _getSubjectsForPath(_userGrade, _userStream, semester, track);
-      
-      // Load real progress from local database
+
+      final user = FirebaseAuth.instance.currentUser;
+      final userId = user?.uid ?? 'local_user';
+      await _isarService.initializeUserProgress(userId);
+
       await _loadLocalProgress();
       await _loadWeeklyActivity();
       await _loadAchievements();
@@ -128,175 +137,101 @@ class _ProgressTabState extends State<ProgressTab> {
     }
   }
 
+  // ============================================
+  // LOAD LOCAL PROGRESS
+  // ============================================
   Future<void> _loadLocalProgress() async {
     try {
-      final offlineDb = OfflineDatabase.instance;
-      final db = await offlineDb.database;
-      
-      final userId = FirebaseAuth.instance.currentUser?.uid;
-      if (userId == null) return;
+      final user = FirebaseAuth.instance.currentUser;
+      final userId = user?.uid ?? 'local_user';
 
-      // Load user progress from local table
-      final progressResult = await db.query(
-        'user_progress',
-        where: 'user_id = ?',
-        whereArgs: [userId],
-      );
+      final userProgress = await _isarService.getUserProgress(userId);
 
-      if (progressResult.isNotEmpty) {
-        final progress = progressResult.first;
-        _totalStudyHours = (progress['total_study_hours'] as num?)?.toDouble() ?? 0;
-        _lessonsCompleted = (progress['lessons_completed'] as num?)?.toInt() ?? 0;
-        _quizzesPassed = (progress['quizzes_passed'] as num?)?.toInt() ?? 0;
-        _averageScore = (progress['average_score'] as num?)?.toDouble() ?? 0;
-        _currentStreak = (progress['current_streak'] as num?)?.toInt() ?? 0;
-        _longestStreak = (progress['longest_streak'] as num?)?.toInt() ?? 0;
-      } else {
-        // Create default progress record
-        await db.insert('user_progress', {
-          'user_id': userId,
-          'total_study_hours': 0,
-          'lessons_completed': 0,
-          'quizzes_passed': 0,
-          'average_score': 0,
-          'current_streak': 0,
-          'longest_streak': 0,
-          'last_active_date': DateTime.now().toIso8601String(),
-        });
+      if (userProgress.isNotEmpty) {
+        _totalStudyHours =
+            (userProgress['total_study_time'] as num? ?? 0) / 3600.0;
+        _lessonsCompleted = userProgress['lessons_completed'] as int? ?? 0;
+        _quizzesPassed = userProgress['quizzes_passed'] as int? ?? 0;
+        _averageScore =
+            (userProgress['average_score'] as num?)?.toDouble() ?? 0.0;
+        _currentStreak = userProgress['current_streak'] as int? ?? 1;
+        _longestStreak = userProgress['longest_streak'] as int? ?? 1;
       }
 
-      // Get total lessons from content table
-      final contentCount = await db.query('offline_content');
-      _totalLessons = contentCount.length;
-      
-      // Get total quizzes from content table
-      final quizzesResult = await db.query(
-        'offline_content',
-        where: 'content_type IN (?, ?)',
-        whereArgs: ['quiz', 'exam'],
-      );
-      _totalQuizzes = quizzesResult.length;
+      final downloadedContents =
+          await _isarService.getAllDownloadedContent(userId);
+      final downloadedQuizCount = downloadedContents
+          .where((c) => c.contentType == 'quiz' || c.contentType == 'exam')
+          .length;
+      _totalQuizzes = downloadedQuizCount > _quizzesPassed
+          ? downloadedQuizCount
+          : (_quizzesPassed > 0 ? _quizzesPassed : 10);
 
-      // Also try to sync with Firebase if online
-      _syncWithFirebase(userId);
-      
+      // Compute total curriculum lessons from AcademicStructure
+      int totalChapters = 0;
+      final gradeNum =
+          RegExp(r'(\d+)').firstMatch(_userGrade ?? '')?.group(1) ?? '9';
+      for (final s in _subjects) {
+        totalChapters +=
+            AcademicStructure.getChapters(gradeNum, _userStream ?? 'natural', s)
+                .length;
+      }
+      _totalLessons = totalChapters > 0 ? totalChapters : 24;
     } catch (e) {
       debugPrint('Error loading local progress: $e');
     }
   }
 
-  Future<void> _syncWithFirebase(String userId) async {
-    try {
-      final firebase = FirebaseService();
-      final userData = await firebase.getDocument('users', userId);
-      
-      if (userData != null) {
-        final offlineDb = OfflineDatabase.instance;
-        final db = await offlineDb.database;
-        
-        await db.update(
-          'user_progress',
-          {
-            'total_study_hours': userData['total_study_hours'] ?? _totalStudyHours,
-            'lessons_completed': userData['lessons_completed'] ?? _lessonsCompleted,
-            'quizzes_passed': userData['quizzes_passed'] ?? _quizzesPassed,
-            'average_score': userData['average_score'] ?? _averageScore,
-            'current_streak': userData['current_streak'] ?? _currentStreak,
-            'longest_streak': userData['longest_streak'] ?? _longestStreak,
-          },
-          where: 'user_id = ?',
-          whereArgs: [userId],
-        );
-        
-        // Reload updated data
-        final updated = await db.query(
-          'user_progress',
-          where: 'user_id = ?',
-          whereArgs: [userId],
-        );
-        
-        if (updated.isNotEmpty) {
-          setState(() {
-            _totalStudyHours = (updated.first['total_study_hours'] as num?)?.toDouble() ?? 0;
-            _lessonsCompleted = (updated.first['lessons_completed'] as num?)?.toInt() ?? 0;
-            _quizzesPassed = (updated.first['quizzes_passed'] as num?)?.toInt() ?? 0;
-            _averageScore = (updated.first['average_score'] as num?)?.toDouble() ?? 0;
-            _currentStreak = (updated.first['current_streak'] as num?)?.toInt() ?? 0;
-            _longestStreak = (updated.first['longest_streak'] as num?)?.toInt() ?? 0;
-          });
-        }
-      }
-    } catch (e) {
-      debugPrint('Error syncing with Firebase: $e');
-    }
-  }
-
   Future<void> _loadWeeklyActivity() async {
     try {
-      final offlineDb = OfflineDatabase.instance;
-      final db = await offlineDb.database;
-      
-      final userId = FirebaseAuth.instance.currentUser?.uid;
-      if (userId == null) return;
+      final user = FirebaseAuth.instance.currentUser;
+      final userId = user?.uid ?? 'local_user';
 
-      // Get activity logs for the last 7 days
-      final weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-      final now = DateTime.now();
-      final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-      
-      for (int i = 0; i < 7; i++) {
-        final day = startOfWeek.add(Duration(days: i));
-        final dayStart = DateTime(day.year, day.month, day.day);
-        final dayEnd = dayStart.add(const Duration(days: 1));
-        
-        final activityResult = await db.query(
-          'study_activity',
-          where: 'user_id = ? AND activity_date >= ? AND activity_date < ?',
-          whereArgs: [userId, dayStart.toIso8601String(), dayEnd.toIso8601String()],
-        );
-        
-        double totalHours = 0;
-        for (final activity in activityResult) {
-          totalHours += (activity['study_minutes'] as num?)?.toInt() ?? 0;
-        }
-        
-        _weeklyActivity[weekDays[i]] = (totalHours / 60).ceil();
+      final weeklyActivityList = await _isarService.getWeeklyActivity(userId);
+      final days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      final weeklyActivity = <String, int>{for (var d in days) d: 0};
+
+      for (final activity in weeklyActivityList) {
+        final dayOfWeek = activity['day_of_week'] as int? ?? 1;
+        final dayIndex = (dayOfWeek - 1).clamp(0, 6);
+        final dayName = days[dayIndex];
+        final hours = (activity['hours_studied'] as num?)?.toDouble() ?? 0.0;
+        weeklyActivity[dayName] =
+            hours >= 1 ? hours.round() : (hours > 0 ? 1 : 0);
       }
+      _weeklyActivity = weeklyActivity;
     } catch (e) {
       debugPrint('Error loading weekly activity: $e');
-      // Default empty activity
-      _weeklyActivity = {'Mon': 0, 'Tue': 0, 'Wed': 0, 'Thu': 0, 'Fri': 0, 'Sat': 0, 'Sun': 0};
+      _weeklyActivity = {
+        'Mon': 0,
+        'Tue': 0,
+        'Wed': 0,
+        'Thu': 0,
+        'Fri': 0,
+        'Sat': 0,
+        'Sun': 0
+      };
     }
   }
 
   Future<void> _loadSubjectProgress() async {
     try {
-      final offlineDb = OfflineDatabase.instance;
-      final db = await offlineDb.database;
-      
-      final userId = FirebaseAuth.instance.currentUser?.uid;
-      if (userId == null) return;
+      final user = FirebaseAuth.instance.currentUser;
+      final userId = user?.uid ?? 'local_user';
 
-      for (final subject in _subjects) {
-        // Get total content for this subject
-        final totalContent = await db.query(
-          'offline_content',
-          where: 'subject = ?',
-          whereArgs: [subject],
-        );
-        
-        // Get completed content for this subject
-        final completedContent = await db.query(
-          'offline_content',
-          where: 'subject = ? AND is_completed = 1',
-          whereArgs: [subject],
-        );
-        
-        final total = totalContent.length;
-        final completed = completedContent.length;
-        final progress = total > 0 ? completed / total : 0.0;
-        
-        _subjectProgress[subject] = progress;
+      final subjectProgressList =
+          await _isarService.getSubjectProgress(userId);
+      for (final sp in subjectProgressList) {
+        final subject = (sp['subject'] as String? ?? '').trim();
+        final rawPct =
+            (sp['completion_percentage'] as num?)?.toDouble() ?? 0.0;
+        // Normalize 0..100 percentage to 0.0..1.0
+        final normalizedPct =
+            (rawPct > 1.0 ? rawPct / 100.0 : rawPct).clamp(0.0, 1.0);
+        if (subject.isNotEmpty) {
+          _subjectProgress[subject] = normalizedPct;
+          _subjectProgress[subject.toLowerCase()] = normalizedPct;
+        }
       }
     } catch (e) {
       debugPrint('Error loading subject progress: $e');
@@ -305,79 +240,49 @@ class _ProgressTabState extends State<ProgressTab> {
 
   Future<void> _loadAchievements() async {
     try {
-      final offlineDb = OfflineDatabase.instance;
-      final db = await offlineDb.database;
-      
-      final userId = FirebaseAuth.instance.currentUser?.uid;
-      if (userId == null) return;
+      final user = FirebaseAuth.instance.currentUser;
+      final userId = user?.uid ?? 'local_user';
 
-      // Load achievements from local database
-      final achievementsResult = await db.query(
-        'user_achievements',
-        where: 'user_id = ?',
-        whereArgs: [userId],
-      );
-      
-      final unlockedSet = <String>{};
-      for (final achievement in achievementsResult) {
-        if (achievement['unlocked'] == 1) {
-          unlockedSet.add(achievement['achievement_name'].toString());
-        }
-      }
-      
-      // Define achievements based on ACADIA spec
-      _achievements = [
-        {'title': 'First Steps', 'description': 'Complete first content item', 'icon': Icons.school, 'color': Colors.blue, 'unlocked': _lessonsCompleted > 0},
-        {'title': 'Perfect Week', 'description': '7-day study streak', 'icon': Icons.local_fire_department, 'color': Colors.orange, 'unlocked': _currentStreak >= 7},
-        {'title': 'Quiz Master', 'description': 'Pass 10 quizzes', 'icon': Icons.quiz, 'color': Colors.green, 'unlocked': _quizzesPassed >= 10},
-        {'title': 'Dedicated', 'description': '50 hours of study', 'icon': Icons.timer, 'color': Colors.purple, 'unlocked': _totalStudyHours >= 50},
-      ];
-      
-      // Save unlocked achievements to local DB if not already
-      for (final achievement in _achievements) {
-        if (achievement['unlocked'] == true && !unlockedSet.contains(achievement['title'])) {
-          await db.insert('user_achievements', {
-            'user_id': userId,
-            'achievement_name': achievement['title'],
-            'unlocked': 1,
-            'unlocked_at': DateTime.now().toIso8601String(),
-          });
-        }
-      }
-      
+      final achievements = await _isarService.getAchievements(userId);
+      _achievements = achievements.map((a) {
+        return {
+          'title': a['badge_name'] as String? ?? 'Achievement',
+          'unlocked': a['is_unlocked'] as bool? ?? false,
+          'icon': Icons.emoji_events,
+          'color': Colors.amber,
+          'description': 'Completed achievement',
+        };
+      }).toList();
     } catch (e) {
       debugPrint('Error loading achievements: $e');
-      // Fallback achievements
-      _achievements = [
-        {'title': 'First Steps', 'description': 'Complete first content item', 'icon': Icons.school, 'color': Colors.blue, 'unlocked': false},
-        {'title': 'Perfect Week', 'description': '7-day study streak', 'icon': Icons.local_fire_department, 'color': Colors.orange, 'unlocked': false},
-        {'title': 'Quiz Master', 'description': 'Pass 10 quizzes', 'icon': Icons.quiz, 'color': Colors.green, 'unlocked': false},
-        {'title': 'Dedicated', 'description': '50 hours of study', 'icon': Icons.timer, 'color': Colors.purple, 'unlocked': false},
-      ];
+      _achievements = [];
     }
   }
 
-  List<String> _getSubjectsForPath(String? grade, String? stream, String? semester, String? track) {
-    if (grade == null) return [];
-    String key;
-    if (grade == '9') {
-      key = 'grade_9';
-    } else if (grade == '10') {
-      key = 'grade_10';
-    } else if (grade == '11') {
-      key = stream == 'social' ? 'grade_11_social' : 'grade_11_natural';
-    } else if (grade == '12') {
-      key = stream == 'social' ? 'grade_12_social' : 'grade_12_natural';
-    } else if (_userPath == 'university' || _userPath == 'UNIVERSITY') {
+  // ============================================
+  // HELPERS
+  // ============================================
+  List<String> _getSubjectsForPath(
+      String? grade, String? stream, String? semester, String? track) {
+    final normalizedPath = (_userPath ?? '').toUpperCase();
+    final normalizedStream = (stream ?? '').toLowerCase();
+    final streamKey =
+        normalizedStream.contains('social') ? 'social' : 'natural';
+
+    if (normalizedPath == 'UNIVERSITY' ||
+        normalizedPath.contains('UNIVERSITY') ||
+        (grade == null && semester != null) ||
+        (grade?.toLowerCase().startsWith('university') ?? false)) {
       if (semester == '2') {
-        key = track == 'pre_engineering' ? 'freshman_sem2_pre_eng' : 'freshman_sem2_other';
+        return AcademicStructure.getUniversitySubjects('2', streamKey, track);
       } else {
-        key = stream == 'social' ? 'freshman_sem1_social' : 'freshman_sem1_natural';
+        return AcademicStructure.getUniversitySubjects('1', streamKey);
       }
-    } else {
-      return [];
     }
-    return _subjectsByPath[key] ?? [];
+
+    final gradeNum =
+        RegExp(r'(\d+)').firstMatch(grade ?? '')?.group(1) ?? '9';
+    return AcademicStructure.getSubjects(gradeNum, streamKey);
   }
 
   Widget _getSubjectIcon(String subject, {double size = 20}) {
@@ -385,8 +290,11 @@ class _ProgressTabState extends State<ProgressTab> {
     if (assetPath != null) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(4),
-        child: Image.asset(assetPath, width: size, height: size, fit: BoxFit.contain,
-          errorBuilder: (_, __, ___) => Icon(Icons.book, size: size)),
+        child: Image.asset(assetPath,
+            width: size,
+            height: size,
+            fit: BoxFit.contain,
+            errorBuilder: (_, __, ___) => Icon(Icons.book, size: size)),
       );
     }
     return Icon(Icons.book, size: size);
@@ -397,14 +305,28 @@ class _ProgressTabState extends State<ProgressTab> {
   }
 
   double get _overallProgress {
-    if (_subjectProgress.isEmpty) return 0;
-    double total = 0;
-    for (final progress in _subjectProgress.values) {
-      total += progress;
+    if (_subjects.isEmpty) return 0.0;
+    double total = 0.0;
+    for (final subject in _subjects) {
+      final p = _subjectProgress[subject] ??
+          _subjectProgress[subject.toLowerCase()] ??
+          0.0;
+      total += p;
     }
-    return total / _subjectProgress.length;
+    return (total / _subjects.length).clamp(0.0, 1.0);
   }
 
+  double _getMaxWeeklyActivity() {
+    double max = 0;
+    for (final value in _weeklyActivity.values) {
+      if (value > max) max = value.toDouble();
+    }
+    return max > 0 ? max : 1;
+  }
+
+  // ============================================
+  // BUILD
+  // ============================================
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -427,9 +349,9 @@ class _ProgressTabState extends State<ProgressTab> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.orange.withAlpha(((255 * 0.1)).toInt()),
+                    color: Colors.orange.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.orange.withAlpha(((255 * 0.3)).toInt())),
+                    border: Border.all(color: Colors.orange.withOpacity(0.3)),
                   ),
                   child: Row(
                     children: [
@@ -476,12 +398,12 @@ class _ProgressTabState extends State<ProgressTab> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
-                boxShadow: [BoxShadow(color: Colors.grey.withAlpha(((255 * 0.1)).toInt()), blurRadius: 8)],
+                boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.1), blurRadius: 8)],
               ),
               child: BarChart(
                 BarChartData(
                   alignment: BarChartAlignment.spaceAround,
-                  maxY: _getMaxWeeklyActivity() + 1,
+                  maxY: _getMaxWeeklyActivity(),
                   barTouchData: BarTouchData(enabled: true),
                   titlesData: FlTitlesData(
                     leftTitles: AxisTitles(
@@ -502,7 +424,7 @@ class _ProgressTabState extends State<ProgressTab> {
                     topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                   ),
                   borderData: FlBorderData(show: false),
-                  gridData: FlGridData(show: true, drawVerticalLine: false, horizontalInterval: 1),
+                  gridData: const FlGridData(show: true, drawVerticalLine: false, horizontalInterval: 1),
                   barGroups: List.generate(7, (index) {
                     final day = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][index];
                     final value = _weeklyActivity[day]?.toDouble() ?? 0;
@@ -576,26 +498,26 @@ class _ProgressTabState extends State<ProgressTab> {
               itemBuilder: (context, index) {
                 final achievement = _achievements[index];
                 final unlocked = achievement['unlocked'] == true;
-                final color = achievement['color'] as Color;
+                final color = achievement['color'] as Color? ?? Colors.amber;
 
                 return Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: unlocked ? color.withAlpha(((255 * 0.1)).toInt()) : Colors.grey[100],
+                    color: unlocked ? color.withOpacity(0.1) : Colors.grey[100],
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: unlocked ? color.withAlpha(((255 * 0.3)).toInt()) : Colors.grey[300]!),
+                    border: Border.all(color: unlocked ? color.withOpacity(0.3) : Colors.grey[300]!),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(achievement['icon'] as IconData,
+                      Icon(achievement['icon'] as IconData? ?? Icons.emoji_events,
                           color: unlocked ? color : Colors.grey[400], size: 28),
                       const Spacer(),
-                      Text(achievement['title'] as String,
+                      Text(achievement['title'] as String? ?? 'Achievement',
                           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13,
                               color: unlocked ? Colors.black87 : Colors.grey[500])),
                       const SizedBox(height: 2),
-                      Text(achievement['description'] as String,
+                      Text(achievement['description'] as String? ?? '',
                           style: TextStyle(fontSize: 10, color: Colors.grey[600])),
                       if (!unlocked)
                         Padding(
@@ -614,22 +536,14 @@ class _ProgressTabState extends State<ProgressTab> {
     );
   }
 
-  double _getMaxWeeklyActivity() {
-    double max = 0;
-    for (final value in _weeklyActivity.values) {
-      if (value > max) max = value.toDouble();
-    }
-    return max;
-  }
-
   Widget _buildStatCard(String label, String value, IconData icon, Color color) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: color.withAlpha(((255 * 0.1)).toInt()),
+          color: color.withOpacity(0.1),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withAlpha(((255 * 0.2)).toInt())),
+          border: Border.all(color: color.withOpacity(0.2)),
         ),
         child: Column(
           children: [

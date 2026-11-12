@@ -115,7 +115,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
           return SafeArea(
             child: SingleChildScrollView(
-              padding: EdgeInsets.all(24),
+              padding: const EdgeInsets.all(24),
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -146,22 +146,15 @@ class _LoginScreenState extends State<LoginScreen> {
                         );
                       },
                       child: Container(
-                        width: 64,
-                        height: 64,
+                        padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.1),
                           shape: BoxShape.circle,
-                          color: AppColors.primary.withAlpha(((255 * 0.1)).toInt()),
                         ),
-                        child: ClipOval(
-                          child: Image.asset(
-                            'assets/logos/logo.png',
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) => const Icon(
-                              Icons.school,
-                              size: 48,
-                              color: AppColors.primary,
-                            ),
-                          ),
+                        child: const Icon(
+                          Icons.school,
+                          size: 48,
+                          color: AppColors.primary,
                         ),
                       ),
                     ),
@@ -199,7 +192,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide:
-                              BorderSide(color: AppColors.primary, width: 2),
+                              const BorderSide(color: AppColors.primary, width: 2),
                         ),
                       ),
                       validator: (value) {
@@ -244,7 +237,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide:
-                              BorderSide(color: AppColors.primary, width: 2),
+                              const BorderSide(color: AppColors.primary, width: 2),
                         ),
                       ),
                       validator: (value) {
@@ -353,10 +346,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withAlpha(((255 * 0.08)).toInt()),
+                        color: AppColors.primary.withOpacity(0.08),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: AppColors.primary.withAlpha(((255 * 0.2)).toInt()),
+                          color: AppColors.primary.withOpacity(0.2),
                         ),
                       ),
                       child: Row(
@@ -364,7 +357,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: AppColors.primary.withAlpha(((255 * 0.1)).toInt()),
+                              color: AppColors.primary.withOpacity(0.1),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(

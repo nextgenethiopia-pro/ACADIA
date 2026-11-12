@@ -8,8 +8,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'src/app.dart';
 import 'src/core/blocs/app_bloc_observer.dart';
 import 'src/core/di/injection.dart';
-import 'src/core/services/cached_settings_service.dart';
 import 'src/core/services/content_manager.dart';
+import 'src/core/services/session_service.dart';
 import 'src/domain/repositories/github_content_repository.dart';
 import 'firebase_options.dart';
 
@@ -57,28 +57,28 @@ void main() async {
       await configureDependencies();
       print('✅ Dependencies configured');
 
-      // Best-effort, offline-first bootstrap of the content source:
-      //  * `settings/content_config` is read through [CachedSettingsService],
-      //    which is TTL-cached in Isar — so a typical cold start hits ZERO
-      //    Firestore reads (only a re-check every 12h). It tells the GitHub
-      //    service which repo/branch to read.
-      //  * a `version.json` probe invalidates stale catalog rows on a bump.
-      // Non-blocking — startup stays cache-first and fast, and never crashes
-      // when offline.
+      // Educational content is served from the fixed GitHub repository.
+      // No Firestore call is required for content configuration.
+      getIt<GithubContentRepository>().configureBaseUrl(
+        'https://raw.githubusercontent.com/Acadia-et/ACADIA-CONTENT/main',
+      );
       unawaited(() async {
         try {
-          final config = await getIt<CachedSettingsService>().load();
-          final baseUrl = config['github_base_url']?.toString();
-          getIt<GithubContentRepository>().configureBaseUrl(baseUrl);
           await getIt<ContentManager>().ensureContentVersion();
         } catch (e) {
-          print('⚠️ Content bootstrap failed (continuing offline): $e');
+          print('⚠️ Content version check failed (continuing offline): $e');
         }
       }());
 
       // Set bloc observer
       Bloc.observer = AppBlocObserver();
       print('✅ Bloc observer set');
+
+      // One account = one registered device: verify the device registration
+      // before the first route is chosen, so a stale session on a device that
+      // no longer owns the account is signed out.
+      await SessionService.instance.enforceDeviceBindingOnLaunch();
+      print('✅ Device registration verified');
 
       print('🎉 Running app...');
       runApp(const ProviderScope(child: AcadiaApp()));

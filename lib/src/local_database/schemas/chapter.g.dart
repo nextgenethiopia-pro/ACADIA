@@ -15,7 +15,7 @@ extension GetChapterCollection on Isar {
 
 const ChapterSchema = CollectionSchema(
   name: r'Chapter',
-  id: -6533933644981383,
+  id: -7604549436611156012,
   properties: {
     r'chapterId': PropertySchema(
       id: 0,
@@ -49,9 +49,9 @@ const ChapterSchema = CollectionSchema(
   deserializeProp: _chapterDeserializeProp,
   idName: r'id',
   indexes: {
-    r'chapterId_subject_grade_name': IndexSchema(
-      id: 5380107440376247,
-      name: r'chapterId_subject_grade_name',
+    r'chapterId': IndexSchema(
+      id: -1917949875430644359,
+      name: r'chapterId',
       unique: true,
       replace: false,
       properties: [
@@ -59,19 +59,30 @@ const ChapterSchema = CollectionSchema(
           name: r'chapterId',
           type: IndexType.hash,
           caseSensitive: true,
-        ),
+        )
+      ],
+    ),
+    r'subject': IndexSchema(
+      id: 3257156273020483090,
+      name: r'subject',
+      unique: false,
+      replace: false,
+      properties: [
         IndexPropertySchema(
           name: r'subject',
           type: IndexType.hash,
           caseSensitive: true,
-        ),
+        )
+      ],
+    ),
+    r'grade': IndexSchema(
+      id: -586668243937763181,
+      name: r'grade',
+      unique: false,
+      replace: false,
+      properties: [
         IndexPropertySchema(
           name: r'grade',
-          type: IndexType.hash,
-          caseSensitive: true,
-        ),
-        IndexPropertySchema(
-          name: r'name',
           type: IndexType.hash,
           caseSensitive: true,
         )
@@ -183,144 +194,57 @@ void _chapterAttach(IsarCollection<dynamic> col, Id id, Chapter object) {
 }
 
 extension ChapterByIndex on IsarCollection<Chapter> {
-  Future<Chapter?> getByChapterIdSubjectGradeName(
-      String? chapterId, String? subject, String? grade, String? name) {
-    return getByIndex(
-        r'chapterId_subject_grade_name', [chapterId, subject, grade, name]);
+  Future<Chapter?> getByChapterId(String? chapterId) {
+    return getByIndex(r'chapterId', [chapterId]);
   }
 
-  Chapter? getByChapterIdSubjectGradeNameSync(
-      String? chapterId, String? subject, String? grade, String? name) {
-    return getByIndexSync(
-        r'chapterId_subject_grade_name', [chapterId, subject, grade, name]);
+  Chapter? getByChapterIdSync(String? chapterId) {
+    return getByIndexSync(r'chapterId', [chapterId]);
   }
 
-  Future<bool> deleteByChapterIdSubjectGradeName(
-      String? chapterId, String? subject, String? grade, String? name) {
-    return deleteByIndex(
-        r'chapterId_subject_grade_name', [chapterId, subject, grade, name]);
+  Future<bool> deleteByChapterId(String? chapterId) {
+    return deleteByIndex(r'chapterId', [chapterId]);
   }
 
-  bool deleteByChapterIdSubjectGradeNameSync(
-      String? chapterId, String? subject, String? grade, String? name) {
-    return deleteByIndexSync(
-        r'chapterId_subject_grade_name', [chapterId, subject, grade, name]);
+  bool deleteByChapterIdSync(String? chapterId) {
+    return deleteByIndexSync(r'chapterId', [chapterId]);
   }
 
-  Future<List<Chapter?>> getAllByChapterIdSubjectGradeName(
-      List<String?> chapterIdValues,
-      List<String?> subjectValues,
-      List<String?> gradeValues,
-      List<String?> nameValues) {
-    final len = chapterIdValues.length;
-    assert(
-        subjectValues.length == len &&
-            gradeValues.length == len &&
-            nameValues.length == len,
-        'All index values must have the same length');
-    final values = <List<dynamic>>[];
-    for (var i = 0; i < len; i++) {
-      values.add([
-        chapterIdValues[i],
-        subjectValues[i],
-        gradeValues[i],
-        nameValues[i]
-      ]);
-    }
-
-    return getAllByIndex(r'chapterId_subject_grade_name', values);
+  Future<List<Chapter?>> getAllByChapterId(List<String?> chapterIdValues) {
+    final values = chapterIdValues.map((e) => [e]).toList();
+    return getAllByIndex(r'chapterId', values);
   }
 
-  List<Chapter?> getAllByChapterIdSubjectGradeNameSync(
-      List<String?> chapterIdValues,
-      List<String?> subjectValues,
-      List<String?> gradeValues,
-      List<String?> nameValues) {
-    final len = chapterIdValues.length;
-    assert(
-        subjectValues.length == len &&
-            gradeValues.length == len &&
-            nameValues.length == len,
-        'All index values must have the same length');
-    final values = <List<dynamic>>[];
-    for (var i = 0; i < len; i++) {
-      values.add([
-        chapterIdValues[i],
-        subjectValues[i],
-        gradeValues[i],
-        nameValues[i]
-      ]);
-    }
-
-    return getAllByIndexSync(r'chapterId_subject_grade_name', values);
+  List<Chapter?> getAllByChapterIdSync(List<String?> chapterIdValues) {
+    final values = chapterIdValues.map((e) => [e]).toList();
+    return getAllByIndexSync(r'chapterId', values);
   }
 
-  Future<int> deleteAllByChapterIdSubjectGradeName(
-      List<String?> chapterIdValues,
-      List<String?> subjectValues,
-      List<String?> gradeValues,
-      List<String?> nameValues) {
-    final len = chapterIdValues.length;
-    assert(
-        subjectValues.length == len &&
-            gradeValues.length == len &&
-            nameValues.length == len,
-        'All index values must have the same length');
-    final values = <List<dynamic>>[];
-    for (var i = 0; i < len; i++) {
-      values.add([
-        chapterIdValues[i],
-        subjectValues[i],
-        gradeValues[i],
-        nameValues[i]
-      ]);
-    }
-
-    return deleteAllByIndex(r'chapterId_subject_grade_name', values);
+  Future<int> deleteAllByChapterId(List<String?> chapterIdValues) {
+    final values = chapterIdValues.map((e) => [e]).toList();
+    return deleteAllByIndex(r'chapterId', values);
   }
 
-  int deleteAllByChapterIdSubjectGradeNameSync(
-      List<String?> chapterIdValues,
-      List<String?> subjectValues,
-      List<String?> gradeValues,
-      List<String?> nameValues) {
-    final len = chapterIdValues.length;
-    assert(
-        subjectValues.length == len &&
-            gradeValues.length == len &&
-            nameValues.length == len,
-        'All index values must have the same length');
-    final values = <List<dynamic>>[];
-    for (var i = 0; i < len; i++) {
-      values.add([
-        chapterIdValues[i],
-        subjectValues[i],
-        gradeValues[i],
-        nameValues[i]
-      ]);
-    }
-
-    return deleteAllByIndexSync(r'chapterId_subject_grade_name', values);
+  int deleteAllByChapterIdSync(List<String?> chapterIdValues) {
+    final values = chapterIdValues.map((e) => [e]).toList();
+    return deleteAllByIndexSync(r'chapterId', values);
   }
 
-  Future<Id> putByChapterIdSubjectGradeName(Chapter object) {
-    return putByIndex(r'chapterId_subject_grade_name', object);
+  Future<Id> putByChapterId(Chapter object) {
+    return putByIndex(r'chapterId', object);
   }
 
-  Id putByChapterIdSubjectGradeNameSync(Chapter object,
+  Id putByChapterIdSync(Chapter object, {bool saveLinks = true}) {
+    return putByIndexSync(r'chapterId', object, saveLinks: saveLinks);
+  }
+
+  Future<List<Id>> putAllByChapterId(List<Chapter> objects) {
+    return putAllByIndex(r'chapterId', objects);
+  }
+
+  List<Id> putAllByChapterIdSync(List<Chapter> objects,
       {bool saveLinks = true}) {
-    return putByIndexSync(r'chapterId_subject_grade_name', object,
-        saveLinks: saveLinks);
-  }
-
-  Future<List<Id>> putAllByChapterIdSubjectGradeName(List<Chapter> objects) {
-    return putAllByIndex(r'chapterId_subject_grade_name', objects);
-  }
-
-  List<Id> putAllByChapterIdSubjectGradeNameSync(List<Chapter> objects,
-      {bool saveLinks = true}) {
-    return putAllByIndexSync(r'chapterId_subject_grade_name', objects,
-        saveLinks: saveLinks);
+    return putAllByIndexSync(r'chapterId', objects, saveLinks: saveLinks);
   }
 }
 
@@ -398,21 +322,19 @@ extension ChapterQueryWhere on QueryBuilder<Chapter, Chapter, QWhereClause> {
     });
   }
 
-  QueryBuilder<Chapter, Chapter, QAfterWhereClause>
-      chapterIdIsNullAnySubjectGradeName() {
+  QueryBuilder<Chapter, Chapter, QAfterWhereClause> chapterIdIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IndexWhereClause.equalTo(
-        indexName: r'chapterId_subject_grade_name',
+        indexName: r'chapterId',
         value: [null],
       ));
     });
   }
 
-  QueryBuilder<Chapter, Chapter, QAfterWhereClause>
-      chapterIdIsNotNullAnySubjectGradeName() {
+  QueryBuilder<Chapter, Chapter, QAfterWhereClause> chapterIdIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IndexWhereClause.between(
-        indexName: r'chapterId_subject_grade_name',
+        indexName: r'chapterId',
         lower: [null],
         includeLower: false,
         upper: [],
@@ -420,29 +342,29 @@ extension ChapterQueryWhere on QueryBuilder<Chapter, Chapter, QWhereClause> {
     });
   }
 
-  QueryBuilder<Chapter, Chapter, QAfterWhereClause>
-      chapterIdEqualToAnySubjectGradeName(String? chapterId) {
+  QueryBuilder<Chapter, Chapter, QAfterWhereClause> chapterIdEqualTo(
+      String? chapterId) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IndexWhereClause.equalTo(
-        indexName: r'chapterId_subject_grade_name',
+        indexName: r'chapterId',
         value: [chapterId],
       ));
     });
   }
 
-  QueryBuilder<Chapter, Chapter, QAfterWhereClause>
-      chapterIdNotEqualToAnySubjectGradeName(String? chapterId) {
+  QueryBuilder<Chapter, Chapter, QAfterWhereClause> chapterIdNotEqualTo(
+      String? chapterId) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
             .addWhereClause(IndexWhereClause.between(
-              indexName: r'chapterId_subject_grade_name',
+              indexName: r'chapterId',
               lower: [],
               upper: [chapterId],
               includeUpper: false,
             ))
             .addWhereClause(IndexWhereClause.between(
-              indexName: r'chapterId_subject_grade_name',
+              indexName: r'chapterId',
               lower: [chapterId],
               includeLower: false,
               upper: [],
@@ -450,13 +372,13 @@ extension ChapterQueryWhere on QueryBuilder<Chapter, Chapter, QWhereClause> {
       } else {
         return query
             .addWhereClause(IndexWhereClause.between(
-              indexName: r'chapterId_subject_grade_name',
+              indexName: r'chapterId',
               lower: [chapterId],
               includeLower: false,
               upper: [],
             ))
             .addWhereClause(IndexWhereClause.between(
-              indexName: r'chapterId_subject_grade_name',
+              indexName: r'chapterId',
               lower: [],
               upper: [chapterId],
               includeUpper: false,
@@ -465,219 +387,130 @@ extension ChapterQueryWhere on QueryBuilder<Chapter, Chapter, QWhereClause> {
     });
   }
 
-  QueryBuilder<Chapter, Chapter, QAfterWhereClause>
-      chapterIdEqualToSubjectIsNullAnyGradeName(String? chapterId) {
+  QueryBuilder<Chapter, Chapter, QAfterWhereClause> subjectIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IndexWhereClause.equalTo(
-        indexName: r'chapterId_subject_grade_name',
-        value: [chapterId, null],
+        indexName: r'subject',
+        value: [null],
       ));
     });
   }
 
-  QueryBuilder<Chapter, Chapter, QAfterWhereClause>
-      chapterIdEqualToSubjectIsNotNullAnyGradeName(String? chapterId) {
+  QueryBuilder<Chapter, Chapter, QAfterWhereClause> subjectIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IndexWhereClause.between(
-        indexName: r'chapterId_subject_grade_name',
-        lower: [chapterId, null],
+        indexName: r'subject',
+        lower: [null],
         includeLower: false,
-        upper: [
-          chapterId,
-        ],
+        upper: [],
       ));
     });
   }
 
-  QueryBuilder<Chapter, Chapter, QAfterWhereClause>
-      chapterIdSubjectEqualToAnyGradeName(String? chapterId, String? subject) {
+  QueryBuilder<Chapter, Chapter, QAfterWhereClause> subjectEqualTo(
+      String? subject) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IndexWhereClause.equalTo(
-        indexName: r'chapterId_subject_grade_name',
-        value: [chapterId, subject],
+        indexName: r'subject',
+        value: [subject],
       ));
     });
   }
 
-  QueryBuilder<Chapter, Chapter, QAfterWhereClause>
-      chapterIdEqualToSubjectNotEqualToAnyGradeName(
-          String? chapterId, String? subject) {
+  QueryBuilder<Chapter, Chapter, QAfterWhereClause> subjectNotEqualTo(
+      String? subject) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
             .addWhereClause(IndexWhereClause.between(
-              indexName: r'chapterId_subject_grade_name',
-              lower: [chapterId],
-              upper: [chapterId, subject],
+              indexName: r'subject',
+              lower: [],
+              upper: [subject],
               includeUpper: false,
             ))
             .addWhereClause(IndexWhereClause.between(
-              indexName: r'chapterId_subject_grade_name',
-              lower: [chapterId, subject],
+              indexName: r'subject',
+              lower: [subject],
               includeLower: false,
-              upper: [chapterId],
+              upper: [],
             ));
       } else {
         return query
             .addWhereClause(IndexWhereClause.between(
-              indexName: r'chapterId_subject_grade_name',
-              lower: [chapterId, subject],
+              indexName: r'subject',
+              lower: [subject],
               includeLower: false,
-              upper: [chapterId],
+              upper: [],
             ))
             .addWhereClause(IndexWhereClause.between(
-              indexName: r'chapterId_subject_grade_name',
-              lower: [chapterId],
-              upper: [chapterId, subject],
+              indexName: r'subject',
+              lower: [],
+              upper: [subject],
               includeUpper: false,
             ));
       }
     });
   }
 
-  QueryBuilder<Chapter, Chapter, QAfterWhereClause>
-      chapterIdSubjectEqualToGradeIsNullAnyName(
-          String? chapterId, String? subject) {
+  QueryBuilder<Chapter, Chapter, QAfterWhereClause> gradeIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IndexWhereClause.equalTo(
-        indexName: r'chapterId_subject_grade_name',
-        value: [chapterId, subject, null],
+        indexName: r'grade',
+        value: [null],
       ));
     });
   }
 
-  QueryBuilder<Chapter, Chapter, QAfterWhereClause>
-      chapterIdSubjectEqualToGradeIsNotNullAnyName(
-          String? chapterId, String? subject) {
+  QueryBuilder<Chapter, Chapter, QAfterWhereClause> gradeIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IndexWhereClause.between(
-        indexName: r'chapterId_subject_grade_name',
-        lower: [chapterId, subject, null],
+        indexName: r'grade',
+        lower: [null],
         includeLower: false,
-        upper: [
-          chapterId,
-          subject,
-        ],
+        upper: [],
       ));
     });
   }
 
-  QueryBuilder<Chapter, Chapter, QAfterWhereClause>
-      chapterIdSubjectGradeEqualToAnyName(
-          String? chapterId, String? subject, String? grade) {
+  QueryBuilder<Chapter, Chapter, QAfterWhereClause> gradeEqualTo(
+      String? grade) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IndexWhereClause.equalTo(
-        indexName: r'chapterId_subject_grade_name',
-        value: [chapterId, subject, grade],
+        indexName: r'grade',
+        value: [grade],
       ));
     });
   }
 
-  QueryBuilder<Chapter, Chapter, QAfterWhereClause>
-      chapterIdSubjectEqualToGradeNotEqualToAnyName(
-          String? chapterId, String? subject, String? grade) {
+  QueryBuilder<Chapter, Chapter, QAfterWhereClause> gradeNotEqualTo(
+      String? grade) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
             .addWhereClause(IndexWhereClause.between(
-              indexName: r'chapterId_subject_grade_name',
-              lower: [chapterId, subject],
-              upper: [chapterId, subject, grade],
+              indexName: r'grade',
+              lower: [],
+              upper: [grade],
               includeUpper: false,
             ))
             .addWhereClause(IndexWhereClause.between(
-              indexName: r'chapterId_subject_grade_name',
-              lower: [chapterId, subject, grade],
+              indexName: r'grade',
+              lower: [grade],
               includeLower: false,
-              upper: [chapterId, subject],
+              upper: [],
             ));
       } else {
         return query
             .addWhereClause(IndexWhereClause.between(
-              indexName: r'chapterId_subject_grade_name',
-              lower: [chapterId, subject, grade],
+              indexName: r'grade',
+              lower: [grade],
               includeLower: false,
-              upper: [chapterId, subject],
+              upper: [],
             ))
             .addWhereClause(IndexWhereClause.between(
-              indexName: r'chapterId_subject_grade_name',
-              lower: [chapterId, subject],
-              upper: [chapterId, subject, grade],
-              includeUpper: false,
-            ));
-      }
-    });
-  }
-
-  QueryBuilder<Chapter, Chapter, QAfterWhereClause>
-      chapterIdSubjectGradeEqualToNameIsNull(
-          String? chapterId, String? subject, String? grade) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.equalTo(
-        indexName: r'chapterId_subject_grade_name',
-        value: [chapterId, subject, grade, null],
-      ));
-    });
-  }
-
-  QueryBuilder<Chapter, Chapter, QAfterWhereClause>
-      chapterIdSubjectGradeEqualToNameIsNotNull(
-          String? chapterId, String? subject, String? grade) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.between(
-        indexName: r'chapterId_subject_grade_name',
-        lower: [chapterId, subject, grade, null],
-        includeLower: false,
-        upper: [
-          chapterId,
-          subject,
-          grade,
-        ],
-      ));
-    });
-  }
-
-  QueryBuilder<Chapter, Chapter, QAfterWhereClause>
-      chapterIdSubjectGradeNameEqualTo(
-          String? chapterId, String? subject, String? grade, String? name) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.equalTo(
-        indexName: r'chapterId_subject_grade_name',
-        value: [chapterId, subject, grade, name],
-      ));
-    });
-  }
-
-  QueryBuilder<Chapter, Chapter, QAfterWhereClause>
-      chapterIdSubjectGradeEqualToNameNotEqualTo(
-          String? chapterId, String? subject, String? grade, String? name) {
-    return QueryBuilder.apply(this, (query) {
-      if (query.whereSort == Sort.asc) {
-        return query
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'chapterId_subject_grade_name',
-              lower: [chapterId, subject, grade],
-              upper: [chapterId, subject, grade, name],
-              includeUpper: false,
-            ))
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'chapterId_subject_grade_name',
-              lower: [chapterId, subject, grade, name],
-              includeLower: false,
-              upper: [chapterId, subject, grade],
-            ));
-      } else {
-        return query
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'chapterId_subject_grade_name',
-              lower: [chapterId, subject, grade, name],
-              includeLower: false,
-              upper: [chapterId, subject, grade],
-            ))
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'chapterId_subject_grade_name',
-              lower: [chapterId, subject, grade],
-              upper: [chapterId, subject, grade, name],
+              indexName: r'grade',
+              lower: [],
+              upper: [grade],
               includeUpper: false,
             ));
       }

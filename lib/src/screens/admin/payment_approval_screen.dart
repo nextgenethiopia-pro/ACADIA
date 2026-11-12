@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:acadia/src/core/services/firebase_service.dart';
+import 'package:acadia/src/core/services/package_service.dart';
+import 'package:acadia/src/core/services/payment_notification_service.dart';
 import 'package:acadia/src/core/constants/colors.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io';
@@ -30,7 +32,12 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
   double _totalRevenue = 0;
 
   // Status options
-  final List<String> _statusOptions = ['All', 'Pending', 'Approved', 'Rejected'];
+  final List<String> _statusOptions = [
+    'All',
+    'Pending',
+    'Approved',
+    'Rejected'
+  ];
 
   // Package options
   final List<String> _packages = [
@@ -69,8 +76,14 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
     setState(() => _isLoading = true);
     try {
       final firebase = FirebaseService();
-      final payments = await firebase.getDocuments('payments',
-          orderBy: 'submission_date', descending: true);
+      final payments = await firebase.getDocuments('payments');
+
+      // Sort in memory by date (submission_date or created_at)
+      payments.sort((a, b) {
+        final aTime = a['submission_date'] ?? a['created_at'] ?? '';
+        final bTime = b['submission_date'] ?? b['created_at'] ?? '';
+        return bTime.toString().compareTo(aTime.toString());
+      });
 
       double revenue = 0;
       int pending = 0, approved = 0, rejected = 0;
@@ -79,7 +92,8 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
         final status = payment['status']?.toString() ?? '';
         if (status == 'approved') {
           approved++;
-          final amount = double.tryParse(payment['amount']?.toString() ?? '0') ?? 0;
+          final amount =
+              double.tryParse(payment['amount']?.toString() ?? '0') ?? 0;
           revenue += amount;
         } else if (status == 'pending') {
           pending++;
@@ -103,7 +117,9 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
       debugPrint('Error loading payments: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error loading payments'), backgroundColor: Colors.red),
+          const SnackBar(
+              content: Text('Error loading payments'),
+              backgroundColor: Colors.red),
         );
       }
     }
@@ -114,7 +130,8 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
       _filteredPayments = _payments.where((payment) {
         // Status filter
         if (_statusFilter != 'All' &&
-            payment['status']?.toString().toLowerCase() != _statusFilter.toLowerCase()) {
+            payment['status']?.toString().toLowerCase() !=
+                _statusFilter.toLowerCase()) {
           return false;
         }
 
@@ -176,7 +193,7 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
                             color: Colors.white,
                           ),
                           const SizedBox(height: 16),
-                          Text(
+                          const Text(
                             'Loading receipt...',
                             style: TextStyle(color: Colors.white70),
                           ),
@@ -189,7 +206,8 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.broken_image, size: 64, color: Colors.grey[400]),
+                          Icon(Icons.broken_image,
+                              size: 64, color: Colors.grey[400]),
                           const SizedBox(height: 16),
                           Text(
                             'Failed to load receipt image',
@@ -198,7 +216,8 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
                           const SizedBox(height: 8),
                           Text(
                             'The image may have been deleted or the link is invalid',
-                            style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                            style: TextStyle(
+                                color: Colors.grey[500], fontSize: 12),
                             textAlign: TextAlign.center,
                           ),
                         ],
@@ -208,7 +227,7 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
                 ),
               ),
             ),
-            
+
             // Close button
             Positioned(
               top: 40,
@@ -221,7 +240,7 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
                 ),
               ),
             ),
-            
+
             // Download button
             Positioned(
               bottom: 40,
@@ -234,13 +253,14 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
                 ),
               ),
             ),
-            
+
             // Instructions
             Positioned(
               bottom: 40,
               left: 16,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: Colors.black54,
                   borderRadius: BorderRadius.circular(20),
@@ -279,8 +299,9 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
       if (response.statusCode == 200) {
         // TODO: Add image_gallery_saver package to save to gallery
         // For now, just show success message
-        final saved = true; // Placeholder - would use ImageGallerySaver.saveImage() if package was added
-        
+        const saved =
+            true; // Placeholder - would use ImageGallerySaver.saveImage() if package was added
+
         if (saved) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -309,24 +330,27 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
   }
 
   // ============================================================
-  // SEND NOTIFICATION TO USER
+  // SEND NOTIFICATION TO USER (CANONICAL SCHEMA)
   // ============================================================
 
   Future<void> _sendNotificationToUser(
-      String userId, String title, String message, String type) async {
+      String? targetUserId, String title, String message, String type) async {
+    final sanitizedUserId = (targetUserId ?? '').trim();
+    if (sanitizedUserId.isEmpty) {
+      debugPrint(
+          'Payment notification skipped: target user id is missing (type=$type)');
+      return;
+    }
     try {
       final firebase = FirebaseService();
-      await firebase.addDocument('notifications', {
-        'user_id': userId,
-        'title': title,
-        'message': message,
-        'type': type,
-        'status': 'sent',
-        'created_at': DateTime.now().toIso8601String(),
-        'created_by': 'admin',
-      });
+      await firebase.createNotification(
+        title: title,
+        message: message,
+        targetUserId: sanitizedUserId,
+        type: type,
+      );
     } catch (e) {
-      debugPrint('Error sending notification: $e');
+      debugPrint('Error sending payment notification (type=$type): $e');
     }
   }
 
@@ -343,16 +367,23 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildInfoRow('Student', payment['user_name']?.toString() ?? 'Unknown'),
-            _buildInfoRow('Email', payment['user_email']?.toString() ?? 'Unknown'),
-            _buildInfoRow('Phone', payment['user_phone']?.toString() ?? 'Unknown'),
-            _buildInfoRow('Package', payment['package']?.toString() ?? 'Unknown'),
+            _buildInfoRow(
+                'Student', payment['user_name']?.toString() ?? 'Unknown'),
+            _buildInfoRow(
+                'Email', payment['user_email']?.toString() ?? 'Unknown'),
+            _buildInfoRow(
+                'Phone', payment['user_phone']?.toString() ?? 'Unknown'),
+            _buildInfoRow(
+                'Package', payment['package']?.toString() ?? 'Unknown'),
             _buildInfoRow('Amount', '${payment['amount'] ?? '0'} ETB'),
-            _buildInfoRow('Method', payment['payment_method']?.toString() ?? 'Unknown'),
-            _buildInfoRow('Transaction Ref', payment['transaction_ref']?.toString() ?? 'N/A'),
+            _buildInfoRow(
+                'Method', payment['payment_method']?.toString() ?? 'Unknown'),
+            _buildInfoRow('Transaction Ref',
+                payment['transaction_ref']?.toString() ?? 'N/A'),
             const SizedBox(height: 12),
             const Divider(),
-            const Text('This will:', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text('This will:',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             const Text('✓ Unlock all subjects for the user'),
             const Text('✓ Set package validity for 1 year from today'),
             const Text('✓ Send approval notification to user'),
@@ -360,11 +391,14 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-            child: const Text('CONFIRM APPROVAL', style: TextStyle(color: Colors.white)),
+            child: const Text('CONFIRM APPROVAL',
+                style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -387,23 +421,22 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
         'valid_until': validUntil.toIso8601String(),
       });
 
-      // Unlock package for user
-      if (payment['user_id'] != null) {
-        await firebase.updateDocument('users', payment['user_id'], {
-          'is_pro': true,
-          'pro_package': payment['package'],
-          'pro_valid_from': now.toIso8601String(),
-          'pro_valid_until': validUntil.toIso8601String(),
-          'package_status': 'active',
-        });
+      // Forward the confirmed status change to Telegram.
+      await PaymentNotificationService().notifyPaymentStatusChanged(
+        payment: payment,
+        status: 'approved',
+      );
 
-        // Send approval notification
-        await _sendNotificationToUser(
-          payment['user_id'],
-          'Payment Approved! 🎉',
-          'Your payment for ${payment['package']} has been approved. '
-          'All chapters are now unlocked for 1 year. Start studying!',
-          'payment',
+      // Unlock package for user. `activatePackage` already sends the
+      // "Payment Approved" notification, so we must not send another one here
+      // (doing so delivered the notification twice).
+      if (payment['user_id'] != null) {
+        final packageService = PackageService();
+        await packageService.activatePackage(
+          payment['user_id'] as String,
+          packageName: payment['package'] as String?,
+          packageAmount: int.tryParse(payment['amount']?.toString() ?? '0'),
+          paymentMethod: payment['payment_method'] as String?,
         );
       }
 
@@ -448,11 +481,14 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildInfoRow('Student', payment['user_name']?.toString() ?? 'Unknown'),
-                _buildInfoRow('Package', payment['package']?.toString() ?? 'Unknown'),
+                _buildInfoRow(
+                    'Student', payment['user_name']?.toString() ?? 'Unknown'),
+                _buildInfoRow(
+                    'Package', payment['package']?.toString() ?? 'Unknown'),
                 _buildInfoRow('Amount', '${payment['amount'] ?? '0'} ETB'),
                 const SizedBox(height: 16),
-                const Text('Reason for rejection (required):', style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text('Reason for rejection (required):',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 TextField(
                   controller: reasonController,
@@ -466,37 +502,46 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
                   },
                 ),
                 const SizedBox(height: 12),
-                const Text('Quick reasons:', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                const Text('Quick reasons:',
+                    style: TextStyle(fontSize: 12, color: Colors.grey)),
                 const SizedBox(height: 8),
                 Wrap(
                   spacing: 6,
                   runSpacing: 6,
-                  children: _quickReasons.map((reason) => ActionChip(
-                    label: Text(reason, style: const TextStyle(fontSize: 11)),
-                    onPressed: () {
-                      reasonController.text = reason;
-                      setDialogState(() => selectedReason = reason);
-                    },
-                  )).toList(),
+                  children: _quickReasons
+                      .map((reason) => ActionChip(
+                            label: Text(reason,
+                                style: const TextStyle(fontSize: 11)),
+                            onPressed: () {
+                              reasonController.text = reason;
+                              setDialogState(() => selectedReason = reason);
+                            },
+                          ))
+                      .toList(),
                 ),
               ],
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+            TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel')),
             ElevatedButton(
               onPressed: () {
                 final reason = reasonController.text.trim();
                 if (reason.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Please enter a rejection reason'), backgroundColor: Colors.red),
+                    const SnackBar(
+                        content: Text('Please enter a rejection reason'),
+                        backgroundColor: Colors.red),
                   );
                   return;
                 }
                 Navigator.pop(context, {'reason': reason});
               },
               style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              child: const Text('CONFIRM REJECTION', style: TextStyle(color: Colors.white)),
+              child: const Text('CONFIRM REJECTION',
+                  style: TextStyle(color: Colors.white)),
             ),
           ],
         ),
@@ -515,6 +560,13 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
         'rejected_by': 'admin',
         'rejection_reason': result['reason'],
       });
+
+      // Forward the confirmed status change to Telegram.
+      await PaymentNotificationService().notifyPaymentStatusChanged(
+        payment: payment,
+        status: 'rejected',
+        reason: result['reason'],
+      );
 
       // Send rejection notification
       if (payment['user_id'] != null) {
@@ -567,68 +619,115 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
               children: [
                 // Status header
                 Center(
-                  child: _buildStatusHeader(payment['status']?.toString() ?? ''),
+                  child:
+                      _buildStatusHeader(payment['status']?.toString() ?? ''),
                 ),
                 const SizedBox(height: 20),
 
                 // User Information
-                const Text('USER INFORMATION', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),
+                const Text('USER INFORMATION',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                        color: Colors.grey)),
                 const Divider(),
-                _buildDetailRow('Full Name', payment['user_name']?.toString() ?? 'N/A'),
-                _buildDetailRow('Email', payment['user_email']?.toString() ?? 'N/A'),
-                _buildDetailRow('Phone', payment['user_phone']?.toString() ?? 'N/A'),
-                _buildDetailRow('User ID', payment['user_id']?.toString() ?? 'N/A'),
-                _buildDetailRow('Join Date', _formatDate(payment['user_join_date'])),
-                _buildDetailRow('Account Status', payment['is_pro'] == true ? 'PRO' : 'Free'),
+                _buildDetailRow(
+                    'Full Name', payment['user_name']?.toString() ?? 'N/A'),
+                _buildDetailRow(
+                    'Email', payment['user_email']?.toString() ?? 'N/A'),
+                _buildDetailRow(
+                    'Phone', payment['user_phone']?.toString() ?? 'N/A'),
+                _buildDetailRow(
+                    'User ID', payment['user_id']?.toString() ?? 'N/A'),
+                _buildDetailRow(
+                    'Join Date', _formatDate(payment['user_join_date'])),
+                _buildDetailRow('Account Status',
+                    payment['is_pro'] == true ? 'PRO' : 'Free'),
                 const SizedBox(height: 16),
 
                 // Academic Path
-                const Text('ACADEMIC PATH', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),
+                const Text('ACADEMIC PATH',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                        color: Colors.grey)),
                 const Divider(),
-                _buildDetailRow('School Level', payment['school_level']?.toString() ?? 'N/A'),
-                _buildDetailRow('Grade/Year', payment['grade']?.toString() ?? payment['university_year']?.toString() ?? 'N/A'),
-                _buildDetailRow('Stream/Track', payment['stream']?.toString() ?? payment['track']?.toString() ?? 'N/A'),
+                _buildDetailRow('School Level',
+                    payment['school_level']?.toString() ?? 'N/A'),
+                _buildDetailRow(
+                    'Grade/Year',
+                    payment['grade']?.toString() ??
+                        payment['university_year']?.toString() ??
+                        'N/A'),
+                _buildDetailRow(
+                    'Stream/Track',
+                    payment['stream']?.toString() ??
+                        payment['track']?.toString() ??
+                        'N/A'),
                 const SizedBox(height: 16),
 
                 // Package
-                const Text('PACKAGE DETAILS', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),
+                const Text('PACKAGE DETAILS',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                        color: Colors.grey)),
                 const Divider(),
-                _buildDetailRow('Package', payment['package']?.toString() ?? 'N/A'),
+                _buildDetailRow(
+                    'Package', payment['package']?.toString() ?? 'N/A'),
                 _buildDetailRow('Amount', '${payment['amount'] ?? '0'} ETB'),
                 if (payment['valid_from'] != null)
-                  _buildDetailRow('Valid From', _formatDateTime(payment['valid_from'])),
+                  _buildDetailRow(
+                      'Valid From', _formatDateTime(payment['valid_from'])),
                 if (payment['valid_until'] != null)
-                  _buildDetailRow('Valid Until', _formatDateTime(payment['valid_until'])),
+                  _buildDetailRow(
+                      'Valid Until', _formatDateTime(payment['valid_until'])),
                 const SizedBox(height: 16),
 
                 // Payment Information
-                const Text('PAYMENT INFORMATION', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),
+                const Text('PAYMENT INFORMATION',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                        color: Colors.grey)),
                 const Divider(),
-                _buildDetailRow('Payment Method', payment['payment_method']?.toString() ?? 'N/A'),
-                _buildDetailRow('Recipient Account', payment['recipient_account']?.toString() ?? 'N/A'),
-                _buildDetailRow('Recipient Name', payment['recipient_name']?.toString() ?? 'N/A'),
-                _buildDetailRow('Sender Account', payment['sender_account']?.toString() ?? 'N/A'),
-                _buildDetailRow('Transaction Reference', payment['transaction_ref']?.toString() ?? 'N/A'),
-                _buildDetailRow('Submission Date', _formatDateTime(payment['submission_date'])),
+                _buildDetailRow('Payment Method',
+                    payment['payment_method']?.toString() ?? 'N/A'),
+                _buildDetailRow('Recipient Account',
+                    payment['recipient_account']?.toString() ?? 'N/A'),
+                _buildDetailRow('Recipient Name',
+                    payment['recipient_name']?.toString() ?? 'N/A'),
+                _buildDetailRow('Sender Account',
+                    payment['sender_account']?.toString() ?? 'N/A'),
+                _buildDetailRow('Transaction Reference',
+                    payment['transaction_ref']?.toString() ?? 'N/A'),
+                _buildDetailRow('Submission Date',
+                    _formatDateTime(payment['submission_date'])),
                 if (payment['approved_at'] != null)
-                  _buildDetailRow('Approval Date', _formatDateTime(payment['approved_at'])),
+                  _buildDetailRow(
+                      'Approval Date', _formatDateTime(payment['approved_at'])),
                 if (payment['rejected_at'] != null) ...[
-                  _buildDetailRow('Rejection Date', _formatDateTime(payment['rejected_at'])),
+                  _buildDetailRow('Rejection Date',
+                      _formatDateTime(payment['rejected_at'])),
                   const SizedBox(height: 8),
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.red.withAlpha((255 * 0.05).toInt()),
+                      color: Colors.red.withOpacity(0.05),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.red.withAlpha((255 * 0.2).toInt())),
+                      border: Border.all(color: Colors.red.withOpacity(0.2)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Rejection Reason:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                        const Text('Rejection Reason:',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 13)),
                         const SizedBox(height: 4),
-                        Text(payment['rejection_reason']?.toString() ?? 'No reason provided',
+                        Text(
+                            payment['rejection_reason']?.toString() ??
+                                'No reason provided',
                             style: const TextStyle(fontSize: 13)),
                       ],
                     ),
@@ -636,9 +735,17 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
                 ],
                 const SizedBox(height: 16),
 
-                // Receipt Image - FIXED!
-                if (payment['receipt_url'] != null && payment['receipt_url'].toString().isNotEmpty) ...[
-                  const Text('PAYMENT RECEIPT', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),
+                // Receipt Image
+                if ((payment['receipt_url'] ?? payment['screenshot_url']) !=
+                        null &&
+                    (payment['receipt_url'] ?? payment['screenshot_url'])
+                        .toString()
+                        .isNotEmpty) ...[
+                  const Text('PAYMENT RECEIPT',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                          color: Colors.grey)),
                   const Divider(),
                   Container(
                     height: 250,
@@ -651,9 +758,12 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: InkWell(
-                        onTap: () => _viewFullReceipt(payment['receipt_url'].toString()),
+                        onTap: () => _viewFullReceipt((payment['receipt_url'] ??
+                                payment['screenshot_url'])
+                            .toString()),
                         child: Image.network(
-                          payment['receipt_url'].toString(),
+                          (payment['receipt_url'] ?? payment['screenshot_url'])
+                              .toString(),
                           fit: BoxFit.contain,
                           width: double.infinity,
                           loadingBuilder: (context, child, loadingProgress) {
@@ -663,15 +773,18 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   CircularProgressIndicator(
-                                    value: loadingProgress.expectedTotalBytes != null
-                                        ? loadingProgress.cumulativeBytesLoaded /
+                                    value: loadingProgress.expectedTotalBytes !=
+                                            null
+                                        ? loadingProgress
+                                                .cumulativeBytesLoaded /
                                             loadingProgress.expectedTotalBytes!
                                         : null,
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
                                     'Loading receipt...',
-                                    style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                                    style: TextStyle(
+                                        color: Colors.grey[600], fontSize: 12),
                                   ),
                                 ],
                               ),
@@ -682,16 +795,18 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.broken_image, size: 48, color: Colors.grey[400]),
+                                  Icon(Icons.broken_image,
+                                      size: 48, color: Colors.grey[400]),
                                   const SizedBox(height: 8),
                                   Text(
                                     'Failed to load receipt',
                                     style: TextStyle(color: Colors.grey[600]),
                                   ),
                                   const SizedBox(height: 4),
-                                  Text(
+                                  const Text(
                                     'Tap to retry',
-                                    style: TextStyle(color: Colors.blue, fontSize: 12),
+                                    style: TextStyle(
+                                        color: Colors.blue, fontSize: 12),
                                   ),
                                 ],
                               ),
@@ -706,13 +821,15 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       TextButton.icon(
-                        onPressed: () => _viewFullReceipt(payment['receipt_url'].toString()),
+                        onPressed: () =>
+                            _viewFullReceipt(payment['receipt_url'].toString()),
                         icon: const Icon(Icons.fullscreen, size: 18),
                         label: const Text('View Full Screen'),
                       ),
                       const SizedBox(width: 16),
                       TextButton.icon(
-                        onPressed: () => _saveReceiptToGallery(payment['receipt_url'].toString()),
+                        onPressed: () => _saveReceiptToGallery(
+                            payment['receipt_url'].toString()),
                         icon: const Icon(Icons.download, size: 18),
                         label: const Text('Save to Gallery'),
                       ),
@@ -725,11 +842,13 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.archive, size: 12, color: Colors.grey[500]),
+                          Icon(Icons.archive,
+                              size: 12, color: Colors.grey[500]),
                           const SizedBox(width: 4),
                           Text(
                             'Hosted on Catbox.moe',
-                            style: TextStyle(color: Colors.grey[500], fontSize: 10),
+                            style: TextStyle(
+                                color: Colors.grey[500], fontSize: 10),
                           ),
                         ],
                       ),
@@ -813,7 +932,9 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
       children: [
         Icon(icon, size: 48, color: color),
         const SizedBox(height: 8),
-        Text(label, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 16)),
+        Text(label,
+            style: TextStyle(
+                color: color, fontWeight: FontWeight.bold, fontSize: 16)),
       ],
     );
   }
@@ -826,7 +947,9 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
         children: [
           SizedBox(
             width: 120,
-            child: Text('$label:', style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13)),
+            child: Text('$label:',
+                style:
+                    const TextStyle(fontWeight: FontWeight.w500, fontSize: 13)),
           ),
           Expanded(child: Text(value, style: const TextStyle(fontSize: 13))),
         ],
@@ -842,9 +965,13 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
         children: [
           SizedBox(
             width: 130,
-            child: Text('$label:', style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.black87)),
+            child: Text('$label:',
+                style: const TextStyle(
+                    fontWeight: FontWeight.w500, color: Colors.black87)),
           ),
-          Expanded(child: Text(value, style: const TextStyle(color: Colors.black54))),
+          Expanded(
+              child:
+                  Text(value, style: const TextStyle(color: Colors.black54))),
         ],
       ),
     );
@@ -872,19 +999,27 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
 
   Color _getStatusColor(String status) {
     switch (status) {
-      case 'approved': return Colors.green;
-      case 'pending': return Colors.orange;
-      case 'rejected': return Colors.red;
-      default: return Colors.grey;
+      case 'approved':
+        return Colors.green;
+      case 'pending':
+        return Colors.orange;
+      case 'rejected':
+        return Colors.red;
+      default:
+        return Colors.grey;
     }
   }
 
   IconData _getStatusIcon(String status) {
     switch (status) {
-      case 'approved': return Icons.check_circle;
-      case 'pending': return Icons.access_time;
-      case 'rejected': return Icons.cancel;
-      default: return Icons.help;
+      case 'approved':
+        return Icons.check_circle;
+      case 'pending':
+        return Icons.access_time;
+      case 'rejected':
+        return Icons.cancel;
+      default:
+        return Icons.help;
     }
   }
 
@@ -897,12 +1032,16 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Payment Approval'),
-        leading: IconButton(onPressed: () => context.pop(), icon: const Icon(Icons.arrow_back)),
+        leading: IconButton(
+            onPressed: () => context.pop(), icon: const Icon(Icons.arrow_back)),
         actions: [
           if (_isProcessing)
             const Padding(
               padding: EdgeInsets.only(right: 16),
-              child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+              child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2)),
             ),
           IconButton(
             onPressed: _loadPayments,
@@ -935,7 +1074,7 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [AppColors.primary, AppColors.primary.withAlpha((255 * 0.8).toInt())],
+                colors: [AppColors.primary, AppColors.primary.withOpacity(0.8)],
               ),
               borderRadius: BorderRadius.circular(12),
             ),
@@ -947,22 +1086,28 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Total Revenue', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                      const Text('Total Revenue',
+                          style:
+                              TextStyle(color: Colors.white70, fontSize: 12)),
                       Text(
                         '${_totalRevenue.toStringAsFixed(2)} ETB',
-                        style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.white24,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    'From ${_approvedCount} approvals',
+                    'From $_approvedCount approvals',
                     style: const TextStyle(color: Colors.white, fontSize: 11),
                   ),
                 ),
@@ -988,8 +1133,10 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
                         },
                       )
                     : null,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
               onChanged: (v) {
                 setState(() => _searchQuery = v);
@@ -1005,13 +1152,22 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
               children: [
                 Expanded(
                   child: DropdownButtonFormField<String>(
-                    value: _statusFilter,
+                    initialValue: _statusFilter,
+                    dropdownColor: Theme.of(context).colorScheme.surface,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontSize: 14,
+                    ),
                     decoration: InputDecoration(
                       labelText: 'Status',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
                     ),
-                    items: _statusOptions.map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
+                    items: _statusOptions
+                        .map((s) => DropdownMenuItem(value: s, child: Text(s)))
+                        .toList(),
                     onChanged: (v) {
                       setState(() => _statusFilter = v ?? 'All');
                       _applyFilters();
@@ -1021,13 +1177,24 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: DropdownButtonFormField<String>(
-                    value: _packageFilter,
+                    initialValue: _packageFilter,
+                    dropdownColor: Theme.of(context).colorScheme.surface,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontSize: 14,
+                    ),
                     decoration: InputDecoration(
                       labelText: 'Package',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
                     ),
-                    items: _packages.map((p) => DropdownMenuItem(value: p, child: Text(p, overflow: TextOverflow.ellipsis))).toList(),
+                    items: _packages
+                        .map((p) => DropdownMenuItem(
+                            value: p,
+                            child: Text(p, overflow: TextOverflow.ellipsis)))
+                        .toList(),
                     onChanged: (v) {
                       setState(() => _packageFilter = v ?? 'All');
                       _applyFilters();
@@ -1064,11 +1231,16 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.payment, size: 64, color: Colors.grey[400]),
+                            Icon(Icons.payment,
+                                size: 64, color: Colors.grey[400]),
                             const SizedBox(height: 16),
-                            Text('No payments found', style: TextStyle(color: Colors.grey[600], fontSize: 16)),
+                            Text('No payments found',
+                                style: TextStyle(
+                                    color: Colors.grey[600], fontSize: 16)),
                             const SizedBox(height: 8),
-                            Text('Try changing your filters', style: TextStyle(color: Colors.grey[500], fontSize: 12)),
+                            Text('Try changing your filters',
+                                style: TextStyle(
+                                    color: Colors.grey[500], fontSize: 12)),
                           ],
                         ),
                       )
@@ -1083,7 +1255,8 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
 
                           return Card(
                             margin: const EdgeInsets.only(bottom: 10),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
                             child: InkWell(
                               onTap: () => _viewPaymentDetails(payment),
                               borderRadius: BorderRadius.circular(12),
@@ -1095,35 +1268,49 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
                                     Container(
                                       padding: const EdgeInsets.all(8),
                                       decoration: BoxDecoration(
-                                        color: statusColor.withAlpha((255 * 0.1).toInt()),
+                                        color: statusColor.withOpacity(0.1),
                                         shape: BoxShape.circle,
                                       ),
-                                      child: Icon(statusIcon, color: statusColor, size: 24),
+                                      child: Icon(statusIcon,
+                                          color: statusColor, size: 24),
                                     ),
                                     const SizedBox(width: 12),
 
                                     // Payment info
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            payment['user_name']?.toString() ?? 'Unknown',
-                                            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                                            payment['user_name']?.toString() ??
+                                                'Unknown',
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 15),
                                           ),
                                           const SizedBox(height: 2),
                                           Text(
-                                            payment['user_email']?.toString() ?? '',
-                                            style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                                            payment['user_email']?.toString() ??
+                                                '',
+                                            style: TextStyle(
+                                                color: Colors.grey[600],
+                                                fontSize: 12),
                                           ),
                                           const SizedBox(height: 2),
                                           Row(
                                             children: [
-                                              Icon(Icons.phone, size: 12, color: Colors.grey[500]),
+                                              Icon(Icons.phone,
+                                                  size: 12,
+                                                  color: Colors.grey[500]),
                                               const SizedBox(width: 4),
                                               Text(
-                                                payment['user_phone']?.toString() ?? '',
-                                                style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                                                payment['user_phone']
+                                                        ?.toString() ??
+                                                    '',
+                                                style: TextStyle(
+                                                    color: Colors.grey[600],
+                                                    fontSize: 12),
                                               ),
                                             ],
                                           ),
@@ -1131,20 +1318,30 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
                                           Row(
                                             children: [
                                               Container(
-                                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 6,
+                                                        vertical: 2),
                                                 decoration: BoxDecoration(
-                                                  color: statusColor.withAlpha((255 * 0.1).toInt()),
-                                                  borderRadius: BorderRadius.circular(4),
+                                                  color: statusColor
+                                                      .withOpacity(0.1),
+                                                  borderRadius:
+                                                      BorderRadius.circular(4),
                                                 ),
                                                 child: Text(
-                                                  payment['package']?.toString() ?? '',
-                                                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
+                                                  payment['package']
+                                                          ?.toString() ??
+                                                      '',
+                                                  style: const TextStyle(
+                                                      fontSize: 11,
+                                                      fontWeight:
+                                                          FontWeight.w500),
                                                 ),
                                               ),
                                               const SizedBox(width: 8),
                                               Text(
                                                 '${payment['amount'] ?? '0'} ETB',
-                                                style: TextStyle(
+                                                style: const TextStyle(
                                                   fontWeight: FontWeight.bold,
                                                   color: AppColors.primary,
                                                   fontSize: 14,
@@ -1155,18 +1352,29 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
                                           const SizedBox(height: 2),
                                           Row(
                                             children: [
-                                              Icon(Icons.payment, size: 12, color: Colors.grey[500]),
+                                              Icon(Icons.payment,
+                                                  size: 12,
+                                                  color: Colors.grey[500]),
                                               const SizedBox(width: 4),
                                               Text(
-                                                payment['payment_method']?.toString() ?? '',
-                                                style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+                                                payment['payment_method']
+                                                        ?.toString() ??
+                                                    '',
+                                                style: TextStyle(
+                                                    fontSize: 11,
+                                                    color: Colors.grey[500]),
                                               ),
                                               const SizedBox(width: 8),
-                                              Icon(Icons.calendar_today, size: 12, color: Colors.grey[500]),
+                                              Icon(Icons.calendar_today,
+                                                  size: 12,
+                                                  color: Colors.grey[500]),
                                               const SizedBox(width: 4),
                                               Text(
-                                                _formatDate(payment['submission_date']),
-                                                style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+                                                _formatDate(
+                                                    payment['submission_date']),
+                                                style: TextStyle(
+                                                    fontSize: 11,
+                                                    color: Colors.grey[500]),
                                               ),
                                             ],
                                           ),
@@ -1176,11 +1384,14 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
 
                                     // Status badge
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 4),
                                       decoration: BoxDecoration(
-                                        color: statusColor.withAlpha((255 * 0.1).toInt()),
+                                        color: statusColor.withOpacity(0.1),
                                         borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(color: statusColor.withAlpha((255 * 0.3).toInt())),
+                                        border: Border.all(
+                                            color:
+                                                statusColor.withOpacity(0.3)),
                                       ),
                                       child: Text(
                                         status.toUpperCase(),
@@ -1209,12 +1420,14 @@ class _PaymentApprovalScreenState extends State<PaymentApprovalScreen> {
       child: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: color.withAlpha((255 * 0.1).toInt()),
+          color: color.withOpacity(0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Column(
           children: [
-            Text(count.toString(), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: color)),
+            Text(count.toString(),
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, fontSize: 18, color: color)),
             Text(label, style: TextStyle(fontSize: 11, color: color)),
           ],
         ),

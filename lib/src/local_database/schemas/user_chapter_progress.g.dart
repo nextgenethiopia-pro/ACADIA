@@ -16,7 +16,7 @@ extension GetUserChapterProgressCollection on Isar {
 
 const UserChapterProgressSchema = CollectionSchema(
   name: r'UserChapterProgress',
-  id: -7924746456535439,
+  id: -2451040650087755104,
   properties: {
     r'chapterId': PropertySchema(
       id: 0,

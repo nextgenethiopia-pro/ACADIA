@@ -2,17 +2,24 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:acadia/src/core/services/offline_database.dart';
+import 'package:dio/dio.dart';
+import 'package:acadia/src/local_database/isar_service.dart';
 import 'package:acadia/src/core/constants/colors.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:path_provider/path_provider.dart';
 
 class FlashcardScreen extends StatefulWidget {
   final String contentId;
   final String title;
+  final String? downloadUrl;
+  final int? expectedCardCount;
 
   const FlashcardScreen({
     super.key,
     required this.contentId,
     required this.title,
+    this.downloadUrl,
+    this.expectedCardCount,
   });
 
   @override
@@ -21,16 +28,15 @@ class FlashcardScreen extends StatefulWidget {
 
 class _FlashcardScreenState extends State<FlashcardScreen>
     with SingleTickerProviderStateMixin {
+  final IsarService _isarService = IsarService.instance;
   int _currentCard = 1;
   int _totalCards = 0;
   bool _isFlipped = false;
   final Set<int> _masteredCards = {};
   bool _isLoading = true;
-  bool _isRestarting = false;
 
   late AnimationController _controller;
-  late Animation<double> _frontAnimation;
-  late Animation<double> _backAnimation;
+  late Animation<double> _animation;
 
   List<Map<String, dynamic>> _flashcards = [];
   String _flashcardTitle = '';
@@ -40,16 +46,13 @@ class _FlashcardScreenState extends State<FlashcardScreen>
     super.initState();
 
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 500),
       vsync: this,
     );
 
-    _frontAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.5, curve: Curves.easeInOut)),
-    );
-
-    _backAnimation = Tween<double>(begin: 1, end: 0).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0.5, 1.0, curve: Curves.easeInOut)),
+    _animation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
     );
 
     _loadFlashcards();
@@ -64,49 +67,131 @@ class _FlashcardScreenState extends State<FlashcardScreen>
   Future<void> _loadFlashcards() async {
     setState(() => _isLoading = true);
     try {
-      final offlineDb = OfflineDatabase.instance;
-      final db = await offlineDb.database;
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        setState(() => _isLoading = false);
+        return;
+      }
 
-      final result = await db.query(
-        'offline_content',
-        where: 'content_id = ?',
-        whereArgs: [widget.contentId],
+      final downloadedContent = await _isarService.getDownloadedContentById(
+        widget.contentId,
+        user.uid,
       );
 
-      if (result.isNotEmpty) {
-        final filePath = result.first['local_path'] as String;
-        final file = File(filePath);
+      String? filePath;
 
-        if (await file.exists()) {
-          final jsonString = await file.readAsString();
-          final data = json.decode(jsonString) as Map<String, dynamic>;
-
-          final cards = List<Map<String, dynamic>>.from(data['cards'] ?? []);
-
-          if (mounted) {
-            setState(() {
-              _flashcardTitle = data['title']?.toString() ?? widget.title;
-              _flashcards = cards;
-              _totalCards = cards.length;
-              _isLoading = false;
-            });
+      if (downloadedContent != null) {
+        final dbPath = downloadedContent.contentPath;
+        if (dbPath != null) {
+          final file = File(dbPath);
+          if (await file.exists()) {
+            filePath = dbPath;
+            debugPrint('✅ Found flashcard at DB path: $filePath');
           }
-          return;
         }
       }
 
+      if (filePath == null) {
+        final directory = await getApplicationDocumentsDirectory();
+        final jsonDir = Directory('${directory.path}/json_content');
+        if (!await jsonDir.exists()) {
+          await jsonDir.create(recursive: true);
+        }
+
+        final possiblePath = '${jsonDir.path}/${widget.contentId}.json';
+        final file = File(possiblePath);
+        if (await file.exists()) {
+          filePath = possiblePath;
+          debugPrint('✅ Found flashcard at json_content: $filePath');
+        }
+      }
+
+      Map<String, dynamic>? data;
+      if (filePath != null) {
+        final file = File(filePath);
+        final jsonString = await file.readAsString();
+        data = json.decode(jsonString.replaceFirst('\uFEFF', ''))
+            as Map<String, dynamic>;
+      } else if (widget.downloadUrl != null &&
+          widget.downloadUrl!.isNotEmpty) {
+        final response = await Dio().get<String>(widget.downloadUrl!);
+        if (response.data != null) {
+          final jsonString = response.data!.replaceFirst('\uFEFF', '');
+          data = json.decode(jsonString) as Map<String, dynamic>;
+          final directory = await getApplicationDocumentsDirectory();
+          final jsonDir = Directory('${directory.path}/json_content');
+          if (!await jsonDir.exists()) {
+            await jsonDir.create(recursive: true);
+          }
+          await File('${jsonDir.path}/${widget.contentId}.json')
+              .writeAsString(jsonString);
+        }
+      }
+
+      if (data == null) {
+        if (mounted) {
+          setState(() => _isLoading = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                  'The flashcard file could not be loaded. Check your connection and try again.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return;
+      }
+
+      List<Map<String, dynamic>> cards = [];
+      Map<String, dynamic>? nestedItem;
+      if (data['cards'] != null) {
+        cards = List<Map<String, dynamic>>.from(data['cards']);
+      } else if (data['items'] != null) {
+        final items = data['items'];
+        if (items is List && items.isNotEmpty) {
+          final firstItem = items[0];
+          if (firstItem is Map && firstItem.containsKey('cards')) {
+            nestedItem = Map<String, dynamic>.from(firstItem);
+            cards = List<Map<String, dynamic>>.from(firstItem['cards']);
+          } else {
+            cards = List<Map<String, dynamic>>.from(items);
+          }
+        }
+      }
+
+      debugPrint('📊 Loaded ${cards.length} flashcards');
+
       if (mounted) {
-        setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Flashcard file not found. Please download it first.'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        setState(() {
+          _flashcardTitle = downloadedContent?.title ??
+              nestedItem?['title']?.toString() ??
+              data!['title']?.toString() ??
+              widget.title;
+          _flashcards = cards;
+          _totalCards = cards.length;
+          _isLoading = false;
+        });
+        if (cards.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('This flashcard file contains no cards.'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
       }
     } catch (e) {
       if (mounted) setState(() => _isLoading = false);
       debugPrint('Error loading flashcards: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+                'The flashcards could not be opened. The file may be invalid or unavailable.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -116,7 +201,9 @@ class _FlashcardScreenState extends State<FlashcardScreen>
     } else {
       _controller.forward();
     }
-    setState(() => _isFlipped = !_isFlipped);
+    setState(() {
+      _isFlipped = !_isFlipped;
+    });
   }
 
   void _nextCard({bool mastered = false}) {
@@ -131,7 +218,6 @@ class _FlashcardScreenState extends State<FlashcardScreen>
       });
       _controller.reset();
     } else {
-      // Show completion dialog
       _showCompletionDialog();
     }
   }
@@ -151,16 +237,8 @@ class _FlashcardScreenState extends State<FlashcardScreen>
       _currentCard = 1;
       _masteredCards.clear();
       _isFlipped = false;
-      _isRestarting = true;
     });
     _controller.reset();
-    
-    // Reset restarting flag after animation
-    Future.delayed(const Duration(milliseconds: 100), () {
-      if (mounted) {
-        setState(() => _isRestarting = false);
-      }
-    });
   }
 
   void _showCompletionDialog() {
@@ -193,7 +271,7 @@ class _FlashcardScreenState extends State<FlashcardScreen>
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.green.withAlpha(((255 * 0.1)).toInt()),
+                color: Colors.green.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -209,7 +287,7 @@ class _FlashcardScreenState extends State<FlashcardScreen>
                 margin: const EdgeInsets.only(top: 8),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withAlpha(((255 * 0.1)).toInt()),
+                  color: Colors.orange.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -287,6 +365,28 @@ class _FlashcardScreenState extends State<FlashcardScreen>
     final currentCard = _flashcards[_currentCard - 1];
     final masteredCount = _masteredCards.length;
 
+    // FRONT: Question
+    final String frontText = currentCard['front']?.toString() ?? 
+                             currentCard['question']?.toString() ?? 
+                             'Card ${_currentCard}';
+    
+    // BACK: Answer
+    final String backText = currentCard['back']?.toString() ?? 
+                            currentCard['answer']?.toString() ?? 
+                            'No answer available';
+
+    final difficulty = currentCard['difficulty']?.toString() ?? '';
+    Color difficultyColor;
+    if (difficulty == 'easy') {
+      difficultyColor = Colors.green;
+    } else if (difficulty == 'medium') {
+      difficultyColor = Colors.orange;
+    } else if (difficulty == 'hard') {
+      difficultyColor = Colors.red;
+    } else {
+      difficultyColor = Colors.grey;
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(_flashcardTitle, style: const TextStyle(fontSize: 16)),
@@ -317,16 +417,34 @@ class _FlashcardScreenState extends State<FlashcardScreen>
           icon: const Icon(Icons.arrow_back),
         ),
         actions: [
+          if (difficulty.isNotEmpty)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              margin: const EdgeInsets.only(right: 4),
+              decoration: BoxDecoration(
+                color: difficultyColor.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: difficultyColor.withOpacity(0.3)),
+              ),
+              child: Text(
+                difficulty.toUpperCase(),
+                style: TextStyle(
+                  color: difficultyColor,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
           Container(
             margin: const EdgeInsets.only(right: 12),
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
-              color: Colors.green.withAlpha(((255 * 0.1)).toInt()),
+              color: Colors.green.withOpacity(0.1),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
               children: [
-                Icon(Icons.check_circle, color: Colors.green, size: 14),
+                const Icon(Icons.check_circle, color: Colors.green, size: 14),
                 const SizedBox(width: 4),
                 Text(
                   '$masteredCount/$_totalCards',
@@ -339,7 +457,6 @@ class _FlashcardScreenState extends State<FlashcardScreen>
       ),
       body: Column(
         children: [
-          // Progress Section
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
@@ -353,9 +470,9 @@ class _FlashcardScreenState extends State<FlashcardScreen>
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.green.withAlpha(((255 * 0.15)).toInt()),
+                      color: Colors.green.withOpacity(0.15),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.green.withAlpha(((255 * 0.3)).toInt())),
+                      border: Border.all(color: Colors.green.withOpacity(0.3)),
                     ),
                     child: const Row(
                       children: [
@@ -375,30 +492,38 @@ class _FlashcardScreenState extends State<FlashcardScreen>
             minHeight: 4,
           ),
 
-          // Flashcard (3D Flip Animation)
+          // ============================================
+          // FIXED: Proper 3D flip with readable text on BOTH sides
+          // ============================================
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: GestureDetector(
                 onTap: _flipCard,
                 child: AnimatedBuilder(
-                  animation: _controller,
+                  animation: _animation,
                   builder: (context, child) {
-                    final isFront = _frontAnimation.value < 0.5;
+                    // Determine which side to show
+                    final bool showFront = _animation.value < 0.5;
+                    
+                    // Calculate the rotation angle
+                    final double angle = _animation.value * 3.14159;
+                    
+                    // For the back side, we need to flip it back so text is readable
+                    // But since we're using two separate widgets, we just rotate the container
                     return Transform(
                       transform: Matrix4.identity()
                         ..setEntry(3, 2, 0.001)
-                        ..rotateY(isFront
-                            ? _frontAnimation.value * 3.14159
-                            : (1 - _backAnimation.value) * 3.14159),
+                        ..rotateY(angle),
                       alignment: Alignment.center,
-                      child: isFront
-                          ? _buildCardFace(
-                              currentCard['front']?.toString() ?? currentCard['question']?.toString() ?? '',
-                              isFront: true)
-                          : _buildCardFace(
-                              currentCard['back']?.toString() ?? currentCard['answer']?.toString() ?? '',
-                              isFront: false),
+                      child: showFront
+                          ? _buildCardFace(frontText, isFront: true)
+                          : Transform(
+                              transform: Matrix4.identity()
+                                ..rotateY(3.14159), // Rotate back so text is readable
+                              alignment: Alignment.center,
+                              child: _buildCardFace(backText, isFront: false),
+                            ),
                     );
                   },
                 ),
@@ -410,19 +535,18 @@ class _FlashcardScreenState extends State<FlashcardScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              AnimatedOpacity(
-                opacity: _isFlipped ? 0.5 : 1.0,
-                duration: const Duration(milliseconds: 300),
-                child: Icon(Icons.touch_app, color: Colors.grey[400], size: 16),
+              Icon(
+                _isFlipped ? Icons.visibility_off : Icons.visibility,
+                color: Colors.grey[400],
+                size: 16,
               ),
               const SizedBox(width: 6),
-              AnimatedDefaultTextStyle(
-                duration: const Duration(milliseconds: 300),
+              Text(
+                _isFlipped ? 'Tap to see question' : 'Tap to see answer',
                 style: TextStyle(
-                  color: _isFlipped ? Colors.grey[400] : Colors.grey[500],
+                  color: Colors.grey[500],
                   fontSize: 12,
                 ),
-                child: Text(_isFlipped ? 'Tap to see question' : 'Tap to flip card'),
               ),
             ],
           ),
@@ -435,7 +559,7 @@ class _FlashcardScreenState extends State<FlashcardScreen>
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withAlpha(((255 * 0.05)).toInt()),
+                  color: Colors.black.withOpacity(0.05),
                   blurRadius: 8,
                   offset: const Offset(0, -4),
                 )
@@ -444,7 +568,6 @@ class _FlashcardScreenState extends State<FlashcardScreen>
             child: SafeArea(
               child: Row(
                 children: [
-                  // Previous button (if not first card)
                   if (_currentCard > 1)
                     IconButton(
                       onPressed: _previousCard,
@@ -479,7 +602,6 @@ class _FlashcardScreenState extends State<FlashcardScreen>
                     ),
                   ),
                   
-                  // Next button (if not last card)
                   if (_currentCard < _totalCards)
                     IconButton(
                       onPressed: () => _nextCard(mastered: false),
@@ -503,34 +625,33 @@ class _FlashcardScreenState extends State<FlashcardScreen>
           end: Alignment.bottomRight,
           colors: isFront 
               ? [Colors.white, Colors.grey[50]!]
-              : [AppColors.primary.withAlpha(((255 * 0.05)).toInt()), AppColors.primary.withAlpha(((255 * 0.02)).toInt())],
+              : [AppColors.primary.withOpacity(0.05), AppColors.primary.withOpacity(0.02)],
         ),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(((255 * 0.1)).toInt()),
+            color: Colors.black.withOpacity(0.1),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
           BoxShadow(
-            color: (isFront ? AppColors.primary : Colors.green).withAlpha(((255 * 0.1)).toInt()),
+            color: (isFront ? AppColors.primary : Colors.green).withOpacity(0.1),
             blurRadius: 30,
             offset: const Offset(0, 5),
           ),
         ],
         border: Border.all(
-          color: isFront ? AppColors.primary.withAlpha(((255 * 0.3)).toInt()) : Colors.green.withAlpha(((255 * 0.3)).toInt()),
+          color: isFront ? AppColors.primary.withOpacity(0.3) : Colors.green.withOpacity(0.3),
           width: 2,
         ),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Icon
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: (isFront ? AppColors.primary : Colors.green).withAlpha(((255 * 0.1)).toInt()),
+              color: (isFront ? AppColors.primary : Colors.green).withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -540,8 +661,6 @@ class _FlashcardScreenState extends State<FlashcardScreen>
             ),
           ),
           const SizedBox(height: 32),
-          
-          // Text
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Text(
@@ -556,12 +675,10 @@ class _FlashcardScreenState extends State<FlashcardScreen>
             ),
           ),
           const SizedBox(height: 24),
-          
-          // Label
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: (isFront ? AppColors.primary : Colors.green).withAlpha(((255 * 0.1)).toInt()),
+              color: (isFront ? AppColors.primary : Colors.green).withOpacity(0.1),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(

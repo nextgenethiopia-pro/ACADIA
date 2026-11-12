@@ -2,6 +2,11 @@ import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'schemas/schemas.dart';
 
+// ============================================
+// FIX: Export schemas for other files
+// ============================================
+export 'schemas/schemas.dart';
+
 class IsarService {
   IsarService._internal();
   static final IsarService instance = IsarService._internal();
@@ -46,25 +51,23 @@ class IsarService {
   }
 
   // ===========================================
-  // UserProgress Methods (matches OfflineDatabase)
+  // UserProgress Methods
   // ===========================================
-  Future<void> initializeUserProgress(String userId) async {
-    final db = await isar;
-    await db.writeTxn(() async {
-      // Create or update UserProgress
-      final existing =
-          await db.userProgress.filter().userIdEqualTo(userId).findFirst();
-      if (existing == null) {
-        await db.userProgress.put(UserProgress()
-          ..userId = userId
-          ..totalStudyTime = 0
-          ..lessonsCompleted = 0
-          ..quizzesPassed = 0
-          ..averageScore = 0.0
-          ..currentStreak = 0
-          ..longestStreak = 0);
-      }
-      // Initialize achievements
+  Future<UserProgress> _getOrInitUserProgress(Isar db, String userId) async {
+    var progress =
+        await db.userProgress.filter().userIdEqualTo(userId).findFirst();
+    if (progress == null) {
+      progress = UserProgress()
+        ..userId = userId
+        ..totalStudyTime = 0
+        ..lessonsCompleted = 0
+        ..quizzesPassed = 0
+        ..averageScore = 0.0
+        ..currentStreak = 1
+        ..longestStreak = 1
+        ..lastStudyDate = DateTime.now();
+      await db.userProgress.put(progress);
+
       const badges = [
         'First Steps',
         'Perfect Week',
@@ -85,84 +88,90 @@ class IsarService {
             ..isUnlocked = false);
         }
       }
+    }
+    return progress;
+  }
+
+  Future<void> initializeUserProgress(String userId) async {
+    final db = await isar;
+    await db.writeTxn(() async {
+      await _getOrInitUserProgress(db, userId);
     });
   }
 
   Future<Map<String, dynamic>> getUserProgress(String userId) async {
     final db = await isar;
-    final progress =
+    var progress =
         await db.userProgress.filter().userIdEqualTo(userId).findFirst();
-    if (progress == null) return {};
+    if (progress == null) {
+      await db.writeTxn(() async {
+        progress = await _getOrInitUserProgress(db, userId);
+      });
+    }
     return {
-      'total_study_time': progress.totalStudyTime,
-      'lessons_completed': progress.lessonsCompleted,
-      'quizzes_passed': progress.quizzesPassed,
-      'average_score': progress.averageScore,
-      'current_streak': progress.currentStreak,
-      'longest_streak': progress.longestStreak,
-      'last_study_date': progress.lastStudyDate?.toIso8601String(),
+      'total_study_time': progress?.totalStudyTime ?? 0,
+      'lessons_completed': progress?.lessonsCompleted ?? 0,
+      'quizzes_passed': progress?.quizzesPassed ?? 0,
+      'average_score': progress?.averageScore ?? 0.0,
+      'current_streak': progress?.currentStreak ?? 1,
+      'longest_streak': progress?.longestStreak ?? 1,
+      'last_study_date': progress?.lastStudyDate?.toIso8601String(),
     };
   }
 
   Future<void> updateStudyTime(String userId, int seconds) async {
     final db = await isar;
     await db.writeTxn(() async {
-      final progress =
-          await db.userProgress.filter().userIdEqualTo(userId).findFirst();
-      if (progress != null) {
-        progress.totalStudyTime += seconds;
-        progress.lastStudyDate = DateTime.now();
-        await db.userProgress.put(progress);
-      }
+      final progress = await _getOrInitUserProgress(db, userId);
+      progress.totalStudyTime += seconds;
+      progress.lastStudyDate = DateTime.now();
+      await db.userProgress.put(progress);
     });
     await updateStreak(userId);
   }
 
   Future<void> updateStreak(String userId) async {
     final db = await isar;
-    final progress =
-        await db.userProgress.filter().userIdEqualTo(userId).findFirst();
-    if (progress == null) return;
+    UserProgress? progress;
+    await db.writeTxn(() async {
+      progress = await _getOrInitUserProgress(db, userId);
+      final lastStudyDateStr = progress?.lastStudyDate?.toIso8601String();
+      if (lastStudyDateStr != null) {
+        final lastDate = DateTime.parse(lastStudyDateStr).toLocal();
+        final today = DateTime.now().toLocal();
+        final difference = today.difference(lastDate).inDays;
 
-    final lastStudyDateStr = progress.lastStudyDate?.toIso8601String();
-    if (lastStudyDateStr != null) {
-      final lastDate = DateTime.parse(lastStudyDateStr).toLocal();
-      final today = DateTime.now().toLocal();
-      final difference = today.difference(lastDate).inDays;
-
-      if (difference == 1) {
-        final newStreak = progress.currentStreak + 1;
-        final newLongest = newStreak > progress.longestStreak
-            ? newStreak
-            : progress.longestStreak;
-        await db.writeTxn(() async {
-          progress.currentStreak = newStreak;
-          progress.longestStreak = newLongest;
-          await db.userProgress.put(progress);
-        });
-        if (newStreak >= 7) {
-          await unlockAchievement(userId, 'Perfect Week');
+        if (difference == 1) {
+          final newStreak = (progress!.currentStreak) + 1;
+          final newLongest = newStreak > progress!.longestStreak
+              ? newStreak
+              : progress!.longestStreak;
+          progress!.currentStreak = newStreak;
+          progress!.longestStreak = newLongest;
+          await db.userProgress.put(progress!);
+        } else if (difference > 1) {
+          progress!.currentStreak = 1;
+          await db.userProgress.put(progress!);
+        } else if (progress!.currentStreak == 0) {
+          progress!.currentStreak = 1;
+          progress!.longestStreak =
+              progress!.longestStreak < 1 ? 1 : progress!.longestStreak;
+          await db.userProgress.put(progress!);
         }
-      } else if (difference > 1) {
-        await db.writeTxn(() async {
-          progress.currentStreak = 1;
-          await db.userProgress.put(progress);
-        });
       }
+    });
+    if ((progress?.currentStreak ?? 0) >= 7) {
+      await unlockAchievement(userId, 'Perfect Week');
     }
   }
 
   Future<void> incrementLessonsCompleted(String userId) async {
     final db = await isar;
     await db.writeTxn(() async {
-      final progress =
-          await db.userProgress.filter().userIdEqualTo(userId).findFirst();
-      if (progress != null) {
-        progress.lessonsCompleted += 1;
-        await db.userProgress.put(progress);
-      }
+      final progress = await _getOrInitUserProgress(db, userId);
+      progress.lessonsCompleted += 1;
+      await db.userProgress.put(progress);
     });
-    // Check for First Steps achievement
     final currentProgress = await getUserProgress(userId);
     if ((currentProgress['lessons_completed'] as int? ?? 0) >= 1) {
       await unlockAchievement(userId, 'First Steps');
@@ -171,24 +180,20 @@ class IsarService {
 
   Future<void> updateQuizScore(String userId, int score) async {
     final db = await isar;
-    final currentProgress = await getUserProgress(userId);
-    final currentAvg = currentProgress['average_score'] as double? ?? 0.0;
-    final currentQuizzesPassed = currentProgress['quizzes_passed'] as int? ?? 0;
-
-    final newAvg = ((currentAvg * currentQuizzesPassed) + score) /
-        (currentQuizzesPassed + 1);
+    int updatedQuizzes = 0;
     await db.writeTxn(() async {
-      final progress =
-          await db.userProgress.filter().userIdEqualTo(userId).findFirst();
-      if (progress != null) {
-        progress.averageScore = newAvg;
-        progress.quizzesPassed = currentQuizzesPassed + 1;
-        await db.userProgress.put(progress);
-      }
+      final progress = await _getOrInitUserProgress(db, userId);
+      final currentAvg = progress.averageScore;
+      final currentQuizzesPassed = progress.quizzesPassed;
+      final newAvg = ((currentAvg * currentQuizzesPassed) + score) /
+          (currentQuizzesPassed + 1);
+      progress.averageScore = newAvg;
+      progress.quizzesPassed = currentQuizzesPassed + 1;
+      updatedQuizzes = progress.quizzesPassed;
+      await db.userProgress.put(progress);
     });
     await updateStreak(userId);
-    // Check for Quiz Master (10 quizzes passed)
-    if ((currentQuizzesPassed + 1) >= 10) {
+    if (updatedQuizzes >= 10) {
       await unlockAchievement(userId, 'Quiz Master');
     }
   }
@@ -238,7 +243,6 @@ class IsarService {
           ..completionPercentage = (completed / totalLessons) * 100);
       }
     });
-    // Check for Dedicated (50 hours study time)
     final up = await getUserProgress(userId);
     if ((up['total_study_time'] as int? ?? 0) >= 180000) {
       await unlockAchievement(userId, 'Dedicated');
@@ -262,7 +266,8 @@ class IsarService {
           .dateEqualTo(DateTime.parse(dateStr))
           .findFirst();
       if (existing != null) {
-        existing.hoursStudied = hours;
+        // Study sessions on the same day accumulate instead of overwriting.
+        existing.hoursStudied = (existing.hoursStudied ?? 0) + hours;
         await db.weeklyActivitys.put(existing);
       } else {
         await db.weeklyActivitys.put(WeeklyActivity()
@@ -298,8 +303,13 @@ class IsarService {
   // ===========================================
   Future<List<Map<String, dynamic>>> getAchievements(String userId) async {
     final db = await isar;
-    final achievements =
+    var achievements =
         await db.achievements.filter().userIdEqualTo(userId).findAll();
+    if (achievements.isEmpty) {
+      await initializeUserProgress(userId);
+      achievements =
+          await db.achievements.filter().userIdEqualTo(userId).findAll();
+    }
     return achievements
         .map((a) => {
               'badge_name': a.badgeName,
@@ -427,7 +437,22 @@ class IsarService {
   // ===========================================
   Future<void> saveDownloadedContent(DownloadedContent content) async {
     final db = await isar;
-    await db.writeTxn(() async => await db.downloadedContents.put(content));
+    await db.writeTxn(() async {
+      // Re-downloading the same content must replace the previous record,
+      // not append a duplicate row for the same contentId/user pair.
+      if (content.contentId != null && content.userId != null) {
+        final existing = await db.downloadedContents
+            .filter()
+            .contentIdEqualTo(content.contentId!)
+            .and()
+            .userIdEqualTo(content.userId!)
+            .findFirst();
+        if (existing != null) {
+          content.id = existing.id;
+        }
+      }
+      await db.downloadedContents.put(content);
+    });
   }
 
   Future<DownloadedContent?> getDownloadedContentById(
@@ -475,6 +500,29 @@ class IsarService {
         .findAll();
   }
 
+  Future<List<DownloadedContent>> getDownloadedContentByContext({
+    required String userId,
+    String? subject,
+    String? grade,
+    String? chapter,
+  }) async {
+    final db = await isar;
+    final all = await db.downloadedContents
+        .filter()
+        .userIdEqualTo(userId)
+        .sortByDownloadedAtDesc()
+        .findAll();
+    return all.where((item) {
+      if (subject != null && subject.isNotEmpty && item.subject != subject)
+        return false;
+      if (grade != null && grade.isNotEmpty && item.grade != grade)
+        return false;
+      if (chapter != null && chapter.isNotEmpty && item.chapter != chapter)
+        return false;
+      return true;
+    }).toList(growable: false);
+  }
+
   Future<int> getTotalStorageUsed(String userId) async {
     final db = await isar;
     final contents =
@@ -492,10 +540,7 @@ class IsarService {
   }
 
   Future<void> markContentCompleted(String contentId, String userId) async {
-    final content = await getDownloadedContentById(contentId, userId);
-    if (content != null) {
-      // Note: DownloadedContent doesn't have isCompleted field, so we'll skip for now
-    }
+    // Implementation if needed
   }
 
   // ===========================================
@@ -581,17 +626,12 @@ class IsarService {
 
   // ===========================================
   // ContentEntry Methods (offline-first cache)
-  // Single source of truth for cached network payloads (GitHub catalog,
-  // settings docs). Replaces ad-hoc SharedPreferences content caches.
   // ===========================================
-
-  /// Returns the cached payload row for [key], or null if absent.
   Future<ContentEntry?> getContentEntry(String key) async {
     final db = await isar;
     return await db.contentEntrys.filter().keyEqualTo(key).findFirst();
   }
 
-  /// Upserts a cache row by [key] (replaces payload if the key already exists).
   Future<void> putContentEntry(ContentEntry entry) async {
     final db = await isar;
     await db.writeTxn(() async {
@@ -604,7 +644,6 @@ class IsarService {
     });
   }
 
-  /// Deletes a single cache row by [key].
   Future<void> deleteContentEntry(String key) async {
     final db = await isar;
     await db.writeTxn(() async {
@@ -612,8 +651,6 @@ class IsarService {
     });
   }
 
-  /// Deletes every cache row whose key starts with [prefix]
-  /// (e.g. all GitHub catalog rows on a content version bump).
   Future<void> deleteContentEntriesByPrefix(String prefix) async {
     final db = await isar;
     await db.writeTxn(() async {
@@ -621,13 +658,11 @@ class IsarService {
     });
   }
 
-  /// Total number of cached payload rows (diagnostics / cache-size screen).
   Future<int> getContentEntryCount() async {
     final db = await isar;
     return await db.contentEntrys.count();
   }
 
-  /// Removes every cache row regardless of source.
   Future<void> clearContentEntries() async {
     final db = await isar;
     await db.writeTxn(() async {
@@ -658,8 +693,11 @@ class IsarService {
   Future<Map<String, dynamic>> getDatabaseStats() async {
     final db = await isar;
     final contentCount = await db.downloadedContents.count();
+    // Storage is reported across all download records; filtering by an empty
+    // userId always matched nothing and reported 0 bytes.
+    final contents = await db.downloadedContents.where().findAll();
     final totalStorageBytes =
-        await getTotalStorageUsed(''); // Not ideal, but placeholder
+        contents.fold<int>(0, (sum, c) => sum + c.fileSize);
     final userProgressCount = await db.userProgress.count();
 
     return {

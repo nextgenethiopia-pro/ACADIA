@@ -20,4 +20,21 @@ class Secrets {
   /// `--dart-define=IMGBB_API_KEY=...` and remove the default once rotated.
   static const String imgbbApiKey =
       String.fromEnvironment('IMGBB_API_KEY', defaultValue: 'dd99798a85c18c52282c4d2dfd128146');
+
+  /// Telegram bot token used by [PaymentNotificationService] to forward
+  /// payment notifications to the administrator.
+  ///
+  /// Override with `--dart-define=TELEGRAM_BOT_TOKEN=...`.
+  static const String telegramBotToken = String.fromEnvironment(
+    'TELEGRAM_BOT_TOKEN',
+    defaultValue: '8688228760:AAFIbhxRhF1jSN5cwlh4Fs5M4Er0H7eOlJg',
+  );
+
+  /// Telegram chat id that receives the payment notifications.
+  ///
+  /// Override with `--dart-define=TELEGRAM_CHAT_ID=...`.
+  static const String telegramChatId = String.fromEnvironment(
+    'TELEGRAM_CHAT_ID',
+    defaultValue: '5221126249',
+  );
 }

@@ -19,16 +19,27 @@ class _NotificationsTabState extends State<NotificationsTab> {
   bool _hasNetworkError = false;
 
   // Filter options
-  final List<String> _filterOptions = ['All', 'Unread', 'Payment', 'Content', 'Quiz', 'Exam', 'Achievement'];
+  final List<String> _filterOptions = [
+    'All',
+    'Unread',
+    'Welcome',
+    'Payment',
+    'Content',
+    'Quiz',
+    'Exam',
+    'Achievement'
+  ];
 
   // Notification type colors (from blueprint)
   static const Map<String, Color> _notificationColors = {
-    'payment': Color(0xFF4CAF50),     // Green
-    'content': Color(0xFF2196F3),     // Blue
-    'quiz': Color(0xFFFF9800),        // Orange
-    'exam': Color(0xFF9C27B0),        // Purple
+    'payment': Color(0xFF4CAF50), // Green
+    'content': Color(0xFF2196F3), // Blue
+    'quiz': Color(0xFFFF9800), // Orange
+    'exam': Color(0xFF9C27B0), // Purple
     'achievement': Color(0xFFFFD700), // Yellow/Gold
-    'system': Color(0xFF795548),      // Brown
+    'system': Color(0xFF795548), // Brown
+    'welcome': Color(0xFF00BCD4), // Cyan — app-generated welcome
+    'broadcast': Color(0xFFE53935), // Red — admin broadcast
   };
 
   // Notification type icons
@@ -39,6 +50,8 @@ class _NotificationsTabState extends State<NotificationsTab> {
     'exam': Icons.assignment,
     'achievement': Icons.emoji_events,
     'system': Icons.info,
+    'welcome': Icons.waving_hand,
+    'broadcast': Icons.campaign,
   };
 
   @override
@@ -84,7 +97,8 @@ class _NotificationsTabState extends State<NotificationsTab> {
           _isLoading = false;
           _isRefreshing = false;
           _hasNetworkError = true;
-          _errorMessage = 'Failed to load notifications. Please check your connection.';
+          _errorMessage =
+              'Failed to load notifications. Please check your connection.';
         });
         _showErrorSnackBar(_errorMessage!);
       }
@@ -113,7 +127,8 @@ class _NotificationsTabState extends State<NotificationsTab> {
 
       if (mounted) {
         setState(() {
-          final index = _notifications.indexWhere((n) => n['id'] == notificationId);
+          final index =
+              _notifications.indexWhere((n) => n['id'] == notificationId);
           if (index != -1) {
             _notifications[index]['is_read'] = true;
           }
@@ -127,10 +142,12 @@ class _NotificationsTabState extends State<NotificationsTab> {
   Future<void> _markAllAsRead() async {
     try {
       final firebaseService = FirebaseService();
-      final unreadNotifications = _notifications.where((n) => n['is_read'] != true).toList();
+      final unreadNotifications =
+          _notifications.where((n) => n['is_read'] != true).toList();
 
       for (final notification in unreadNotifications) {
-        await firebaseService.markNotificationRead(notification['id'].toString());
+        await firebaseService
+            .markNotificationRead(notification['id'].toString());
       }
 
       if (mounted) {
@@ -152,12 +169,18 @@ class _NotificationsTabState extends State<NotificationsTab> {
     }
   }
 
-  int get _unreadCount => _notifications.where((n) => n['is_read'] != true).length;
+  int get _unreadCount =>
+      _notifications.where((n) => n['is_read'] != true).length;
 
   List<Map<String, dynamic>> _getFilteredNotifications() {
     if (_selectedFilter == 'All') return _notifications;
-    if (_selectedFilter == 'Unread') return _notifications.where((n) => n['is_read'] != true).toList();
-    return _notifications.where((n) => n['type']?.toString().toLowerCase() == _selectedFilter.toLowerCase()).toList();
+    if (_selectedFilter == 'Unread')
+      return _notifications.where((n) => n['is_read'] != true).toList();
+    return _notifications
+        .where((n) =>
+            n['type']?.toString().toLowerCase() ==
+            _selectedFilter.toLowerCase())
+        .toList();
   }
 
   Color _getNotificationColor(String type) {
@@ -172,9 +195,17 @@ class _NotificationsTabState extends State<NotificationsTab> {
     if (timestamp == null) return null;
     if (timestamp is DateTime) return timestamp;
     if (timestamp is String) {
-      try { return DateTime.parse(timestamp); } catch (e) { return null; }
+      try {
+        return DateTime.parse(timestamp);
+      } catch (e) {
+        return null;
+      }
     }
-    try { return timestamp.toDate(); } catch (e) { return null; }
+    try {
+      return timestamp.toDate();
+    } catch (e) {
+      return null;
+    }
   }
 
   String _formatTime(dynamic createdAt) {
@@ -206,16 +237,20 @@ class _NotificationsTabState extends State<NotificationsTab> {
             children: [
               Icon(Icons.error_outline, size: 64, color: Colors.red[400]),
               const SizedBox(height: 16),
-              const Text('Connection Error', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text('Connection Error',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               Text(_errorMessage ?? 'Unable to load notifications',
-                  style: TextStyle(color: Colors.grey[600]), textAlign: TextAlign.center),
+                  style: TextStyle(color: Colors.grey[600]),
+                  textAlign: TextAlign.center),
               const SizedBox(height: 24),
               ElevatedButton.icon(
                 onPressed: _loadNotifications,
                 icon: const Icon(Icons.refresh),
                 label: const Text('Retry'),
-                style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white),
               ),
             ],
           ),
@@ -235,12 +270,15 @@ class _NotificationsTabState extends State<NotificationsTab> {
             children: [
               Text(
                 'Notifications',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey[800]),
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey[800]),
               ),
               if (_unreadCount > 0)
                 TextButton(
                   onPressed: _markAllAsRead,
-                  child: Text('Mark All Read (${_unreadCount})'),
+                  child: Text('Mark All Read ($_unreadCount)'),
                 ),
             ],
           ),
@@ -264,13 +302,17 @@ class _NotificationsTabState extends State<NotificationsTab> {
                       if (count != null && count > 0) ...[
                         const SizedBox(width: 4),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 1),
                           decoration: BoxDecoration(
                             color: isSelected ? AppColors.primary : Colors.red,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text('$count',
-                              style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold)),
                         ),
                       ],
                     ],
@@ -278,10 +320,11 @@ class _NotificationsTabState extends State<NotificationsTab> {
                   selected: isSelected,
                   onSelected: (v) => setState(() => _selectedFilter = filter),
                   backgroundColor: Colors.grey[200],
-                  selectedColor: AppColors.primary.withAlpha(((255 * 0.2)).toInt()),
+                  selectedColor: AppColors.primary.withOpacity(0.2),
                   labelStyle: TextStyle(
                     color: isSelected ? AppColors.primary : Colors.black87,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    fontWeight:
+                        isSelected ? FontWeight.bold : FontWeight.normal,
                     fontSize: 12,
                   ),
                 ),
@@ -298,11 +341,15 @@ class _NotificationsTabState extends State<NotificationsTab> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.notifications_off_outlined, size: 64, color: Colors.grey[400]),
+                      Icon(Icons.notifications_off_outlined,
+                          size: 64, color: Colors.grey[400]),
                       const SizedBox(height: 16),
-                      Text('No notifications', style: TextStyle(fontSize: 16, color: Colors.grey[600])),
+                      Text('No notifications',
+                          style:
+                              TextStyle(fontSize: 16, color: Colors.grey[600])),
                       const SizedBox(height: 4),
-                      Text('You\'re all caught up!', style: TextStyle(color: Colors.grey[500])),
+                      Text('You\'re all caught up!',
+                          style: TextStyle(color: Colors.grey[500])),
                     ],
                   ),
                 )
@@ -313,7 +360,8 @@ class _NotificationsTabState extends State<NotificationsTab> {
                     itemCount: filteredNotifications.length,
                     separatorBuilder: (_, __) => const SizedBox(height: 8),
                     itemBuilder: (context, index) {
-                      return _buildNotificationCard(filteredNotifications[index]);
+                      return _buildNotificationCard(
+                          filteredNotifications[index]);
                     },
                   ),
                 ),
@@ -322,28 +370,236 @@ class _NotificationsTabState extends State<NotificationsTab> {
     );
   }
 
-  Widget _buildNotificationCard(Map<String, dynamic> notification) {
-    final isRead = notification['is_read'] == true;
-    final type = notification['type']?.toString() ?? 'system';
-    final color = _getNotificationColor(type);
-    final icon = _getNotificationIcon(type);
+  void _showNotificationDetails(Map<String, dynamic> notification) {
     final title = notification['title']?.toString() ?? 'Notification';
     final message = notification['message']?.toString() ?? '';
+    final imageUrl = notification['image_url'] ?? notification['image'];
     final time = _formatTime(notification['created_at']);
+    final author = notification['created_by']?.toString() ??
+        notification['author']?.toString() ??
+        'NextGen Admin';
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(title,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.person_outline, size: 14, color: Colors.grey[600]),
+                  const SizedBox(width: 4),
+                  Text(author,
+                      style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.w600)),
+                  const Spacer(),
+                  if (time.isNotEmpty)
+                    Text(time,
+                        style:
+                            TextStyle(fontSize: 12, color: Colors.grey[500])),
+                ],
+              ),
+              const SizedBox(height: 12),
+              if (imageUrl != null && imageUrl.toString().isNotEmpty) ...[
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.network(
+                    imageUrl.toString(),
+                    width: 320,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) =>
+                        const SizedBox(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
+              Text(
+                message,
+                style: const TextStyle(
+                    fontSize: 14, height: 1.5, color: Colors.black87),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+            ),
+            child: const Text('CLOSE'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEnlargedOwnerImage(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      barrierColor: Colors.black54,
+      builder: (dialogContext) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding:
+              const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+          child: Semantics(
+            label: 'Enlarged owner image. Tap outside to close.',
+            child: InteractiveViewer(
+              minScale: 0.5,
+              maxScale: 4.0,
+              child: Container(
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.of(dialogContext).size.width * 0.85,
+                  maxHeight: MediaQuery.of(dialogContext).size.height * 0.8,
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Image.asset(
+                    'assets/images/owner.png',
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF00BCD4).withOpacity(0.10),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      width: 260,
+                      height: 260,
+                      child: const Icon(
+                        Icons.waving_hand,
+                        size: 96,
+                        color: Color(0xFF00BCD4),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildNotificationCard(Map<String, dynamic> notification) {
+    final isRead = notification['is_read'] == true;
+    final rawType = notification['type']?.toString() ?? 'system';
+    // Admin broadcasts have no target_user_id; app-generated ones do.
+    final hasTarget = notification['target_user_id'] != null &&
+        notification['target_user_id'].toString().isNotEmpty;
+    final effectiveType =
+        (!hasTarget && rawType != 'welcome') ? 'broadcast' : rawType;
+    final color = _getNotificationColor(effectiveType);
+    final icon = _getNotificationIcon(effectiveType);
+    final title = notification['title']?.toString() ?? 'Notification';
+    final message = notification['message']?.toString() ?? '';
+    final imageUrl = notification['image_url'] ?? notification['image'];
+    final time = _formatTime(notification['created_at']);
+
+    // Determine the leading widget
+    Widget leadingWidget;
+    final hasNetworkImage =
+        imageUrl != null && imageUrl.toString().trim().isNotEmpty;
+    final isWelcomeType = effectiveType == 'welcome';
+
+    if (hasNetworkImage) {
+      leadingWidget = ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.network(
+          imageUrl.toString(),
+          width: 48,
+          height: 48,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: color, size: 22),
+          ),
+        ),
+      );
+    } else if (isWelcomeType) {
+      // Show local owner.png for welcome / app-generated notifications.
+      // Tapping the image opens an enlarged view.
+      final ownerImage = ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.asset(
+          'assets/images/owner.png',
+          width: 48,
+          height: 48,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: color, size: 22),
+          ),
+        ),
+      );
+      leadingWidget = Semantics(
+        label: 'Open enlarged owner image',
+        button: true,
+        child: GestureDetector(
+          onTap: () => _showEnlargedOwnerImage(context),
+          child: ownerImage,
+        ),
+      );
+    } else {
+      leadingWidget = Stack(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: color, size: 22),
+          ),
+          if (!isRead)
+            Positioned(
+              top: 2,
+              right: 2,
+              child: Container(
+                width: 10,
+                height: 10,
+                decoration: const BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
+        ],
+      );
+    }
 
     return Card(
       elevation: isRead ? 0 : 2,
-      color: isRead ? Colors.white : Colors.white,
+      color: Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: isRead ? Colors.grey[200]! : color.withAlpha(((255 * 0.3)).toInt()),
+          color: isRead ? Colors.grey[200]! : color.withOpacity(0.3),
           width: 1,
         ),
       ),
       child: InkWell(
         onTap: () {
           if (!isRead) _markAsRead(notification['id'].toString());
+          _showNotificationDetails(notification);
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(
@@ -351,32 +607,8 @@ class _NotificationsTabState extends State<NotificationsTab> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Type indicator dot + icon
-              Stack(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: color.withAlpha(((255 * 0.1)).toInt()),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(icon, color: color, size: 22),
-                  ),
-                  if (!isRead)
-                    Positioned(
-                      top: 2,
-                      right: 2,
-                      child: Container(
-                        width: 10,
-                        height: 10,
-                        decoration: const BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
+              // Leading icon/image: welcome → owner.png, broadcast → campaign icon, other → type icon
+              leadingWidget,
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -388,18 +620,26 @@ class _NotificationsTabState extends State<NotificationsTab> {
                           child: Text(
                             title,
                             style: TextStyle(
-                              fontWeight: isRead ? FontWeight.w500 : FontWeight.bold,
+                              fontWeight:
+                                  isRead ? FontWeight.w500 : FontWeight.bold,
                               fontSize: 14,
                             ),
                           ),
                         ),
                         if (time.isNotEmpty)
-                          Text(time, style: TextStyle(color: Colors.grey[400], fontSize: 11)),
+                          Text(time,
+                              style: TextStyle(
+                                  color: Colors.grey[400], fontSize: 11)),
                       ],
                     ),
                     if (message.isNotEmpty) ...[
                       const SizedBox(height: 4),
-                      Text(message, style: TextStyle(color: Colors.grey[600], fontSize: 13), maxLines: 2, overflow: TextOverflow.ellipsis),
+                      Text(
+                        message,
+                        style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ],
                   ],
                 ),

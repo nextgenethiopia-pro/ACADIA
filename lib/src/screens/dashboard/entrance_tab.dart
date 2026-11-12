@@ -1,17 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:acadia/src/core/constants/academic_structure.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:acadia/src/core/constants/colors.dart';
-import 'package:acadia/src/core/services/firebase_service.dart';
+import 'package:acadia/src/core/services/package_service.dart';
 
 class EntranceTab extends StatefulWidget {
-  const EntranceTab({super.key});
+  const EntranceTab({super.key, this.refreshSignal = 0});
+
+  /// Bumped by the parent (dashboard) whenever this tab becomes visible.
+  ///
+  /// The tab stays alive inside the dashboard's IndexedStack, so its purchase
+  /// status is otherwise only checked once at startup. Re-checking on signal
+  /// change makes the Entrance pack unlock immediately after an admin approves
+  /// the payment, without needing an app restart.
+  final int refreshSignal;
 
   @override
   State<EntranceTab> createState() => _EntranceTabState();
 }
 
-class _EntranceTabState extends State<EntranceTab> {
+class _EntranceTabState extends State<EntranceTab>
+    with WidgetsBindingObserver {
   String? _userGrade;
   String? _userStream;
   bool _isLoading = true;
@@ -23,9 +33,7 @@ class _EntranceTabState extends State<EntranceTab> {
   Map<String, int> _entranceExamCount = {};
   bool _isContentLoading = true;
 
-  // 6 subjects per stream
-  final List<String> _naturalSubjects = ['Mathematics', 'English', 'Biology', 'Chemistry', 'Physics', 'Aptitude'];
-  final List<String> _socialSubjects = ['Mathematics', 'English', 'Aptitude', 'Economics', 'Geography', 'History'];
+  List<String> _subjects = [];
 
   // Custom subject icon assets
   static const Map<String, String> _subjectIconAssets = {
@@ -55,7 +63,31 @@ class _EntranceTabState extends State<EntranceTab> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadData();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant EntranceTab oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.refreshSignal != widget.refreshSignal && _isEligible) {
+      _checkPurchaseStatus();
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Admin approval happens on another device, so re-check when the student
+    // comes back to the app.
+    if (state == AppLifecycleState.resumed && _isEligible) {
+      _checkPurchaseStatus();
+    }
   }
 
   Future<void> _loadData() async {
@@ -81,103 +113,75 @@ class _EntranceTabState extends State<EntranceTab> {
 
   Future<void> _checkPurchaseStatus() async {
     try {
-      final firebaseService = FirebaseService();
-      
-      // Get user's payments
-      final payments = await firebaseService.getUserPayments();
+      // Check if user has an active package via PackageService
+      final packageService = PackageService();
+      final hasPackage = await packageService.hasActivePackage();
 
-      String requiredPackage;
-      if (_userGrade == '11') {
-        requiredPackage = _userStream == 'social' ? 'Grade 11 Social Science' : 'Grade 11 Natural Science';
-      } else if (_userGrade == '12') {
-        requiredPackage = _userStream == 'social' ? 'Grade 12 Social Science' : 'Grade 12 Natural Science';
-      } else {
+      if (hasPackage) {
+        setState(() => _hasPurchased = true);
         return;
       }
 
-      final hasValidPurchase = payments.any((payment) {
-        final package = payment['package']?.toString() ?? '';
-        final status = payment['status']?.toString() ?? '';
-        final validUntil = payment['valid_until']?.toString();
-        
-        // Check if package matches and status is approved
-        if (package != requiredPackage || status != 'approved') return false;
-        
-        // Check if not expired
-        if (validUntil != null) {
-          try {
-            final expiryDate = DateTime.parse(validUntil);
-            if (expiryDate.isBefore(DateTime.now())) return false;
-          } catch (e) {
-            // Invalid date format, ignore expiry check
-          }
-        }
-        
-        return true;
-      });
-
-      setState(() => _hasPurchased = hasValidPurchase);
+      if (mounted) {
+        setState(() => _hasPurchased = false);
+      }
     } catch (e) {
       debugPrint('Error checking purchase status: $e');
     }
   }
 
-  // NEW: Fetch entrance content from admin uploads
   Future<void> _fetchEntranceContent() async {
+    if (!mounted) return;
     setState(() => _isContentLoading = true);
+
     try {
-      final firebaseService = FirebaseService();
-      
-      // Fetch all entrance materials from Firestore
-      final entranceMaterials = await firebaseService.getDocuments('entrance_materials', where: {
-        'status': 'active', // Only active content
-      });
-      
-      final pastPapers = <String, int>{};
-      final entranceExams = <String, int>{};
-      
-      // Initialize counts for each subject
-      final subjects = _userStream == 'natural' ? _naturalSubjects : _socialSubjects;
-      for (final subject in subjects) {
-        pastPapers[subject] = 0;
-        entranceExams[subject] = 0;
+      // Entrance navigation is hardcoded for offline use. Do not query
+      // GitHub until the user opens a specific year/subject/unit.
+      final stream = _normalizeStream(_userStream);
+      final streamKey = stream == 'social_science' ? 'social' : 'natural';
+      final subjects = AcademicStructure.getEntranceSubjects(streamKey);
+
+      final pastPapers = <String, int>{
+        for (final subject in subjects) subject: 0,
+      };
+      final entranceExams = <String, int>{
+        for (final subject in subjects) subject: 0,
+      };
+
+      if (mounted) {
+        setState(() {
+          _subjects = subjects;
+          _pastPapersCount = pastPapers;
+          _entranceExamCount = entranceExams;
+          _isContentLoading = false;
+        });
       }
-      
-      // Count materials by subject and type
-      for (final material in entranceMaterials) {
-        final type = material['type']?.toString() ?? '';
-        final subject = material['subject']?.toString() ?? '';
-        final stream = material['stream']?.toString() ?? '';
-        
-        // Only count materials matching user's stream
-        if (stream != _userStream) continue;
-        
-        if (type == 'past_paper') {
-          if (pastPapers.containsKey(subject)) {
-            pastPapers[subject] = (pastPapers[subject] ?? 0) + 1;
-          }
-        } else if (type == 'entrance_exam') {
-          if (entranceExams.containsKey(subject)) {
-            entranceExams[subject] = (entranceExams[subject] ?? 0) + 1;
-          }
-        }
-      }
-      
-      setState(() {
-        _pastPapersCount = pastPapers;
-        _entranceExamCount = entranceExams;
-        _isContentLoading = false;
-      });
     } catch (e) {
-      debugPrint('Error fetching entrance content: $e');
-      setState(() => _isContentLoading = false);
+      debugPrint('Error building hardcoded entrance navigation: $e');
+      if (mounted) {
+        setState(() {
+          _subjects = [];
+          _pastPapersCount = {};
+          _entranceExamCount = {};
+          _isContentLoading = false;
+        });
+      }
     }
   }
 
-  List<String> get _subjects {
-    if (_userStream == 'natural') return _naturalSubjects;
-    if (_userStream == 'social') return _socialSubjects;
-    return [];
+  String _normalizeStream(String? stream) {
+    switch (stream?.trim().toLowerCase()) {
+      case 'natural':
+      case 'natural science':
+      case 'natural_science':
+        return 'natural_science';
+      case 'social':
+      case 'social science':
+      case 'social_science':
+        return 'social_science';
+      default:
+        return '';
+    }
   }
 
   String get _streamDisplayName {
@@ -270,7 +274,10 @@ class _EntranceTabState extends State<EntranceTab> {
               ),
               const SizedBox(height: 24),
               ElevatedButton.icon(
-                onPressed: () => context.push('/payment'),
+                onPressed: () async {
+                  await context.push('/payment');
+                  if (mounted) await _checkPurchaseStatus();
+                },
                 icon: const Icon(Icons.payment),
                 label: const Text('Purchase Package'),
                 style: ElevatedButton.styleFrom(
@@ -278,6 +285,12 @@ class _EntranceTabState extends State<EntranceTab> {
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 ),
+              ),
+              const SizedBox(height: 8),
+              TextButton.icon(
+                onPressed: _checkPurchaseStatus,
+                icon: const Icon(Icons.refresh, size: 18),
+                label: const Text('Already paid? Refresh status'),
               ),
             ],
           ),
@@ -312,7 +325,7 @@ class _EntranceTabState extends State<EntranceTab> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.white.withAlpha(((255 * 0.2)).toInt()),
+                          color: Colors.white.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Icon(Icons.school, color: Colors.white, size: 32),
@@ -325,7 +338,7 @@ class _EntranceTabState extends State<EntranceTab> {
                             const Text('University Entrance Exam',
                                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20)),
                             Text('Grade $_userGrade - $_streamDisplayName',
-                                style: TextStyle(color: Colors.white.withAlpha(((255 * 0.9)).toInt()))),
+                                style: TextStyle(color: Colors.white.withOpacity(0.9))),
                           ],
                         ),
                       ),
@@ -341,10 +354,10 @@ class _EntranceTabState extends State<EntranceTab> {
             // ============================================
             _buildSectionCard(
               title: 'Past Papers',
-              subtitle: 'Complete national exams from 2014 onwards',
+              subtitle: 'Complete national exams from 2010 onwards',
               icon: Icons.description,
               color: Colors.blue,
-              count: _pastPapersCount.values.reduce((a, b) => a + b),
+              count: _pastPapersCount.values.fold<int>(0, (sum, count) => sum + count),
               onViewAll: () => context.push('/entrance/past-papers', extra: {
                 'subjects': _subjects,
                 'stream': _userStream,
@@ -361,7 +374,7 @@ class _EntranceTabState extends State<EntranceTab> {
               subtitle: 'Practice questions by grade and chapter',
               icon: Icons.quiz,
               color: Colors.orange,
-              count: _entranceExamCount.values.reduce((a, b) => a + b),
+              count: _entranceExamCount.values.fold<int>(0, (sum, count) => sum + count),
               onViewAll: () => context.push('/entrance/exam', extra: {
                 'subjects': _subjects,
                 'stream': _userStream,
@@ -392,9 +405,9 @@ class _EntranceTabState extends State<EntranceTab> {
               color: Colors.amber,
               onViewAll: () => context.push('/entrance/tips'),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Loading indicator for content
             if (_isContentLoading)
               const Padding(
@@ -428,7 +441,7 @@ class _EntranceTabState extends State<EntranceTab> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: color.withAlpha(((255 * 0.1)).toInt()),
+                  color: color.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(icon, color: color, size: 32),
@@ -446,7 +459,7 @@ class _EntranceTabState extends State<EntranceTab> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: color.withAlpha(((255 * 0.1)).toInt()),
+                          color: color.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(

@@ -28,22 +28,28 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
 
   static const List<_VerificationGuideStep> _guideSteps = [
     _VerificationGuideStep(
-      imagePath: 'assets/images/email1.jpg',
+      imagePath: 'assets/images/email_verification/email1.jpg',
       title: 'Open your inbox',
       description:
           'Check the email account you used to create your ACADIA account. The verification message may take a minute to arrive.',
     ),
     _VerificationGuideStep(
-      imagePath: 'assets/images/email2.jpg',
+      imagePath: 'assets/images/email_verification/email2.jpg',
       title: 'Look in Spam or Promotions',
       description:
           'If you do not see the email in your main inbox, check Spam, Junk, or Promotions folders and mark it as safe.',
     ),
     _VerificationGuideStep(
-      imagePath: 'assets/images/email3.jpg',
+      imagePath: 'assets/images/email_verification/email3.jpg',
       title: 'Tap the verification link',
       description:
-          'Open the email and tap the verification link, then return to ACADIA. The app checks automatically every few seconds.',
+          'Open the email and tap the blue verification link inside it. Your email browser or app will confirm the action.',
+    ),
+    _VerificationGuideStep(
+      imagePath: 'assets/images/email_verification/email4.jpg',
+      title: 'Return to ACADIA',
+      description:
+          'After tapping the link, switch back to the ACADIA app and press "I Have Verified". The app checks your status automatically every few seconds.',
     ),
   ];
 
@@ -165,35 +171,122 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
     context.go('/welcome');
   }
 
-  Widget _buildGuideCard(_VerificationGuideStep step) {
+  void _showImageZoom(BuildContext context, String imagePath) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black87,
+      builder: (ctx) => GestureDetector(
+        onTap: () => Navigator.of(ctx).pop(),
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Center(
+            child: InteractiveViewer(
+              panEnabled: true,
+              scaleEnabled: true,
+              minScale: 0.8,
+              maxScale: 4.0,
+              child: Image.asset(
+                imagePath,
+                fit: BoxFit.contain,
+                errorBuilder: (_, __, ___) => const Icon(
+                  Icons.image_not_supported,
+                  color: Colors.white54,
+                  size: 64,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGuideCard(_VerificationGuideStep step, int stepIndex) {
+    final total = _guideSteps.length;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.primary.withAlpha(((255 * 0.12)).toInt())),
+        // Step counter label
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                'Step ${stepIndex + 1} of $total',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primary,
+                ),
+              ),
             ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Image.asset(
-                step.imagePath,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: AppColors.primary.withAlpha(((255 * 0.06)).toInt()),
-                    child: const Center(
-                      child: Icon(
-                        Icons.image_outlined,
-                        size: 56,
-                        color: AppColors.primary,
+          ],
+        ),
+        const SizedBox(height: 10),
+        Expanded(
+          child: InkWell(
+            onTap: () => _showImageZoom(context, step.imagePath),
+            borderRadius: BorderRadius.circular(20),
+            child: Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: AppColors.primary.withOpacity(0.12)),
+              ),
+              child: Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Image.asset(
+                      step.imagePath,
+                      width: double.infinity,
+                      height: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: AppColors.primary.withOpacity(0.06),
+                          child: const Center(
+                            child: Icon(
+                              Icons.image_outlined,
+                              size: 56,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  // Zoom hint overlay
+                  Positioned(
+                    bottom: 8,
+                    right: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.black54,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.zoom_in, color: Colors.white, size: 14),
+                          SizedBox(width: 4),
+                          Text(
+                            'Tap to zoom',
+                            style: TextStyle(
+                                color: Colors.white, fontSize: 11),
+                          ),
+                        ],
                       ),
                     ),
-                  );
-                },
+                  ),
+                ],
               ),
             ),
           ),
@@ -258,6 +351,9 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
           final userEmail = state is AuthEmailVerificationRequired
               ? state.user.email ?? 'your email'
               : 'your email';
+          final warning = state is AuthEmailVerificationRequired
+              ? state.warning
+              : null;
 
           return SafeArea(
             child: SingleChildScrollView(
@@ -282,7 +378,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withAlpha(((255 * 0.10)).toInt()),
+                      color: AppColors.primary.withOpacity(0.10),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -315,10 +411,10 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                       vertical: 12,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withAlpha(((255 * 0.06)).toInt()),
+                      color: AppColors.primary.withOpacity(0.06),
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(
-                        color: AppColors.primary.withAlpha(((255 * 0.14)).toInt()),
+                        color: AppColors.primary.withOpacity(0.14),
                       ),
                     ),
                     child: Row(
@@ -344,14 +440,48 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
+                  if (warning != null) ...[
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withOpacity(0.08),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.red.withOpacity(0.35)),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Icons.error_outline,
+                            color: Colors.red.shade700,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              warning,
+                              style: TextStyle(
+                                fontSize: 13,
+                                height: 1.45,
+                                color: Colors.red.shade900,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.amber.withAlpha(((255 * 0.12)).toInt()),
+                      color: Colors.amber.withOpacity(0.12),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: Colors.amber.withAlpha(((255 * 0.28)).toInt()),
+                        color: Colors.amber.withOpacity(0.28),
                       ),
                     ),
                     child: Row(
@@ -396,11 +526,11 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(22),
                       border: Border.all(
-                        color: AppColors.primary.withAlpha(((255 * 0.10)).toInt()),
+                        color: AppColors.primary.withOpacity(0.10),
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withAlpha(((255 * 0.04)).toInt()),
+                          color: Colors.black.withOpacity(0.04),
                           blurRadius: 14,
                           offset: const Offset(0, 6),
                         ),
@@ -416,7 +546,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                               setState(() => _currentGuidePage = index);
                             },
                             itemBuilder: (context, index) {
-                              return _buildGuideCard(_guideSteps[index]);
+                              return _buildGuideCard(_guideSteps[index], index);
                             },
                           ),
                         ),

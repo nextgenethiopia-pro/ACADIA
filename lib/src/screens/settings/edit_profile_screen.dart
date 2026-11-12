@@ -6,7 +6,6 @@ import 'package:acadia/src/widgets/common/gradient_button.dart';
 import 'package:acadia/src/core/constants/colors.dart';
 import 'package:dio/dio.dart';
 import 'dart:io';
-import 'dart:convert';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -438,7 +437,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               border: Border.all(color: AppColors.primary, width: 3),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.primary.withAlpha((255 * 0.3).toInt()),
+                                  color: AppColors.primary.withOpacity(0.3),
                                   blurRadius: 10,
                                   offset: const Offset(0, 4),
                                 ),
@@ -504,7 +503,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   border: Border.all(color: Colors.white, width: 2),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withAlpha((255 * 0.2).toInt()),
+                                      color: Colors.black.withOpacity(0.2),
                                       blurRadius: 4,
                                     ),
                                   ],
